@@ -73,6 +73,7 @@ export async function runCatalog(admin: any, date: string) {
         }
         snaps.push({ dataset_id: p.id, snap_date: date, metadata_modified: p.metadata_modified, resource_hash: hash, row_count: rows, numeric_total: total, csv_url: res0?.url ?? null });
 
+        let pctVal: number | null = null;
         let change: { kind: string; before: string | null; after: string | null; reason: string } | null = null;
         const who = `${a.agency}${p.organization?.title && !p.organization.title.includes(a.agency) ? ` (${p.organization.title})` : ""}`;
         if (!prev) {
@@ -85,6 +86,9 @@ export async function runCatalog(admin: any, date: string) {
           let kind = "updated";
           if (prev.row_count != null && rows != null && rows !== prev.row_count) { parts.push(`จำนวนแถว ${fmtN(prev.row_count)} → ${fmtN(rows)} (${rows > prev.row_count ? "+" : ""}${fmtN(rows - prev.row_count)})`); kind = "rows"; }
           if (prev.numeric_total != null && total != null && Number(total) !== Number(prev.numeric_total)) { parts.push(`ผลรวมตัวเลข ${fmtN(Number(prev.numeric_total))} → ${fmtN(total)}`); if (kind !== "rows") kind = "value"; }
+          const pr = prev.row_count && rows != null ? Math.abs((rows - prev.row_count) / prev.row_count) * 100 : 0;
+          const pt = prev.numeric_total && total != null ? Math.abs((Number(total) - Number(prev.numeric_total)) / Number(prev.numeric_total)) * 100 : 0;
+          pctVal = +Math.max(pr, pt).toFixed(2);
           change = {
             kind,
             before: prev.row_count != null ? `${fmtN(prev.row_count)} แถว${prev.numeric_total != null ? ` · รวม ${fmtN(Number(prev.numeric_total))}` : ""}` : String(prev.metadata_modified ?? "").slice(0, 10),
@@ -94,7 +98,7 @@ export async function runCatalog(admin: any, date: string) {
         }
         if (change) {
           changed++;
-          changes.push({ dataset_id: p.id, agency: a.agency, change_date: date, kind: change.kind, before_text: change.before, after_text: change.after, reason_th: change.reason });
+          changes.push({ dataset_id: p.id, agency: a.agency, change_date: date, kind: change.kind, before_text: change.before, after_text: change.after, reason_th: change.reason, pct: pctVal });
         }
       }
       if (snaps.length) await admin.from("gov_snapshots").upsert(snaps, { onConflict: "dataset_id,snap_date" });
@@ -115,13 +119,14 @@ function prevDay(d: string) {
 }
 
 async function writeSignal(admin: any, a: (typeof CATALOG_AGENCIES)[number], date: string) {
-  const { data: ch } = await admin.from("gov_changes").select("kind,reason_th,gov_datasets(title)").eq("agency", a.agency).eq("change_date", date);
-  const list: any[] = ch ?? [];
-  if (!list.length) return;
+  const { data: ch } = await admin.from("gov_changes").select("kind,pct,reason_th,gov_datasets(title)").eq("agency", a.agency).eq("change_date", date);
+  // metadata-only re-uploads and <1% changes stay in the timeline but never become a Signal
+  const list: any[] = (ch ?? []).filter((c: any) => c.kind === "new" || ((c.kind === "rows" || c.kind === "value") && Number(c.pct ?? 0) >= 1));
+  if (!list.length) { await admin.from("signals").delete().eq("metric_id", a.metric).eq("signal_date", date); return; }
   const strong = list.some((c) => c.kind !== "updated");
   const title = `${a.agency}: ชุดข้อมูลทางการเปลี่ยน ${list.length} ชุด — ${list[0].gov_datasets?.title ?? ""}`.slice(0, 200);
   await admin.from("signals").upsert(
-    { family_id: "govdata", metric_id: a.metric, signal_date: date, severity: strong ? "medium" : "low", title, prev_value: 0, new_value: list.length, change_abs: list.length, change_pct: null, is_demo: false },
+    { family_id: "govdata", metric_id: a.metric, signal_date: date, severity: strong ? "medium" : "low", title, prev_value: 0, new_value: list.length, change_abs: list.length, change_pct: null, is_demo: false, checks: { rule: "catalog", trust: "high", min_pct: 1, compared_with: prevDay(date), datasets: list.length, kinds: [...new Set(list.map((c) => c.kind))] } },
     { onConflict: "metric_id,signal_date" },
   );
 }
