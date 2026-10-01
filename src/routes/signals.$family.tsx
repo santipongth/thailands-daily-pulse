@@ -9,18 +9,27 @@ export const Route = createFileRoute("/signals/$family")({
   loader: async ({ context, params }) => {
     const d = await context.queryClient.ensureQueryData(familyQuery(params.family));
     if (!d) throw notFound();
-    return { name: d.family.name_th, desc: d.family.description };
+    return { id: params.family, name: d.family.name_th, desc: d.family.description };
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: `${loaderData?.name ?? "กลุ่มข้อมูล"} — Thailand Daily Signals` },
-      { name: "description", content: `ประวัติและสัญญาณการเปลี่ยนแปลง: ${loaderData?.desc ?? ""}` },
-      { property: "og:title", content: `${loaderData?.name ?? "กลุ่มข้อมูล"} — Thailand Daily Signals` },
-      { property: "og:description", content: `ประวัติและสัญญาณการเปลี่ยนแปลง: ${loaderData?.desc ?? ""}` },
-      { property: "og:type", content: "article" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const isOil = loaderData?.id === "oil";
+    const title = isOil
+      ? "ราคาน้ำมันวันนี้ — อัปเดตทุกวัน | Thailand Daily Signals"
+      : `${loaderData?.name ?? "กลุ่มข้อมูล"} — Thailand Daily Signals`;
+    const desc = isOil
+      ? "ราคาน้ำมันวันนี้จาก PTT และบางจาก เทียบกับเมื่อวาน แจ้งเฉพาะเมื่อราคาเปลี่ยนจริง พร้อมผลกระทบต่อค่าใช้จ่ายครัวเรือน"
+      : `ประวัติและสัญญาณการเปลี่ยนแปลง: ${loaderData?.desc ?? ""}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "article" },
+        { name: "twitter:card", content: "summary" },
+      ],
+    };
+  },
   component: FamilyPage,
   errorComponent: ({ error }) => <div role="alert" className="p-8">โหลดข้อมูลไม่สำเร็จ: {(error as Error).message}</div>,
   notFoundComponent: () => (
