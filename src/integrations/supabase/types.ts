@@ -14,13 +14,252 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_briefs: {
+        Row: {
+          body: string
+          brief_date: string
+          generated_at: string
+        }
+        Insert: {
+          body: string
+          brief_date: string
+          generated_at?: string
+        }
+        Update: {
+          body?: string
+          brief_date?: string
+          generated_at?: string
+        }
+        Relationships: []
+      }
+      families: {
+        Row: {
+          cadence: string
+          description: string
+          emoji: string
+          id: string
+          is_live: boolean
+          name_th: string
+          sort: number
+          source_name: string
+          source_url: string | null
+        }
+        Insert: {
+          cadence: string
+          description: string
+          emoji: string
+          id: string
+          is_live?: boolean
+          name_th: string
+          sort?: number
+          source_name: string
+          source_url?: string | null
+        }
+        Update: {
+          cadence?: string
+          description?: string
+          emoji?: string
+          id?: string
+          is_live?: boolean
+          name_th?: string
+          sort?: number
+          source_name?: string
+          source_url?: string | null
+        }
+        Relationships: []
+      }
+      job_locks: {
+        Row: {
+          locked_until: string
+          name: string
+        }
+        Insert: {
+          locked_until: string
+          name: string
+        }
+        Update: {
+          locked_until?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      metrics: {
+        Row: {
+          bands: number[] | null
+          decimals: number
+          family_id: string
+          id: string
+          kind: string
+          name_th: string
+          sort: number
+          threshold_abs: number | null
+          threshold_pct: number | null
+          unit: string
+        }
+        Insert: {
+          bands?: number[] | null
+          decimals?: number
+          family_id: string
+          id: string
+          kind?: string
+          name_th: string
+          sort?: number
+          threshold_abs?: number | null
+          threshold_pct?: number | null
+          unit?: string
+        }
+        Update: {
+          bands?: number[] | null
+          decimals?: number
+          family_id?: string
+          id?: string
+          kind?: string
+          name_th?: string
+          sort?: number
+          threshold_abs?: number | null
+          threshold_pct?: number | null
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metrics_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      observations: {
+        Row: {
+          created_at: string
+          id: number
+          is_demo: boolean
+          metric_id: string
+          observed_on: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          is_demo?: boolean
+          metric_id: string
+          observed_on: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          is_demo?: boolean
+          metric_id?: string
+          observed_on?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "observations_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      release_calendar: {
+        Row: {
+          family_id: string
+          id: number
+          release_date: string
+          title: string
+        }
+        Insert: {
+          family_id: string
+          id?: number
+          release_date: string
+          title: string
+        }
+        Update: {
+          family_id?: string
+          id?: number
+          release_date?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "release_calendar_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signals: {
+        Row: {
+          change_abs: number | null
+          change_pct: number | null
+          created_at: string
+          family_id: string
+          id: string
+          is_demo: boolean
+          metric_id: string
+          new_value: number
+          prev_value: number | null
+          severity: string
+          signal_date: string
+          title: string
+        }
+        Insert: {
+          change_abs?: number | null
+          change_pct?: number | null
+          created_at?: string
+          family_id: string
+          id?: string
+          is_demo?: boolean
+          metric_id: string
+          new_value: number
+          prev_value?: number | null
+          severity: string
+          signal_date: string
+          title: string
+        }
+        Update: {
+          change_abs?: number | null
+          change_pct?: number | null
+          created_at?: string
+          family_id?: string
+          id?: string
+          is_demo?: boolean
+          metric_id?: string
+          new_value?: number
+          prev_value?: number | null
+          severity?: string
+          signal_date?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signals_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signals_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      detect_signals: { Args: { _d: string }; Returns: number }
     }
     Enums: {
       [_ in never]: never
