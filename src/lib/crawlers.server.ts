@@ -4,11 +4,7 @@
 type Target = { source: string; agency: string; metric: string; url: string; match?: RegExp };
 
 const TARGETS: Target[] = [
-  { source: "กรมควบคุมโรค (เว็บไซต์ทางการ)", agency: "กรมควบคุมโรค", metric: "gov_ddc", url: "https://ddc.moph.go.th/", match: /news|pr|brc|viralpneumonia/i },
   { source: "กรมที่ดิน (เว็บไซต์ทางการ)", agency: "กรมที่ดิน", metric: "gov_dol", url: "https://www.dol.go.th/knowledge-land-department/law/announce/land-department-announcement/", match: /announce|news|wp-content\/uploads/i },
-  { source: "กรมประมง (เว็บไซต์ทางการ)", agency: "กรมประมง", metric: "gov_fish", url: "https://www.fisheries.go.th/", match: /news|pr|announce/i },
-  { source: "กรมการขนส่งทางบก (เว็บไซต์ทางการ)", agency: "กรมการขนส่งทางบก", metric: "gov_dlt", url: "https://www.dlt.go.th/th/", match: /news|public-news|announce/i },
-  { source: "กรมปศุสัตว์ (เว็บไซต์ทางการ)", agency: "กรมปศุสัตว์", metric: "gov_dld", url: "https://www.dld.go.th/th/", match: /news|pr|announce|index\.php/i },
 ];
 
 const BASELINE = "2000-01-01T00:00:00Z"; // first-seen links are stored as baseline, not "new"
