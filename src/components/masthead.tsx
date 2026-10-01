@@ -19,6 +19,7 @@ export function Masthead() {
           <Link to="/monitor" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>
             ติดตาม{count > 0 && <span className="ml-1 rounded-full bg-up px-1.5 text-xs text-background">{count}</span>}
           </Link>
+          <Link to="/events" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>เหตุการณ์</Link>
           <Link to="/data" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ข้อมูลดิบ</Link>
           <Link to="/evidence" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ไฟล์ดิบ</Link>
           <Link to="/method" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>วิธีคำนวณ</Link>

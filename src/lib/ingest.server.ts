@@ -77,7 +77,7 @@ export async function completenessNow(admin: any, today: string) {
  */
 export async function refreshBrief(admin: any, date: string, publish = false, step?: "freeze" | "publish") {
   if (step === "publish") publish = true;
-  const { householdImpact, officialAdvice } = await import("./impact");
+  const { householdImpact, officialAdvice, impactFor } = await import("./impact");
   const { data: existing } = await admin.from("daily_briefs").select("signature, published_at, cutoff_at, items").eq("brief_date", date).maybeSingle();
 
   if (existing?.published_at && !publish) {
@@ -114,7 +114,7 @@ export async function refreshBrief(admin: any, date: string, publish = false, st
       family: `${s.families?.emoji ?? ""} ${s.families?.name_th ?? ""}`.trim(),
       what: s.title,
       importance: SEV_TH[s.severity] ?? s.severity,
-      why, impact, advice,
+      why, impact, advice, impact_calc: impactFor(s),
       source: s.families?.source_name ?? null,
       source_url: s.families?.source_url ?? null,
       data_date: s.signal_date, compared_with: s.checks?.compared_with ?? null,
@@ -125,7 +125,7 @@ export async function refreshBrief(admin: any, date: string, publish = false, st
   });
   // Store the impact formula inputs + advice on each event's current version (recomputable later).
   for (const i of items) {
-    await admin.from("signal_versions").update({ impact: { text: i.impact, inputs: i.impact_inputs }, advice: i.advice?.text ?? null }).eq("event_id", i.event_id).eq("version", i.version);
+    await admin.from("signal_versions").update({ impact: { text: i.impact, inputs: i.impact_inputs, calc: i.impact_calc }, advice: i.advice?.text ?? null }).eq("event_id", i.event_id).eq("version", i.version);
   }
 
   const missing = completeness.filter((c) => c.status !== "ok");

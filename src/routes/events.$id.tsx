@@ -77,7 +77,7 @@ function EventPage() {
                     <button key={eid} type="button" className="mr-2 underline" onClick={async () => { const w = window.open("", "_blank"); try { const r = await evidenceUrl({ data: { id: eid } }); if (w) w.location.href = r.url; } catch { w?.close(); } }}>ไฟล์ #{eid}</button>
                   )) : "—"}</dd>
                   <dt>สูตรผลกระทบ</dt>
-                  <dd>{v.impact?.text ?? "ไม่มีผลต่อครัวเรือนที่คำนวณได้"}{inputs && <span className="block text-xs text-muted-foreground">อินพุต: เปลี่ยน {inputs.change_abs ?? "—"} ({inputs.prev_value} → {inputs.new_value}) · คำนวณซ้ำตอนนี้: {recomputed === v.impact?.text ? "ตรงกัน ✓" : `ไม่ตรง (${recomputed ?? "—"})`}</span>}</dd>
+                  <dd>{v.impact?.text ?? "ไม่มีผลต่อครัวเรือนที่คำนวณได้"}{v.impact?.calc && <span className="block font-mono text-xs">ค่าใช้จ่ายครัวเรือน: {v.impact.calc.formula}</span>}{inputs && <span className="block text-xs text-muted-foreground">อินพุต: เปลี่ยน {inputs.change_abs ?? "—"} ({inputs.prev_value} → {inputs.new_value}) · คำนวณซ้ำตอนนี้: {recomputed === v.impact?.text ? "ตรงกัน ✓" : `ไม่ตรง (${recomputed ?? "—"})`}</span>}</dd>
                   <dt>คำแนะนำ</dt><dd>{v.advice ?? "—"}</dd>
                 </dl>
               </li>
