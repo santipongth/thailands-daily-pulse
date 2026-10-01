@@ -161,7 +161,9 @@ export async function refreshIfStale(): Promise<{ refreshed: boolean }> {
   await admin.from("job_locks").upsert({ name: LOCK, locked_until: new Date(now.getTime() + 5 * 60e3).toISOString() });
   try {
     if (liveStale) {
-      const live = await collectLive();
+      const { runConnectors } = await import("./connectors.server");
+      const { values: live, runs } = await runConnectors(date);
+      await admin.from("source_runs").upsert(runs, { onConflict: "source" });
       const rows = Object.entries(live).map(([metric_id, value]) => ({
         metric_id,
         value,
