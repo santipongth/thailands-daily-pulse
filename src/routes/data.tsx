@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
+import { evidenceUrl } from "@/lib/signals.functions";
 import { fmt, thaiDate, type Family, type Metric, type News } from "@/lib/signals";
 
 type Row = { metric_id: string; observed_on: string; value: number; is_demo: boolean; created_at: string };
@@ -16,9 +17,13 @@ const rawQuery = queryOptions({
       supabase.from("news_items").select("*").order("published_at", { ascending: false }).limit(60),
       supabase.from("source_runs").select("*").order("source"),
     ]);
+    const [j, ev] = await Promise.all([
+      supabase.from("ingest_jobs").select("id,source,job_type,run_kind,status,attempts,max_attempts,rows,error,created_at,finished_at,run_after").order("id", { ascending: false }).limit(30),
+      supabase.from("raw_evidence").select("id,source,url,http_status,content_type,bytes,sha256,fetched_at").order("id", { ascending: false }).limit(60),
+    ]);
     const err = f.error || m.error || o.error || n.error || r.error;
     if (err) throw err;
-    return { families: f.data as Family[], metrics: m.data as Metric[], obs: o.data as Row[], news: n.data as News[], runs: (r.data ?? []) as { source: string; ran_at: string; ok: boolean; rows: number; error: string | null; run_kind?: string }[] };
+    return { families: f.data as Family[], metrics: m.data as Metric[], obs: o.data as Row[], news: n.data as News[], runs: (r.data ?? []) as { source: string; ran_at: string; ok: boolean; rows: number; error: string | null; run_kind?: string }[], jobs: (j.data ?? []) as any[], evidence: (ev.data ?? []) as any[] };
   },
 });
 
@@ -65,6 +70,45 @@ function DataPage() {
                   <td>{r.rows}</td>
                   <td>{({ hourly: "รายชั่วโมง", daily: "รายวัน 05:30", manual: "สั่งดึง/เวลาที่ตั้งเอง" } as Record<string, string>)[r.run_kind ?? ""] ?? r.run_kind}</td>
                   <td>{new Date(r.ran_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+        <section className="mt-6">
+          <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">คิวงานดึงข้อมูล (1 งานต่อ 1 แหล่ง)</h2>
+          <p className="mt-1 text-xs text-muted-foreground">แต่ละแหล่งเป็นงานแยกกัน ถ้าล้มเหลวจะลองใหม่อัตโนมัติสูงสุด 3 ครั้ง (เว้น 20 / 40 นาที)</p>
+          <table className="mt-2 w-full text-sm">
+            <thead><tr className="text-left text-muted-foreground"><th className="py-1">งาน</th><th>สถานะ</th><th>ครั้งที่</th><th>ค่าที่ได้</th><th>เวลา</th></tr></thead>
+            <tbody>
+              {data.jobs.length === 0 && <tr><td colSpan={5} className="py-2 text-muted-foreground">ยังไม่มีงานในคิว</td></tr>}
+              {data.jobs.map((j) => (
+                <tr key={j.id} className="border-b border-border">
+                  <td className="py-1">{j.source}</td>
+                  <td title={j.error ?? ""}>{({ queued: "รอคิว", running: "กำลังทำ", done: "สำเร็จ", failed: "ล้มเหลว" } as Record<string, string>)[j.status] ?? j.status}{j.status === "queued" && j.attempts > 0 ? ` (ลองใหม่ ${new Date(j.run_after).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })})` : ""}</td>
+                  <td>{j.attempts}/{j.max_attempts}</td>
+                  <td>{j.rows}</td>
+                  <td>{new Date(j.finished_at ?? j.created_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+        <section className="mt-6">
+          <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">หลักฐานดิบ (ไฟล์ต้นฉบับที่ดึงมา)</h2>
+          <p className="mt-1 text-xs text-muted-foreground">เก็บไฟล์ต้นฉบับทุกครั้งที่ดึงไว้ถาวร พร้อมรหัส SHA-256 เพื่อพิสูจน์ว่าข้อมูลที่เห็นมาจากแหล่งจริง ไฟล์ที่เนื้อหาเหมือนเดิมเก็บครั้งเดียว</p>
+          <table className="mt-2 w-full text-sm">
+            <thead><tr className="text-left text-muted-foreground"><th className="py-1">แหล่ง</th><th>URL</th><th>ขนาด</th><th>SHA-256</th><th>ดึงเมื่อ</th><th></th></tr></thead>
+            <tbody>
+              {data.evidence.length === 0 && <tr><td colSpan={6} className="py-2 text-muted-foreground">ยังไม่มีหลักฐาน — จะเริ่มเก็บในรอบดึงข้อมูลถัดไป</td></tr>}
+              {data.evidence.map((e) => (
+                <tr key={e.id} className="border-b border-border align-top">
+                  <td className="py-1 pr-2">{e.source}</td>
+                  <td className="max-w-xs truncate pr-2 text-xs" title={e.url}>{e.url}</td>
+                  <td className="whitespace-nowrap">{(e.bytes / 1024).toFixed(1)} KB</td>
+                  <td className="font-mono text-xs">{e.sha256.slice(0, 12)}…</td>
+                  <td className="whitespace-nowrap">{new Date(e.fetched_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" })}</td>
+                  <td><button type="button" className="underline" onClick={async () => { const w = window.open("", "_blank"); try { const r = await evidenceUrl({ data: { id: e.id } }); if (w) w.location.href = r.url; } catch { w?.close(); } }}>เปิดไฟล์</button></td>
                 </tr>
               ))}
             </tbody>
