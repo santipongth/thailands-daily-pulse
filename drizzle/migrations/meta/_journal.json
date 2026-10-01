@@ -50,6 +50,13 @@
       "when": 1790871978281,
       "tag": "0006_gov_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790872963510,
+      "tag": "0007_stricter_signals",
+      "breakpoints": true
     }
   ]
 }
