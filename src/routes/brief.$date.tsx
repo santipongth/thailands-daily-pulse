@@ -53,6 +53,7 @@ function BriefPage() {
               {data.published_at ? `เผยแพร่ ${new Date(data.published_at).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.` : "ฉบับระหว่างวัน (ฉบับทางการเผยแพร่ 06:00 น.)"} · บทนำเรียบเรียงโดย AI จากข้อเท็จจริงด้านล่างเท่านั้น
             </p>
             <p className="mt-6 font-display text-2xl leading-relaxed">{data.body}</p>
+            <p className="mt-2 text-xs text-muted-foreground">ตัวเลขทั้งหมดคำนวณโดยระบบจากข้อมูลทางการ — AI ใช้เรียบเรียงภาษาบทนำเท่านั้น และถูกตรวจว่าไม่เพิ่มตัวเลขใหม่</p>
             <div className="mt-10"><BriefItems items={(data.items ?? []) as BriefItem[]} /></div>
           </>
         )}
