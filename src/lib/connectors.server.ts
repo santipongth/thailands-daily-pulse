@@ -129,6 +129,14 @@ export const CONNECTORS: Connector[] = [
       return o;
     },
   },
+  {
+    source: "Longdo Traffic Index",
+    run: async () => {
+      const d = await json("https://traffic.longdo.com/api/json/traffic/index");
+      const v = Number(d?.index);
+      return Number.isFinite(v) ? { traffic_idx: v } : {};
+    },
+  },
 ];
 
 /** Runs all connectors; earlier connectors win on conflicts (PTT before Bangchak). */
