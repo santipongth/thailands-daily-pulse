@@ -675,6 +675,7 @@ export type Database = {
         }
       }
       detect_signals: { Args: { _d: string }; Returns: number }
+      family_evidence_source: { Args: { _family: string }; Returns: string }
       rank_signals: { Args: { _d: string }; Returns: number }
     }
     Enums: {
