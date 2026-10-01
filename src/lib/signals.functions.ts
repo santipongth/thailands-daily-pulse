@@ -22,3 +22,15 @@ export const retrySources = createServerFn({ method: "POST" }).handler(async () 
   const { refreshIfStale } = await import("./ingest.server");
   try { return await refreshIfStale(3, { force: true, runKind: "manual" }); } catch (e) { console.error(e); return { refreshed: false }; }
 });
+
+/** Short-lived link to an archived raw evidence file (public data; bucket stays private). */
+export const evidenceUrl = createServerFn({ method: "POST" })
+  .inputValidator((d: { id: number }) => ({ id: Number(d.id) }))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin.from("raw_evidence").select("storage_path").eq("id", data.id).maybeSingle();
+    if (!row) throw new Error("not found");
+    const { data: s, error } = await supabaseAdmin.storage.from("evidence").createSignedUrl(row.storage_path, 600);
+    if (error) throw error;
+    return { url: s.signedUrl };
+  });

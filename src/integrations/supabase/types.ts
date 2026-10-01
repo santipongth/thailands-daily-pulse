@@ -195,6 +195,60 @@ export type Database = {
           },
         ]
       }
+      ingest_jobs: {
+        Row: {
+          attempts: number
+          batch_id: string
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: number
+          job_type: string
+          locked_until: string | null
+          max_attempts: number
+          rows: number
+          run_after: string
+          run_kind: string
+          source: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          batch_id: string
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: number
+          job_type: string
+          locked_until?: string | null
+          max_attempts?: number
+          rows?: number
+          run_after?: string
+          run_kind?: string
+          source: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          batch_id?: string
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: number
+          job_type?: string
+          locked_until?: string | null
+          max_attempts?: number
+          rows?: number
+          run_after?: string
+          run_kind?: string
+          source?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       job_locks: {
         Row: {
           locked_until: string
@@ -378,6 +432,53 @@ export type Database = {
           },
         ]
       }
+      raw_evidence: {
+        Row: {
+          bytes: number
+          content_type: string | null
+          fetched_at: string
+          http_status: number | null
+          id: number
+          job_id: number | null
+          sha256: string
+          source: string
+          storage_path: string
+          url: string
+        }
+        Insert: {
+          bytes?: number
+          content_type?: string | null
+          fetched_at?: string
+          http_status?: number | null
+          id?: number
+          job_id?: number | null
+          sha256: string
+          source: string
+          storage_path: string
+          url: string
+        }
+        Update: {
+          bytes?: number
+          content_type?: string | null
+          fetched_at?: string
+          http_status?: number | null
+          id?: number
+          job_id?: number | null
+          sha256?: string
+          source?: string
+          storage_path?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "raw_evidence_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "ingest_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       release_calendar: {
         Row: {
           family_id: string
@@ -547,6 +648,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_ingest_job: {
+        Args: never
+        Returns: {
+          attempts: number
+          batch_id: string
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: number
+          job_type: string
+          locked_until: string | null
+          max_attempts: number
+          rows: number
+          run_after: string
+          run_kind: string
+          source: string
+          started_at: string | null
+          status: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "ingest_jobs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       detect_signals: { Args: { _d: string }; Returns: number }
       rank_signals: { Args: { _d: string }; Returns: number }
     }
