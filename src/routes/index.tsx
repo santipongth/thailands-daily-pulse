@@ -16,6 +16,7 @@ import { HouseholdBasket } from "@/components/household-basket";
 import { BriefItems, type BriefItem } from "@/components/brief-items";
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   validateSearch: z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() }),
   loaderDeps: ({ search }) => ({ date: search.date }),
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(dayQuery(deps.date ?? bkkToday())),

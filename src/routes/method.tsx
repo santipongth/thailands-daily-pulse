@@ -24,6 +24,7 @@ const methodQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/method")({
+  staticData: { sitemap: true },
   loader: ({ context }) => context.queryClient.ensureQueryData(methodQuery),
   head: () => ({
     meta: [

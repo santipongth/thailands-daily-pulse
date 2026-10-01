@@ -5,6 +5,7 @@ import { registryQuery } from "@/lib/registry";
 import { STATUS_TH } from "@/lib/completeness";
 
 export const Route = createFileRoute("/sources")({
+  staticData: { sitemap: true },
   loader: ({ context }) => context.queryClient.ensureQueryData(registryQuery),
   head: () => ({
     meta: [

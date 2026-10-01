@@ -19,6 +19,7 @@ const listQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/events/")({
+  staticData: { sitemap: true },
   loader: ({ context }) => context.queryClient.ensureQueryData(listQuery),
   head: () => ({
     meta: [

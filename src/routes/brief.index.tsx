@@ -14,6 +14,7 @@ const archiveQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/brief/")({
+  staticData: { sitemap: true },
   loader: ({ context }) => context.queryClient.ensureQueryData(archiveQuery),
   head: () => ({
     meta: [

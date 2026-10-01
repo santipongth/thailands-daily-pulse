@@ -5,6 +5,7 @@ import { DataBadge, Sparkline } from "@/components/signals-ui";
 import { familyQuery, fmt, thaiDate } from "@/lib/signals";
 
 export const Route = createFileRoute("/signals/$family")({
+  staticData: { sitemap: false },
   loader: async ({ context, params }) => {
     const d = await context.queryClient.ensureQueryData(familyQuery(params.family));
     if (!d) throw notFound();
