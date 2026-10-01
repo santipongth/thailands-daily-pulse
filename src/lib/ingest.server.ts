@@ -54,38 +54,83 @@ async function streamBrief(prompt: string, apiKey: string): Promise<string> {
 const SEV_TH: Record<string, string> = { high: "สูง", medium: "กลาง", low: "ต่ำ" };
 const SEV_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
-/** Builds the 4-answer brief from real signals only. publish=true stamps it as the 06:00 edition. */
-export async function refreshBrief(admin: any, date: string, publish = false) {
+/** Per-source completeness from the registry (ok / stale / unverifiable) — reported, never read as "no change". */
+export async function completenessNow(admin: any, today: string) {
+  const { computeCompleteness } = await import("./completeness");
+  const [{ data: reg }, { data: runs }, { data: obs }, { data: ev }] = await Promise.all([
+    admin.from("source_registry").select("*").order("sort"),
+    admin.from("source_runs").select("source,ok,ran_at,last_ok_at,error"),
+    admin.from("observations").select("metric_id,observed_on").eq("is_demo", false).gte("observed_on", bangkokDate(-120)).order("observed_on", { ascending: false }).limit(5000),
+    admin.from("raw_evidence").select("source,fetched_at").order("fetched_at", { ascending: false }).limit(500),
+  ]);
+  const latest: Record<string, string> = {};
+  for (const o of obs ?? []) latest[o.metric_id] ??= o.observed_on;
+  const lastEv: Record<string, string> = {};
+  for (const e of ev ?? []) lastEv[e.source] ??= e.fetched_at;
+  return computeCompleteness(today, reg ?? [], runs ?? [], latest, lastEv);
+}
+
+/**
+ * Builds the 4-answer brief from real signals only.
+ * step "freeze" (05:45) records the data cutoff; "publish" (05:55) stamps the edition.
+ * After publication the edition is frozen; new/changed/withdrawn events become timestamped updates.
+ */
+export async function refreshBrief(admin: any, date: string, publish = false, step?: "freeze" | "publish") {
+  if (step === "publish") publish = true;
   const { householdImpact, officialAdvice } = await import("./impact");
+  const { data: existing } = await admin.from("daily_briefs").select("signature, published_at, cutoff_at, items").eq("brief_date", date).maybeSingle();
+
+  if (existing?.published_at && !publish) {
+    await recordBriefUpdates(admin, date, existing);
+    return;
+  }
   const { data: sigs } = await admin
     .from("signals")
-    .select("metric_id, family_id, severity, title, prev_value, new_value, change_abs, change_pct, is_demo, checks, score, families(name_th, emoji, source_name, source_url)")
+    .select("metric_id, family_id, signal_date, severity, title, prev_value, new_value, change_abs, change_pct, is_demo, checks, score, families(name_th, emoji, source_name, source_url)")
     .eq("signal_date", date)
     .eq("is_demo", false);
   const list = (sigs ?? []).sort((x: any, y: any) => Number(y.score ?? 0) - Number(x.score ?? 0) || (SEV_ORDER[x.severity] ?? 3) - (SEV_ORDER[y.severity] ?? 3));
   const signature = list.map((s: any) => `${s.metric_id}:${s.title}`).sort().join("|");
-  const { data: existing } = await admin.from("daily_briefs").select("signature, published_at").eq("brief_date", date).maybeSingle();
-  if (existing && existing.signature === signature && (!publish || existing.published_at)) return;
-  if (existing?.published_at && !publish) return; // the 06:00 edition is frozen for the day
+  const completeness = await completenessNow(admin, date);
+  const cutoff = existing?.cutoff_at ?? (step ? new Date().toISOString() : null);
+  if (existing && existing.signature === signature && !step && !publish) return;
+
+  const eventIds = list.map((s: any) => `${s.metric_id}:${s.signal_date}`);
+  const { data: evs } = eventIds.length ? await admin.from("signal_events").select("event_id,current_version").in("event_id", eventIds) : { data: [] };
+  const verOf = new Map((evs ?? []).map((e: any) => [e.event_id, e.current_version]));
+  const { data: vers } = eventIds.length ? await admin.from("signal_versions").select("event_id,version,evidence_ids,quality").in("event_id", eventIds) : { data: [] };
 
   const items = list.map((s: any) => {
+    const event_id = `${s.metric_id}:${s.signal_date}`;
+    const version = verOf.get(event_id) ?? 1;
+    const v = (vers ?? []).find((x: any) => x.event_id === event_id && x.version === version);
     const why = s.checks?.rule === "delta" && s.checks?.z != null
       ? `เปลี่ยนแรงกว่าความผันผวนปกติ ${Number(s.checks.z).toFixed(1)} เท่า`
       : s.checks?.rule === "level" ? "ข้ามระดับเกณฑ์ที่กำหนด" : s.checks?.rule === "release" ? "ตัวเลขรอบใหม่ประกาศวันนี้" : s.checks?.rule === "catalog" ? "ชุดข้อมูลทางการเปลี่ยนจริง" : "เกินเกณฑ์ที่กำหนด";
+    const impact = householdImpact(s);
+    const advice = officialAdvice(s);
     return {
-      metric_id: s.metric_id,
+      metric_id: s.metric_id, event_id, version,
       family: `${s.families?.emoji ?? ""} ${s.families?.name_th ?? ""}`.trim(),
       what: s.title,
       importance: SEV_TH[s.severity] ?? s.severity,
-      why,
-      impact: householdImpact(s),
-      advice: officialAdvice(s),
+      why, impact, advice,
       source: s.families?.source_name ?? null,
       source_url: s.families?.source_url ?? null,
+      data_date: s.signal_date, compared_with: s.checks?.compared_with ?? null,
+      score: s.checks?.score ?? null, rule: s.checks?.rule ?? null,
+      evidence_ids: v?.evidence_ids ?? [], quality: v?.quality ?? "cannot_verify",
+      impact_inputs: { metric_id: s.metric_id, family_id: s.family_id, prev_value: s.prev_value, new_value: s.new_value, change_abs: s.change_abs, change_pct: s.change_pct },
     };
   });
+  // Store the impact formula inputs + advice on each event's current version (recomputable later).
+  for (const i of items) {
+    await admin.from("signal_versions").update({ impact: { text: i.impact, inputs: i.impact_inputs }, advice: i.advice?.text ?? null }).eq("event_id", i.event_id).eq("version", i.version);
+  }
 
+  const missing = completeness.filter((c) => c.status !== "ok");
   let body = items.length ? items.slice(0, 4).map((i: any) => i.what).join(" · ") : "วันนี้ยังไม่มีการเปลี่ยนแปลงอย่างมีนัยสำคัญจากข้อมูลจริง";
+  if (!items.length && missing.length) body += ` — มี ${missing.length} แหล่งที่ข้อมูลเก่าหรือตรวจสอบไม่ได้ จึงยังสรุปไม่ได้ว่าไม่เปลี่ยน`;
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (apiKey && items.length) {
     const facts = items.map((i: any) => `- [${i.importance}] ${i.what}${i.impact ? ` | ผลต่อครัวเรือน: ${i.impact}` : ""}`).join("\n");
@@ -108,9 +153,28 @@ ${facts}
     }
   }
   await admin.from("daily_briefs").upsert({
-    brief_date: date, body, signature, items, generated_at: new Date().toISOString(),
-    ...(publish ? { published_at: new Date().toISOString() } : {}),
+    brief_date: date, body, signature, items, generated_at: new Date().toISOString(), completeness,
+    ...(cutoff ? { cutoff_at: cutoff } : {}),
+    ...(publish ? { published_at: new Date().toISOString(), cutoff_at: cutoff ?? new Date().toISOString() } : {}),
   });
+}
+
+/** After 06:00: one timestamped update per new event version not already in the edition or earlier updates. */
+async function recordBriefUpdates(admin: any, date: string, brief: { published_at: string; items: any[] | null }) {
+  const { data: evs } = await admin.from("signal_events").select("event_id,current_version,is_demo").eq("signal_date", date).eq("is_demo", false);
+  if (!evs?.length) return;
+  const inEdition = new Set((brief.items ?? []).map((i: any) => `${i.event_id}#${i.version}`));
+  const { data: ups } = await admin.from("brief_updates").select("event_id,version").eq("brief_date", date);
+  const done = new Set((ups ?? []).map((u: any) => `${u.event_id}#${u.version}`));
+  const todo = evs.filter((e: any) => !inEdition.has(`${e.event_id}#${e.current_version}`) && !done.has(`${e.event_id}#${e.current_version}`));
+  if (!todo.length) return;
+  const { data: vers } = await admin.from("signal_versions").select("event_id,version,change_kind,title,reason").in("event_id", todo.map((e: any) => e.event_id));
+  const rows = todo.map((e: any) => {
+    const v = (vers ?? []).find((x: any) => x.event_id === e.event_id && x.version === e.current_version);
+    const kind = v?.change_kind === "new" ? "update" : v?.change_kind === "withdrawn" ? "withdrawal" : "correction";
+    return { brief_date: date, kind, title: v?.title ?? e.event_id, body: v?.reason ?? null, event_id: e.event_id, version: e.current_version };
+  });
+  await admin.from("brief_updates").insert(rows);
 }
 
 export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; publish?: boolean; runKind?: "hourly" | "daily" | "manual" } = {}): Promise<{ refreshed: boolean }> {
@@ -159,6 +223,8 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
     const processed = await drain(admin, date);
     await admin.from("source_run_history").delete().lt("ran_at", new Date(Date.now() - 30 * 86400e3).toISOString());
     if (processed) {
+      // Values may refer to yesterday (e.g. farm prices published late) — detect on their own date.
+      await admin.rpc("detect_signals", { _d: bangkokDate(-1) });
       await admin.rpc("detect_signals", { _d: date });
       await admin.rpc("rank_signals", { _d: date });
     }
