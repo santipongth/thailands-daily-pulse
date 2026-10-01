@@ -39,6 +39,7 @@ export function BriefItems({ items }: { items: BriefItem[] }) {
                 <dd>{i.advice.text} <a href={i.advice.url} target="_blank" rel="noreferrer" className="text-xs underline">— {i.advice.source}</a></dd>
               </>
             )}
+            {i.data_date && (<>
             <dt className="font-semibold">ข้อมูลวันที่</dt>
             <dd>{i.data_date ?? "—"}{i.compared_with ? ` เทียบกับ ${i.compared_with}` : ""}{i.quality && i.quality !== "verified" ? " · ตรวจสอบหลักฐานต้นทางไม่ได้" : ""}</dd>
             <dt className="font-semibold">เลือกเพราะ</dt>
@@ -46,6 +47,7 @@ export function BriefItems({ items }: { items: BriefItem[] }) {
               กฎ {i.rule ?? "—"}{i.score ? ` · คะแนน ${i.score.total} = ความรุนแรง ${i.score.severity_weight} × ความแรง ${Number(i.score.z_factor ?? 1).toFixed(2)} × แหล่ง ${i.score.trust_factor} × ครัวเรือน ${i.score.reach} × ไฟล์ดิบ ${i.score.evidence_factor ?? "—"}` : ""}
               {i.event_id && <> · <Link to="/events/$id" params={{ id: i.event_id }} className="underline">หลักฐานและกฎ (รุ่น {i.version})</Link></>}
             </dd>
+            </>)}
           </dl>
         </li>
       ))}
