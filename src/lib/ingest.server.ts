@@ -114,6 +114,9 @@ export async function refreshIfStale(maxAgeHours = 3): Promise<{ refreshed: bool
       const catalogRuns = await runCatalog(admin, date).catch((e) => { console.error("catalog failed", e); return []; });
       const okAt = (r: any) => (r.ok ? { ...r, last_ok_at: r.ran_at } : r);
       await admin.from("source_runs").upsert([...runs.map((r) => okAt({ ...r, kind: "api" })), ...crawled.runs, ...catalogRuns], { onConflict: "source" });
+      const all = [...runs, ...crawled.runs, ...catalogRuns];
+      await admin.from("source_run_history").insert(all.map((r: any) => ({ source: r.source, ran_at: r.ran_at, ok: r.ok, rows: r.rows, error: r.error })));
+      await admin.from("source_run_history").delete().lt("ran_at", new Date(Date.now() - 30 * 86400e3).toISOString());
       const rows = Object.entries(live).map(([metric_id, value]) => ({
         metric_id,
         value,

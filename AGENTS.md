@@ -22,3 +22,5 @@
 - Agency websites without APIs are crawled by `src/lib/crawlers.server.ts`: first-seen links are stored as a baseline, later new links become `gov_*` observations (new announcements today) so detection uses official sources, not newspapers.
 - Source selection and refresh interval are per-device localStorage preferences (no accounts); the interval is passed to the refresh server function, clamped 1–24h.
 - Official open data is tracked via the gdcatalog.go.th CKAN API (`src/lib/catalog.server.ts`): one snapshot per dataset per Bangkok day, diffs vs the previous snapshot go to `gov_changes`, and catalog code writes one signal per agency/day directly (detect_signals skips metrics without observations).
+- Signal strictness lives in SQL: `metrics.min_pct`/`max_gap_days`, `families.trust` (medium needs 1.5x threshold, demo capped at medium) and each signal stores the passed rules in `signals.checks` for the explain dialog.
+- Every fetch attempt is appended to `source_run_history` (30-day retention) for the /monitor page; unseen-change tracking is per-device in localStorage.

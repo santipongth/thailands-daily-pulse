@@ -46,6 +46,7 @@ export type Database = {
           sort: number
           source_name: string
           source_url: string | null
+          trust: string
         }
         Insert: {
           cadence: string
@@ -57,6 +58,7 @@ export type Database = {
           sort?: number
           source_name: string
           source_url?: string | null
+          trust?: string
         }
         Update: {
           cadence?: string
@@ -68,6 +70,7 @@ export type Database = {
           sort?: number
           source_name?: string
           source_url?: string | null
+          trust?: string
         }
         Relationships: []
       }
@@ -81,6 +84,7 @@ export type Database = {
           dataset_id: string
           id: number
           kind: string
+          pct: number | null
           reason_th: string
         }
         Insert: {
@@ -92,6 +96,7 @@ export type Database = {
           dataset_id: string
           id?: number
           kind: string
+          pct?: number | null
           reason_th: string
         }
         Update: {
@@ -103,6 +108,7 @@ export type Database = {
           dataset_id?: string
           id?: number
           kind?: string
+          pct?: number | null
           reason_th?: string
         }
         Relationships: [
@@ -202,6 +208,8 @@ export type Database = {
           family_id: string
           id: string
           kind: string
+          max_gap_days: number
+          min_pct: number | null
           name_th: string
           sort: number
           threshold_abs: number | null
@@ -214,6 +222,8 @@ export type Database = {
           family_id: string
           id: string
           kind?: string
+          max_gap_days?: number
+          min_pct?: number | null
           name_th: string
           sort?: number
           threshold_abs?: number | null
@@ -226,6 +236,8 @@ export type Database = {
           family_id?: string
           id?: string
           kind?: string
+          max_gap_days?: number
+          min_pct?: number | null
           name_th?: string
           sort?: number
           threshold_abs?: number | null
@@ -351,6 +363,7 @@ export type Database = {
         Row: {
           change_abs: number | null
           change_pct: number | null
+          checks: Json | null
           created_at: string
           family_id: string
           id: string
@@ -365,6 +378,7 @@ export type Database = {
         Insert: {
           change_abs?: number | null
           change_pct?: number | null
+          checks?: Json | null
           created_at?: string
           family_id: string
           id?: string
@@ -379,6 +393,7 @@ export type Database = {
         Update: {
           change_abs?: number | null
           change_pct?: number | null
+          checks?: Json | null
           created_at?: string
           family_id?: string
           id?: string
@@ -406,6 +421,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      source_run_history: {
+        Row: {
+          error: string | null
+          id: number
+          ok: boolean
+          ran_at: string
+          rows: number
+          source: string
+        }
+        Insert: {
+          error?: string | null
+          id?: number
+          ok: boolean
+          ran_at?: string
+          rows?: number
+          source: string
+        }
+        Update: {
+          error?: string | null
+          id?: number
+          ok?: boolean
+          ran_at?: string
+          rows?: number
+          source?: string
+        }
+        Relationships: []
       }
       source_runs: {
         Row: {

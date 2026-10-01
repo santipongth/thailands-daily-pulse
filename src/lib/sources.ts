@@ -33,3 +33,23 @@ export const isOfficial = (newsSource: string) => newsSource.includes("เว็
 export const CATALOG_METRIC_AGENCY: Record<string, string> = Object.fromEntries(
   SOURCES.filter((x) => x.kind === "catalog").map((x) => [x.metrics[0]!, x.agency]),
 );
+
+export type Agency = { key: string; label: string; sources: string[]; catalog?: string; newsAgency?: string };
+
+/** Agencies shown on /agencies, each grouping its sources (by source name). */
+export const AGENCIES: Agency[] = [
+  { key: "tmd", label: "กรมอุตุนิยมวิทยา", sources: ["กรมอุตุฯ เตือนภัย", "กรมอุตุฯ แผ่นดินไหว"], newsAgency: "กรมอุตุนิยมวิทยา" },
+  { key: "water", label: "สสน. / กรมชลประทาน", sources: ["ThaiWater (สสน.)"], newsAgency: "กรมชลประทาน / สทนช." },
+  { key: "gold", label: "สมาคมค้าทองคำ", sources: ["สมาคมค้าทองคำ"] },
+  { key: "dld", label: "กรมปศุสัตว์", sources: ["กรมปศุสัตว์ (เว็บไซต์ทางการ)", "ข้อมูลเปิดภาครัฐ: กรมปศุสัตว์"], catalog: "กรมปศุสัตว์", newsAgency: "กรมปศุสัตว์" },
+  { key: "md", label: "กรมเจ้าท่า", sources: ["ข้อมูลเปิดภาครัฐ: กรมเจ้าท่า"], catalog: "กรมเจ้าท่า" },
+  { key: "bma", label: "กรุงเทพมหานคร", sources: ["ข้อมูลเปิดภาครัฐ: กรุงเทพมหานคร"], catalog: "กรุงเทพมหานคร" },
+  { key: "pao", label: "อบจ. / ท้องถิ่น", sources: ["ข้อมูลเปิดภาครัฐ: อบจ./ท้องถิ่น"], catalog: "อบจ./ท้องถิ่น" },
+  { key: "ddc", label: "กรมควบคุมโรค", sources: ["กรมควบคุมโรค (เว็บไซต์ทางการ)", "ข้อมูลเปิดภาครัฐ: กรมควบคุมโรค"], catalog: "กรมควบคุมโรค", newsAgency: "กรมควบคุมโรค" },
+  { key: "dlt", label: "กรมการขนส่งทางบก", sources: ["กรมการขนส่งทางบก (เว็บไซต์ทางการ)", "ข้อมูลเปิดภาครัฐ: กรมการขนส่งทางบก"], catalog: "กรมการขนส่งทางบก", newsAgency: "กรมการขนส่งทางบก" },
+  { key: "dol", label: "กรมที่ดิน", sources: ["กรมที่ดิน (เว็บไซต์ทางการ)"], newsAgency: "กรมที่ดิน" },
+  { key: "fish", label: "กรมประมง", sources: ["กรมประมง (เว็บไซต์ทางการ)"], newsAgency: "กรมประมง" },
+  { key: "energy", label: "ปตท. / บางจาก (ราคาน้ำมัน)", sources: ["PTT (thai-oil-api)", "บางจาก (Bangchak API)"] },
+];
+
+export const agencyMetrics = (a: Agency) => SOURCES.filter((s) => a.sources.includes(s.source)).flatMap((s) => s.metrics);
