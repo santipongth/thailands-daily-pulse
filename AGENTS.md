@@ -33,3 +33,4 @@
 - Food prices come from CheckRaka (`src/lib/checkraka.server.ts`, schema.org ItemList JSON-LD), an aggregator — family trust is medium; fetched on daily/manual runs or when today's prices are missing.
 - User-chosen update times are per-device (localStorage `times`) and run in the browser via `ScheduledRefresh` in __root (calls the rate-limited `retrySources`); no accounts, so no per-user server schedules.
 - Household daily cost uses a fixed reference basket (`BASKET` in `src/lib/impact.ts`) × latest vs previous real observations, shown by `HouseholdBasket` on home/day/brief — cost math is code-only and reusable.
+- Farm prices come from RakaKaset (`src/lib/rakakaset.server.ts`, HTML table parse; future-dated rows skipped), fetched with CheckRaka on daily/manual runs; Bangkok traffic is the Longdo index (level bands) in `connectors.server.ts`.

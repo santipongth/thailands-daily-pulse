@@ -36,7 +36,7 @@ export async function runRakaKaset(today: string): Promise<{ values: Record<stri
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const cells = (await res.text()).replace(/<[^>]+>/g, "|").split("|").map((x) => x.replace(/\s+/g, " ").trim()).filter(Boolean);
     for (const [metric, label] of Object.entries(MAP)) {
-      const i = cells.findIndex((c) => c.startsWith(label));
+      const i = cells.findIndex((c, j) => c.startsWith(label) && /^[\d,]+(\.\d+)?$/.test(cells[j + 1] ?? ""));
       if (i < 0) { errors.push(`ไม่พบ ${label}`); continue; }
       const price = Number(cells[i + 1]?.replace(/,/g, ""));
       const date = cells.slice(i + 2, i + 7).map(thDate).find(Boolean) ?? null;
