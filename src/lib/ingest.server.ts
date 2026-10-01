@@ -62,7 +62,7 @@ export async function refreshBrief(admin: any, date: string, publish = false) {
     .select("metric_id, family_id, severity, title, prev_value, new_value, change_abs, change_pct, is_demo, checks, families(name_th, emoji, source_name, source_url)")
     .eq("signal_date", date)
     .eq("is_demo", false);
-  const list = (sigs ?? []).sort((x: any, y: any) => SEV_ORDER[x.severity] - SEV_ORDER[y.severity]);
+  const list = (sigs ?? []).sort((x: any, y: any) => (SEV_ORDER[x.severity] ?? 3) - (SEV_ORDER[y.severity] ?? 3));
   const signature = list.map((s: any) => `${s.metric_id}:${s.title}`).sort().join("|");
   const { data: existing } = await admin.from("daily_briefs").select("signature, published_at").eq("brief_date", date).maybeSingle();
   if (existing && existing.signature === signature && (!publish || existing.published_at)) return;
@@ -139,7 +139,7 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
       const crawled = await runCrawlers(admin, date);
       Object.assign(live, crawled.values);
       const { runCatalog } = await import("./catalog.server");
-      const catalogRuns = await runCatalog(admin, date).catch((e) => { console.error("catalog failed", e); return []; });
+      const catalogRuns: any[] = await runCatalog(admin, date).catch((e) => { console.error("catalog failed", e); return []; });
       const lot = await (async () => {
         const ran_at = new Date().toISOString();
         try {
