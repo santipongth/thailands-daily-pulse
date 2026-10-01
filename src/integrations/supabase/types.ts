@@ -19,18 +19,24 @@ export type Database = {
           body: string
           brief_date: string
           generated_at: string
+          items: Json | null
+          published_at: string | null
           signature: string
         }
         Insert: {
           body: string
           brief_date: string
           generated_at?: string
+          items?: Json | null
+          published_at?: string | null
           signature?: string
         }
         Update: {
           body?: string
           brief_date?: string
           generated_at?: string
+          items?: Json | null
+          published_at?: string | null
           signature?: string
         }
         Relationships: []
@@ -201,6 +207,42 @@ export type Database = {
         }
         Relationships: []
       }
+      lottery_draws: {
+        Row: {
+          back3: string[] | null
+          draw_date: string
+          fetched_at: string
+          first: string
+          front3: string[] | null
+          last2: string | null
+          pdf_url: string | null
+          verified: boolean
+          video_url: string | null
+        }
+        Insert: {
+          back3?: string[] | null
+          draw_date: string
+          fetched_at?: string
+          first: string
+          front3?: string[] | null
+          last2?: string | null
+          pdf_url?: string | null
+          verified?: boolean
+          video_url?: string | null
+        }
+        Update: {
+          back3?: string[] | null
+          draw_date?: string
+          fetched_at?: string
+          first?: string
+          front3?: string[] | null
+          last2?: string | null
+          pdf_url?: string | null
+          verified?: boolean
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       metrics: {
         Row: {
           bands: number[] | null
@@ -215,6 +257,7 @@ export type Database = {
           threshold_abs: number | null
           threshold_pct: number | null
           unit: string
+          vol_k: number
         }
         Insert: {
           bands?: number[] | null
@@ -229,6 +272,7 @@ export type Database = {
           threshold_abs?: number | null
           threshold_pct?: number | null
           unit?: string
+          vol_k?: number
         }
         Update: {
           bands?: number[] | null
@@ -243,6 +287,7 @@ export type Database = {
           threshold_abs?: number | null
           threshold_pct?: number | null
           unit?: string
+          vol_k?: number
         }
         Relationships: [
           {
