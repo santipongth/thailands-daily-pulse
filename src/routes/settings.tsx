@@ -10,6 +10,7 @@ import { useSourcePrefs } from "@/hooks/use-source-prefs";
 import { SOURCES } from "@/lib/sources";
 
 export const Route = createFileRoute("/settings")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "ตั้งค่าความไวของสัญญาณ — Thailand Daily Signals" },

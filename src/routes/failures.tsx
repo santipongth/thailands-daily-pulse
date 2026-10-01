@@ -21,6 +21,7 @@ const failQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/failures")({
+  staticData: { sitemap: true },
   validateSearch: z.object({ followed: z.coerce.number().optional() }),
   loader: ({ context }) => context.queryClient.ensureQueryData(failQuery),
   head: () => ({

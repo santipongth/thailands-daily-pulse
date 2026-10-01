@@ -23,6 +23,7 @@ const compareQuery = (date: string) =>
   });
 
 export const Route = createFileRoute("/day/$date")({
+  staticData: { sitemap: false },
   loader: ({ context, params }) => context.queryClient.ensureQueryData(compareQuery(params.date)),
   head: ({ params }) => ({
     meta: [

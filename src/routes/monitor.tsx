@@ -20,6 +20,7 @@ const monitorQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/monitor")({
+  staticData: { sitemap: true },
   loader: ({ context }) => context.queryClient.ensureQueryData(monitorQuery),
   head: () => ({
     meta: [

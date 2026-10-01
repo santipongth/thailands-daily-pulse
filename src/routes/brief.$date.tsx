@@ -23,6 +23,7 @@ const briefQuery = (date: string) =>
   });
 
 export const Route = createFileRoute("/brief/$date")({
+  staticData: { sitemap: false },
   loader: ({ context, params }) => context.queryClient.ensureQueryData(briefQuery(params.date)),
   head: ({ params }) => ({
     meta: [

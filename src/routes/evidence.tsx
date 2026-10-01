@@ -17,6 +17,7 @@ const evQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/evidence")({
+  staticData: { sitemap: true },
   loader: ({ context }) => context.queryClient.ensureQueryData(evQuery),
   head: () => ({
     meta: [
