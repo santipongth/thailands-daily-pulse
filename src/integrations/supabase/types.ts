@@ -49,6 +49,7 @@ export type Database = {
           id: string
           is_live: boolean
           name_th: string
+          reach: number
           sort: number
           source_name: string
           source_url: string | null
@@ -61,6 +62,7 @@ export type Database = {
           id: string
           is_live?: boolean
           name_th: string
+          reach?: number
           sort?: number
           source_name: string
           source_url?: string | null
@@ -73,6 +75,7 @@ export type Database = {
           id?: string
           is_live?: boolean
           name_th?: string
+          reach?: number
           sort?: number
           source_name?: string
           source_url?: string | null
@@ -416,6 +419,7 @@ export type Database = {
           metric_id: string
           new_value: number
           prev_value: number | null
+          score: number | null
           severity: string
           signal_date: string
           title: string
@@ -431,6 +435,7 @@ export type Database = {
           metric_id: string
           new_value: number
           prev_value?: number | null
+          score?: number | null
           severity: string
           signal_date: string
           title: string
@@ -446,6 +451,7 @@ export type Database = {
           metric_id?: string
           new_value?: number
           prev_value?: number | null
+          score?: number | null
           severity?: string
           signal_date?: string
           title?: string
@@ -474,6 +480,7 @@ export type Database = {
           ok: boolean
           ran_at: string
           rows: number
+          run_kind: string
           source: string
         }
         Insert: {
@@ -482,6 +489,7 @@ export type Database = {
           ok: boolean
           ran_at?: string
           rows?: number
+          run_kind?: string
           source: string
         }
         Update: {
@@ -490,6 +498,7 @@ export type Database = {
           ok?: boolean
           ran_at?: string
           rows?: number
+          run_kind?: string
           source?: string
         }
         Relationships: []
@@ -502,6 +511,7 @@ export type Database = {
           ok: boolean
           ran_at: string
           rows: number
+          run_kind: string
           sample: string | null
           source: string
           url: string | null
@@ -513,6 +523,7 @@ export type Database = {
           ok: boolean
           ran_at?: string
           rows?: number
+          run_kind?: string
           sample?: string | null
           source: string
           url?: string | null
@@ -524,6 +535,7 @@ export type Database = {
           ok?: boolean
           ran_at?: string
           rows?: number
+          run_kind?: string
           sample?: string | null
           source?: string
           url?: string | null
@@ -536,6 +548,7 @@ export type Database = {
     }
     Functions: {
       detect_signals: { Args: { _d: string }; Returns: number }
+      rank_signals: { Args: { _d: string }; Returns: number }
     }
     Enums: {
       [_ in never]: never
