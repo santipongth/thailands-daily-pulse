@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Family, Metric, News, Obs, Signal } from "@/lib/signals";
 import { fmt, thaiDate } from "@/lib/signals";
+import { isOfficial } from "@/lib/sources";
 
 export function explainReason(s: Signal, m: Metric): string {
   const v = (x: number) => `${fmt(x, m.decimals)} ${m.unit}`.trim();
@@ -29,7 +30,9 @@ export function SignalExplain({ s, family, metric, history, news }: { s: Signal;
     return () => window.removeEventListener("keydown", k);
   }, [open]);
   const prevObs = [...history].reverse().find((o) => o.observed_on < s.signal_date);
-  const related = news.filter((n) => n.family_id === family.id).slice(0, 3);
+  const fam = news.filter((n) => n.family_id === family.id && (family.id !== "gov" || (n.agency != null && metric.name_th.includes(n.agency))));
+  const official = fam.filter((n) => isOfficial(n.source) && n.published_at >= "2001").slice(0, 5);
+  const related = fam.filter((n) => !isOfficial(n.source)).slice(0, 3);
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} className="text-xs underline underline-offset-2 hover:text-up">
@@ -65,7 +68,24 @@ export function SignalExplain({ s, family, metric, history, news }: { s: Signal;
                 </dd>
               </div>
               <div>
-                <dt className="font-semibold">ข่าวที่เกี่ยวข้อง</dt>
+                <dt className="font-semibold">หลักฐานจากหน่วยงานรัฐ</dt>
+                <dd className="mt-1">
+                  {!s.is_demo && <p className="text-muted-foreground">สัญญาณนี้ตัดจากตัวเลขที่ดึงจากแหล่งโดยตรง ไม่ได้มาจากข่าว</p>}
+                  {official.length > 0 && (
+                    <ul className="mt-2 space-y-2">
+                      {official.map((n) => (
+                        <li key={n.id}>
+                          <a href={n.link} target="_blank" rel="noreferrer" className="underline">{n.title}</a>
+                          <span className="block text-xs text-muted-foreground">{n.source} · พบครั้งแรก {new Date(n.published_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium", timeStyle: "short" })}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {s.is_demo && official.length === 0 && <p className="text-muted-foreground">ยังไม่มีข้อมูลจากหน่วยงานรัฐโดยตรงสำหรับเรื่องนี้</p>}
+                </dd>
+              </div>
+              <div>
+                <dt className="font-semibold">ข่าวหนังสือพิมพ์ประกอบ</dt>
                 <dd className="mt-1">
                   {related.length === 0 ? (
                     <span className="text-muted-foreground">ยังไม่พบข่าวที่เกี่ยวข้องใน 3 วันที่ผ่านมา</span>

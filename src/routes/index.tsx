@@ -9,6 +9,8 @@ import { bkkToday, dayQuery, fmt, shiftDate, thaiDate } from "@/lib/signals";
 import { refreshData } from "@/lib/signals.functions";
 import { SENS_SEVERITIES } from "@/lib/signals";
 import { useSensitivity } from "@/hooks/use-sensitivity";
+import { useSourcePrefs, readIntervalHours } from "@/hooks/use-source-prefs";
+import { SOURCES } from "@/lib/sources";
 
 export const Route = createFileRoute("/")({
   validateSearch: z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() }),
@@ -40,7 +42,7 @@ function Today() {
 
   useEffect(() => {
     if (date !== today) return;
-    refresh().then((r) => {
+    refresh({ data: { maxAgeHours: readIntervalHours() } }).then((r) => {
       if (r.refreshed) {
         qc.invalidateQueries({ queryKey: ["day", date] });
         router.invalidate();
@@ -53,7 +55,9 @@ function Today() {
   const hist = (id: string) => data.obs.filter((o) => o.metric_id === id);
   const releases = data.signals.filter((s) => met.get(s.metric_id)?.kind === "release");
   const [sens] = useSensitivity();
-  const allMoves = data.signals.filter((s) => met.get(s.metric_id)?.kind !== "release");
+  const [prefs] = useSourcePrefs();
+  const off = new Set(SOURCES.filter((x) => prefs.disabled.includes(x.source)).flatMap((x) => x.metrics));
+  const allMoves = data.signals.filter((s) => met.get(s.metric_id)?.kind !== "release" && !off.has(s.metric_id));
   const moves = allMoves.filter((s) => SENS_SEVERITIES[sens].includes(s.severity));
   const hidden = allMoves.length - moves.length;
   const agencyNews = data.news.filter((n) => n.agency).slice(0, 6);
