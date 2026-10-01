@@ -30,6 +30,8 @@ export function Masthead() {
         วันนี้ มีอะไรเปลี่ยนไปในประเทศไทยที่อาจกระทบชีวิตคุณ — อะไรไม่เปลี่ยน เราก็เงียบ
       </p>
       <div className="h-3" />
+      {/* FailureAlert renders nothing visible; it only fires browser notifications */}
+      <FailureAlert />
     </header>
   );
 }
