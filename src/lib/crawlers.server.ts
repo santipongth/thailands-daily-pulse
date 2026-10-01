@@ -15,11 +15,13 @@ const BASELINE = "2000-01-01T00:00:00Z"; // first-seen links are stored as basel
 
 function reason(e: unknown): string {
   const m = String((e as Error)?.message ?? e);
-  if (/timeout|aborted/i.test(m)) return "เว็บไซต์ไม่ตอบสนองภายใน 15 วินาที (timeout)";
+  if (/timeout|timed out|aborted/i.test(m)) return "เว็บไซต์ไม่ตอบสนองภายใน 15 วินาที (timeout)";
   if (/521|522|523/.test(m)) return `เซิร์ฟเวอร์ต้นทางของหน่วยงานปิดหรือล่ม (${m.match(/52\d/)?.[0]})`;
   if (/403/.test(m)) return "เว็บไซต์ปฏิเสธการเข้าถึงจากระบบอัตโนมัติ (403)";
   if (/404/.test(m)) return "ไม่พบหน้าเว็บ อาจย้ายที่อยู่ (404)";
   if (/BLOCKED/.test(m)) return "ถูกระบบป้องกันบอท (Incapsula/Cloudflare) บล็อก";
+  if (/certificate|SSL|TLS/i.test(m)) return "ใบรับรองความปลอดภัย (SSL) ของเว็บไซต์ไม่ถูกต้อง ระบบจึงไม่เชื่อมต่อ";
+  if (/DOWN/.test(m)) return "เว็บไซต์ตอบกลับหน้าว่างหรือหน้าแจ้งข้อผิดพลาด (เซิร์ฟเวอร์อาจล่ม)";
   if (/NOLINKS/.test(m)) return "โหลดหน้าได้แต่ไม่พบรายการประกาศ (โครงสร้างหน้าอาจเปลี่ยน)";
   if (/fetch failed|ENOTFOUND|ECONN|network/i.test(m)) return "เชื่อมต่อเว็บไซต์ไม่ได้ (DNS/เครือข่าย)";
   return m.slice(0, 200);
@@ -52,6 +54,7 @@ export async function runCrawlers(admin: any, date: string) {
       const res = await fetch(t.url, { headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals" }, signal: AbortSignal.timeout(15000) });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const html = await res.text();
+      if (html.length < 800 || /error code: 52\d/.test(html)) throw new Error("DOWN");
       if (/_Incapsula_Resource|cf-chl|challenge-platform/.test(html)) throw new Error("BLOCKED");
       const links = extractLinks(html, t.url, t.match);
       if (!links.length) throw new Error("NOLINKS");
