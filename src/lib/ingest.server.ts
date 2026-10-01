@@ -151,6 +151,10 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
         const cr = await runCheckRaka();
         Object.assign(live, cr.values);
         crawled.runs.push(cr.run);
+        const { runRakaKaset } = await import("./rakakaset.server");
+        const rkk = await runRakaKaset(date);
+        Object.assign(live, rkk.values);
+        crawled.runs.push(rkk.run);
       }
       const { runCatalog } = await import("./catalog.server");
       const catalogRuns: any[] = await runCatalog(admin, date).catch((e) => { console.error("catalog failed", e); return []; });
