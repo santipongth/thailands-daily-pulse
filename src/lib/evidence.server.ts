@@ -2,7 +2,7 @@
 // original response bytes in the private "evidence" bucket, indexed in raw_evidence.
 // Files are kept forever; identical bytes (same sha256) are stored once and referenced again.
 
-type Captured = { url: string; status: number; contentType: string | null; body: Uint8Array; fetchedAt: string };
+type Captured = { url: string; status: number; contentType: string | null; body: Uint8Array<ArrayBuffer>; fetchedAt: string };
 
 const SKIP = /supabase\.co|ai\.gateway\.lovable\.dev|connector-gateway\.lovable\.dev/;
 const MAX_BYTES = 15 * 1024 * 1024;

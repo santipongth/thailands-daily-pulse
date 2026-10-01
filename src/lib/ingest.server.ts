@@ -129,7 +129,6 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
   const newsStale = !!opts.force || !lastNews || Date.now() - new Date(lastNews.locked_until).getTime() >= STALE_MS;
   if (!liveStale && !newsStale) {
     const { count: due } = await admin.from("ingest_jobs").select("id", { count: "exact", head: true }).eq("status", "queued").lte("run_after", new Date().toISOString());
-    if (due) { opts = { ...opts }; }
     const { data: b } = await admin.from("daily_briefs").select("brief_date").eq("brief_date", date).maybeSingle();
     if (b && !due) return { refreshed: false };
   }
