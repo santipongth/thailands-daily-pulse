@@ -82,7 +82,7 @@ function EvidencePage() {
   );
 }
 
-function EvRow({ e, prev }: { e: Ev; prev?: Ev }) {
+function EvRow({ e, prev }: { e: Ev; prev?: Ev | undefined }) {
   const [diff, setDiff] = useState<Awaited<ReturnType<typeof evidenceDiff>> | null>(null);
   const [loading, setLoading] = useState(false);
   const status = !prev ? "ไฟล์แรก" : prev.sha256 === e.sha256 ? "เหมือนเดิม" : "เปลี่ยน";
