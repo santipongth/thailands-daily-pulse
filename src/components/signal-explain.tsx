@@ -26,7 +26,7 @@ export function explainReason(s: Signal, m: Metric): string {
 
 const TRUST: Record<string, string> = { high: "สูง (แหล่งทางการโดยตรง)", medium: "กลาง (ผู้รวบรวม/ค่าประมาณ — ต้องเปลี่ยนมากกว่าปกติ 1.5 เท่า)", low: "ต่ำ (ข้อมูลตัวอย่าง)" };
 
-function checkLines(c: Record<string, any>, m: Metric): string[] {
+function checkLines(c: any, m: Metric): string[] {
   const out: string[] = [];
   if (c.rule === "delta") {
     const t = [c.threshold_abs != null ? `${c.threshold_abs} ${m.unit}` : null, c.threshold_pct != null ? `${c.threshold_pct}%` : null].filter(Boolean).join(" หรือ ");
