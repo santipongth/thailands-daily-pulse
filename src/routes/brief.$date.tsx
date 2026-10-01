@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Masthead } from "@/components/masthead";
+import { HouseholdBasket } from "@/components/household-basket";
 import { BriefItems, type BriefItem } from "@/components/brief-items";
 import { supabase } from "@/integrations/supabase/client";
 import { shiftDate, thaiDate } from "@/lib/signals";
@@ -55,6 +56,8 @@ function BriefPage() {
             <p className="mt-6 font-display text-2xl leading-relaxed">{data.body}</p>
             <p className="mt-2 text-xs text-muted-foreground">ตัวเลขทั้งหมดคำนวณโดยระบบจากข้อมูลทางการ — AI ใช้เรียบเรียงภาษาบทนำเท่านั้น และถูกตรวจว่าไม่เพิ่มตัวเลขใหม่</p>
             <div className="mt-10"><BriefItems items={(data.items ?? []) as BriefItem[]} /></div>
+            <div className="mt-10"><HouseholdBasket date={date} /></div>
+            <Link to="/day/$date" params={{ date }} className="mt-4 inline-block text-sm underline">ดูอันดับสัญญาณทั้งหมดของวันนี้ เทียบเมื่อวาน →</Link>
           </>
         )}
       </main>

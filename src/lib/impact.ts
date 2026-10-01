@@ -66,3 +66,32 @@ export function numbersInText(t: string): string[] {
 
 export const SEVERITY_WEIGHT = { high: 3, medium: 2, low: 1 } as const;
 export const TRUST_FACTOR = { high: 1.0, medium: 0.7, low: 0.5 } as const;
+
+/** Reference household daily basket (assumed quantities per day, family of 3–4). Cost is computed only from real observations. */
+export const BASKET: { metric_id: string; label: string; qty: number; unit: string }[] = [
+  { metric_id: "pork", label: "หมูเนื้อแดง", qty: 0.3, unit: "กก." },
+  { metric_id: "chicken", label: "อกไก่", qty: 0.3, unit: "กก." },
+  { metric_id: "egg", label: "ไข่ไก่", qty: 4, unit: "ฟอง" },
+  { metric_id: "rice_jasmine", label: "ข้าวหอมมะลิ", qty: 0.5, unit: "กก." },
+  { metric_id: "morning_glory", label: "ผักบุ้ง", qty: 0.25, unit: "กก." },
+  { metric_id: "palm_oil", label: "น้ำมันปาล์ม", qty: 0.05, unit: "ขวด" },
+  { metric_id: "gsh95", label: "แก๊สโซฮอล์ 95 (เดินทาง)", qty: 3, unit: "ลิตร" },
+];
+
+export type BasketLine = { metric_id: string; label: string; qty: number; unit: string; prev: number | null; cur: number; prevDate: string | null; curDate: string; costPrev: number | null; costCur: number; delta: number };
+
+/** obs must be the real (non-demo) observations sorted newest first. Uses the latest value on/before `date` and the value before that. */
+export function basketLines(obs: { metric_id: string; observed_on: string; value: number }[], date: string): BasketLine[] {
+  const out: BasketLine[] = [];
+  for (const b of BASKET) {
+    const rows = obs.filter((o) => o.metric_id === b.metric_id && o.observed_on <= date);
+    if (!rows.length) continue;
+    const first = rows[0]!; const cur = Number(first.value);
+    const prevRow = rows[1];
+    const prev = prevRow ? Number(prevRow.value) : null;
+    const costCur = cur * b.qty;
+    const costPrev = prev == null ? null : prev * b.qty;
+    out.push({ ...b, cur, prev, curDate: first.observed_on, prevDate: prevRow?.observed_on ?? null, costCur, costPrev, delta: costPrev == null ? 0 : costCur - costPrev });
+  }
+  return out;
+}

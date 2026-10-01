@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
+import { HouseholdBasket } from "@/components/household-basket";
+import { householdImpact } from "@/lib/impact";
 import { bkkToday, fmt, shiftDate, thaiDate, type Family, type Metric, type Signal } from "@/lib/signals";
 
 const compareQuery = (date: string) =>
@@ -49,6 +51,13 @@ function DayCompare() {
   const fresh = today.filter((s) => !prevBy.has(s.metric_id));
   const cont = today.filter((s) => prevBy.has(s.metric_id));
   const ended = before.filter((s) => !todayIds.has(s.metric_id));
+
+  const sc = (s: Signal) => Number(s.score ?? 0);
+  const ranked = [...today].sort((a, b) => sc(b) - sc(a));
+  const prevRanked = [...before].sort((a, b) => sc(b) - sc(a));
+  const prevRank = new Map(prevRanked.map((s, i) => [s.metric_id, i + 1]));
+  const maxScore = Math.max(1, ...ranked.map(sc));
+  const sevTh: Record<string, string> = { high: "สูง", medium: "กลาง", low: "ต่ำ" };
   const v = (s: Signal, x: number | null) => (x == null ? "—" : `${fmt(Number(x), met.get(s.metric_id)?.decimals ?? 2)} ${met.get(s.metric_id)?.unit ?? ""}`);
 
   const Group = ({ title, list, note, showPrev }: { title: string; list: Signal[]; note: string; showPrev?: boolean }) => (
@@ -85,6 +94,38 @@ function DayCompare() {
         </div>
         <h1 className="mt-6 font-display text-4xl">สัญญาณรายวัน เทียบกับ {thaiDate(data.prev, { day: "numeric", month: "short" })}</h1>
         <p className="mt-2 text-muted-foreground">วันนี้ {today.length} สัญญาณ · เมื่อวาน {before.length} สัญญาณ</p>
+        <section className="mt-8">
+          <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">อันดับสัญญาณวันนี้</h2>
+          <p className="mt-1 text-xs text-muted-foreground">คะแนน = น้ำหนักความรุนแรง × ตัวคูณความแรง (z ÷ vol_k, 1–2) × ความน่าเชื่อถือแหล่ง × ผลต่อครัวเรือน · <Link to="/method" className="underline">ดูวิธีคำนวณ</Link></p>
+          {ranked.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">ไม่มีสิ่งใดเปลี่ยนเกินเกณฑ์</p> : (
+            <ol className="mt-3 space-y-3">
+              {ranked.map((s, i) => {
+                const k = s.checks?.score ?? {};
+                const pr = prevRank.get(s.metric_id);
+                const move = pr == null ? <span className="text-primary">ใหม่</span> : pr > i + 1 ? <span className="text-primary">▲ {pr - (i + 1)}</span> : pr < i + 1 ? <span className="text-destructive">▼ {i + 1 - pr}</span> : <span className="text-muted-foreground">= คงที่</span>;
+                const imp = householdImpact(s);
+                return (
+                  <li key={s.id} className="grid grid-cols-[3rem_1fr] gap-3 border-b border-border pb-3">
+                    <div className="font-display text-3xl tabular-nums">{i + 1}</div>
+                    <div>
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <Link to="/signals/$family" params={{ family: s.family_id }} className="font-semibold hover:underline">{fam.get(s.family_id)?.emoji} {s.title}</Link>
+                        <span className="text-xs">{move} {pr != null && <span className="text-muted-foreground">(เมื่อวานอันดับ {pr})</span>}</span>
+                      </div>
+                      <div className="mt-1 h-2 bg-muted"><div className="h-2 bg-primary" style={{ width: `${(sc(s) / maxScore) * 100}%` }} /></div>
+                      <div className="mt-1 text-xs tabular-nums text-muted-foreground">
+                        คะแนน <b className="text-foreground">{sc(s).toFixed(2)}</b> = ความรุนแรง {sevTh[s.severity] ?? s.severity} {k.severity_weight ?? "—"} × ความแรง {k.z_factor != null ? Number(k.z_factor).toFixed(2) : "—"} × แหล่ง {k.trust_factor ?? "—"} × ครัวเรือน {k.reach ?? "—"}
+                        {" · "}ก่อน {v(s, s.prev_value)} → หลัง {v(s, s.new_value)}{s.change_pct != null ? ` (${Number(s.change_pct) > 0 ? "+" : ""}${Number(s.change_pct).toFixed(1)}%)` : ""}
+                      </div>
+                      {imp && <div className="mt-1 text-sm">🏠 {imp}</div>}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </section>
+        <div className="mt-8"><HouseholdBasket date={date} /></div>
         <Group title="เกิดใหม่วันนี้" list={fresh} note="ไม่มีในวันก่อนหน้า — นี่คือสิ่งที่เปลี่ยนชัดเจนจริงวันนี้" />
         <Group title="ยังต่อเนื่อง" list={cont} note="เกิดทั้งเมื่อวานและวันนี้" showPrev />
         <Group title="หายไปจากเมื่อวาน" list={ended} note="เมื่อวานเป็นสัญญาณ แต่วันนี้ไม่เกินเกณฑ์แล้ว" />

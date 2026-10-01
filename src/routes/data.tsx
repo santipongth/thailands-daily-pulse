@@ -18,7 +18,7 @@ const rawQuery = queryOptions({
     ]);
     const err = f.error || m.error || o.error || n.error || r.error;
     if (err) throw err;
-    return { families: f.data as Family[], metrics: m.data as Metric[], obs: o.data as Row[], news: n.data as News[], runs: (r.data ?? []) as { source: string; ran_at: string; ok: boolean; rows: number; error: string | null }[] };
+    return { families: f.data as Family[], metrics: m.data as Metric[], obs: o.data as Row[], news: n.data as News[], runs: (r.data ?? []) as { source: string; ran_at: string; ok: boolean; rows: number; error: string | null; run_kind?: string }[] };
   },
 });
 
@@ -55,7 +55,7 @@ function DataPage() {
         <section className="mt-6">
           <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">สถานะการดึงข้อมูลแต่ละแหล่ง</h2>
           <table className="mt-2 w-full text-sm">
-            <thead><tr className="text-left text-muted-foreground"><th className="py-1">แหล่ง</th><th>สถานะ</th><th>ค่าที่ได้</th><th>ดึงล่าสุด</th></tr></thead>
+            <thead><tr className="text-left text-muted-foreground"><th className="py-1">แหล่ง</th><th>สถานะ</th><th>ค่าที่ได้</th><th>รอบ</th><th>ดึงล่าสุด</th></tr></thead>
             <tbody>
               {data.runs.length === 0 && <tr><td colSpan={4} className="py-2 text-muted-foreground">ยังไม่มีการดึงข้อมูลรอบใหม่</td></tr>}
               {data.runs.map((r) => (
@@ -63,6 +63,7 @@ function DataPage() {
                   <td className="py-1">{r.source}</td>
                   <td>{r.ok ? <span className="font-semibold text-primary">สำเร็จ</span> : <span className="text-destructive" title={r.error ?? ""}>ล้มเหลว</span>}</td>
                   <td>{r.rows}</td>
+                  <td>{({ hourly: "รายชั่วโมง", daily: "รายวัน 05:30", manual: "สั่งดึง/เวลาที่ตั้งเอง" } as Record<string, string>)[r.run_kind ?? ""] ?? r.run_kind}</td>
                   <td>{new Date(r.ran_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" })}</td>
                 </tr>
               ))}
@@ -76,7 +77,7 @@ function DataPage() {
             <section key={f.id} className="mt-8">
               <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">{f.emoji} {f.name_th} <span className="text-sm font-normal text-muted-foreground">· {f.source_name}</span></h2>
               <table className="mt-2 w-full text-sm">
-                <thead><tr className="text-left text-muted-foreground"><th className="py-1">ตัวชี้วัด</th><th>ค่าล่าสุด</th><th>ก่อนหน้า</th><th>วันที่ข้อมูล</th><th>บันทึกเมื่อ</th><th>ประเภท</th></tr></thead>
+                <thead><tr className="text-left text-muted-foreground"><th className="py-1">ตัวชี้วัด</th><th>ค่าล่าสุด</th><th>ก่อนหน้า</th><th>เปลี่ยน</th><th>วันที่ข้อมูล</th><th>บันทึกเมื่อ</th><th>ประเภท</th></tr></thead>
                 <tbody>
                   {ms.map((m) => {
                     const [cur, prev] = byMetric.get(m.id) ?? [];
@@ -84,7 +85,8 @@ function DataPage() {
                       <tr key={m.id} className="border-b border-border">
                         <td className="py-1">{m.name_th}</td>
                         <td className="font-semibold">{cur ? `${fmt(cur.value, m.decimals)} ${m.unit}` : "—"}</td>
-                        <td>{prev ? fmt(prev.value, m.decimals) : "—"}</td>
+                        <td>{prev ? `${fmt(prev.value, m.decimals)} (${thaiDate(prev.observed_on, { day: "numeric", month: "short" })})` : "—"}</td>
+                        <td className="tabular-nums">{cur && prev ? (() => { const d = cur.value - prev.value; return d === 0 ? "ไม่เปลี่ยน" : `${d > 0 ? "+" : ""}${fmt(d, m.decimals)}`; })() : "—"}</td>
                         <td>{cur ? thaiDate(cur.observed_on, { dateStyle: "medium" }) : "—"}</td>
                         <td>{cur ? new Date(cur.created_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" }) : "—"}</td>
                         <td>{cur ? (cur.is_demo ? <span className="text-muted-foreground">ตัวอย่าง</span> : <span className="font-semibold text-primary">จริง</span>) : "—"}</td>

@@ -12,6 +12,7 @@ import { useSensitivity } from "@/hooks/use-sensitivity";
 import { useSourcePrefs, readIntervalHours } from "@/hooks/use-source-prefs";
 import { SOURCES } from "@/lib/sources";
 import { GovAlert } from "@/components/gov-alert";
+import { HouseholdBasket } from "@/components/household-basket";
 import { BriefItems, type BriefItem } from "@/components/brief-items";
 
 export const Route = createFileRoute("/")({
@@ -99,6 +100,8 @@ function Today() {
                 <Link to="/brief/$date" params={{ date }} className="mt-4 inline-block text-sm underline">อ่าน Daily Brief ฉบับเต็ม →</Link>
               </div>
             )}
+            <div className="mt-6"><HouseholdBasket date={date} /></div>
+            <Link to="/day/$date" params={{ date }} className="mt-3 inline-block text-sm underline">อันดับสัญญาณวันนี้ เทียบเมื่อวาน →</Link>
           </div>
           <aside className="border-l border-foreground/30 pl-6 max-md:border-l-0 max-md:border-t max-md:pl-0 max-md:pt-6">
             <h2 className="font-display text-lg">กำลังจะมา</h2>
