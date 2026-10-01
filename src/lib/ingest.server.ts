@@ -59,10 +59,10 @@ export async function refreshBrief(admin: any, date: string, publish = false) {
   const { householdImpact, officialAdvice } = await import("./impact");
   const { data: sigs } = await admin
     .from("signals")
-    .select("metric_id, family_id, severity, title, prev_value, new_value, change_abs, change_pct, is_demo, checks, families(name_th, emoji, source_name, source_url)")
+    .select("metric_id, family_id, severity, title, prev_value, new_value, change_abs, change_pct, is_demo, checks, score, families(name_th, emoji, source_name, source_url)")
     .eq("signal_date", date)
     .eq("is_demo", false);
-  const list = (sigs ?? []).sort((x: any, y: any) => (SEV_ORDER[x.severity] ?? 3) - (SEV_ORDER[y.severity] ?? 3));
+  const list = (sigs ?? []).sort((x: any, y: any) => Number(y.score ?? 0) - Number(x.score ?? 0) || (SEV_ORDER[x.severity] ?? 3) - (SEV_ORDER[y.severity] ?? 3));
   const signature = list.map((s: any) => `${s.metric_id}:${s.title}`).sort().join("|");
   const { data: existing } = await admin.from("daily_briefs").select("signature, published_at").eq("brief_date", date).maybeSingle();
   if (existing && existing.signature === signature && (!publish || existing.published_at)) return;
@@ -97,7 +97,12 @@ ${facts}
 ใช้เฉพาะตัวเลขที่ให้ไว้ ห้ามเพิ่มตัวเลขหรือข้อมูลใหม่ ไม่ใส่หัวข้อ ไม่ใช้ bullet ไม่เกิน 450 ตัวอักษร`;
     try {
       const t = await streamBrief(prompt, apiKey);
-      if (t) body = t;
+      // LLM only phrases: any number not present in the computed facts rejects the text.
+      const { numbersInText } = await import("./impact");
+      const allowed = new Set(numbersInText(facts));
+      const bad = numbersInText(t).filter((n) => !allowed.has(n));
+      if (t && !bad.length) body = t;
+      else if (bad.length) console.warn("brief rejected, unknown numbers", bad);
     } catch (e) {
       console.error("brief failed", e);
     }
@@ -108,7 +113,7 @@ ${facts}
   });
 }
 
-export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; publish?: boolean } = {}): Promise<{ refreshed: boolean }> {
+export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; publish?: boolean; runKind?: "hourly" | "daily" | "manual" } = {}): Promise<{ refreshed: boolean }> {
   const STALE = Math.min(24, Math.max(1, maxAgeHours)) * 3600e3;
   const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
   const date = bangkokDate();
@@ -151,10 +156,11 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
         }
       })();
       catalogRuns.push(lot);
-      const okAt = (r: any) => (r.ok ? { ...r, last_ok_at: r.ran_at } : r);
-      await admin.from("source_runs").upsert([...runs.map((r) => okAt({ ...r, kind: "api" })), ...crawled.runs, ...catalogRuns], { onConflict: "source" });
+      const rk = opts.runKind ?? "hourly";
+      const okAt = (r: any) => ({ ...(r.ok ? { ...r, last_ok_at: r.ran_at } : r), run_kind: rk });
+      await admin.from("source_runs").upsert([...runs.map((r) => okAt({ ...r, kind: "api" })), ...crawled.runs.map(okAt), ...catalogRuns.map(okAt)], { onConflict: "source" });
       const all = [...runs, ...crawled.runs, ...catalogRuns];
-      await admin.from("source_run_history").insert(all.map((r: any) => ({ source: r.source, ran_at: r.ran_at, ok: r.ok, rows: r.rows, error: r.error })));
+      await admin.from("source_run_history").insert(all.map((r: any) => ({ source: r.source, ran_at: r.ran_at, ok: r.ok, rows: r.rows, error: r.error, run_kind: rk })));
       await admin.from("source_run_history").delete().lt("ran_at", new Date(Date.now() - 30 * 86400e3).toISOString());
       const rows = Object.entries(live).map(([metric_id, value]) => ({
         metric_id,
@@ -168,6 +174,7 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
         if (error) console.error(error);
       }
       await admin.rpc("detect_signals", { _d: date });
+      await admin.rpc("rank_signals", { _d: date });
     }
     if (newsStale) {
       try {

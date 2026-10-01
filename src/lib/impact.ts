@@ -55,3 +55,14 @@ export function officialAdvice(s: S): Advice | null {
     default: return null;
   }
 }
+
+/** Normalised numbers found in text (commas removed, trailing zeros trimmed) — used to verify AI text adds no numbers. */
+export function numbersInText(t: string): string[] {
+  return (t.match(/\d[\d,]*(?:\.\d+)?/g) ?? []).map((n) => {
+    const v = n.replace(/,/g, "");
+    return v.includes(".") ? v.replace(/0+$/, "").replace(/\.$/, "") : v;
+  });
+}
+
+export const SEVERITY_WEIGHT = { high: 3, medium: 2, low: 1 } as const;
+export const TRUST_FACTOR = { high: 1.0, medium: 0.7, low: 0.5 } as const;
