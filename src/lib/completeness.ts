@@ -33,6 +33,8 @@ export function computeCompleteness(today: string, registry: RegistryRow[], runs
     const age = daysBetween(data_date, today);
     if (age > r.stale_after_days) return { source: r.source, status: failing ? "unverifiable" : "stale", data_date, last_ok_at, reason: `ข้อมูลล่าสุดอายุ ${age} วัน (เกณฑ์ ${r.stale_after_days} วัน)${failing ? " และรอบล่าสุดดึงไม่ได้" : ""}` };
     if (failing) return { source: r.source, status: "unverifiable", data_date, last_ok_at, reason: `รอบล่าสุดดึงไม่ได้: ${(rs.find((x) => x.error)?.error ?? "").slice(0, 120)}` };
+    const bad = rs.filter((x) => !x.ok).length;
+    if (bad) return { source: r.source, status: "ok", data_date, last_ok_at, reason: `ดึงได้บางส่วน — ${bad} จาก ${rs.length} แหล่งย่อยดึงไม่ได้` };
     return { source: r.source, status: "ok", data_date, last_ok_at, reason: age === 0 ? "ข้อมูลของวันนี้" : `ข้อมูลวันที่ ${data_date} (ยังอยู่ในรอบอัปเดต)` };
   });
 }
