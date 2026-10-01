@@ -80,7 +80,8 @@ ${lines || "- ไม่มี"}
   }
 }
 
-export async function refreshIfStale(): Promise<{ refreshed: boolean }> {
+export async function refreshIfStale(maxAgeHours = 3): Promise<{ refreshed: boolean }> {
+  const STALE = Math.min(24, Math.max(1, maxAgeHours)) * 3600e3;
   const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
   const date = bangkokDate();
   const { data: last } = await admin
@@ -91,7 +92,7 @@ export async function refreshIfStale(): Promise<{ refreshed: boolean }> {
     .limit(1)
     .maybeSingle();
   const { data: lastNews } = await admin.from("job_locks").select("locked_until").eq("name", "news_fetched").maybeSingle();
-  const liveStale = !last || Date.now() - new Date(last.created_at).getTime() >= STALE_MS;
+  const liveStale = !last || Date.now() - new Date(last.created_at).getTime() >= STALE;
   const newsStale = !lastNews || Date.now() - new Date(lastNews.locked_until).getTime() >= STALE_MS;
   if (!liveStale && !newsStale) {
     const { data: b } = await admin.from("daily_briefs").select("brief_date").eq("brief_date", date).maybeSingle();
@@ -106,7 +107,11 @@ export async function refreshIfStale(): Promise<{ refreshed: boolean }> {
     if (liveStale) {
       const { runConnectors } = await import("./connectors.server");
       const { values: live, runs } = await runConnectors(date);
-      await admin.from("source_runs").upsert(runs, { onConflict: "source" });
+      const { runCrawlers } = await import("./crawlers.server");
+      const crawled = await runCrawlers(admin, date);
+      Object.assign(live, crawled.values);
+      const okAt = (r: any) => (r.ok ? { ...r, last_ok_at: r.ran_at } : r);
+      await admin.from("source_runs").upsert([...runs.map((r) => okAt({ ...r, kind: "api" })), ...crawled.runs], { onConflict: "source" });
       const rows = Object.entries(live).map(([metric_id, value]) => ({
         metric_id,
         value,
