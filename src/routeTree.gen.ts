@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DataRouteImport } from './routes/data'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SourcesRouteImport } from './routes/sources'
 import { Route as SignalsFamilyRouteImport } from './routes/signals.$family'
@@ -17,6 +18,11 @@ import { Route as SignalsFamilyRouteImport } from './routes/signals.$family'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataRoute = DataRouteImport.update({
+  id: '/data',
+  path: '/data',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -37,12 +43,14 @@ const SignalsFamilyRoute = SignalsFamilyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/data': typeof DataRoute
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
   '/signals/$family': typeof SignalsFamilyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/data': typeof DataRoute
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
   '/signals/$family': typeof SignalsFamilyRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/data': typeof DataRoute
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
   '/signals/$family': typeof SignalsFamilyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/settings' | '/sources' | '/signals/$family'
+  fullPaths: '/' | '/data' | '/settings' | '/sources' | '/signals/$family'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/settings' | '/sources' | '/signals/$family'
-  id: '__root__' | '/' | '/settings' | '/sources' | '/signals/$family'
+  to: '/' | '/data' | '/settings' | '/sources' | '/signals/$family'
+  id: '__root__' | '/' | '/data' | '/settings' | '/sources' | '/signals/$family'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DataRoute: typeof DataRoute
   SettingsRoute: typeof SettingsRoute
   SourcesRoute: typeof SourcesRoute
   SignalsFamilyRoute: typeof SignalsFamilyRoute
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data': {
+      id: '/data'
+      path: '/data'
+      fullPath: '/data'
+      preLoaderRoute: typeof DataRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DataRoute: DataRoute,
   SettingsRoute: SettingsRoute,
   SourcesRoute: SourcesRoute,
   SignalsFamilyRoute: SignalsFamilyRoute,
