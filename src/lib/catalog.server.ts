@@ -4,12 +4,9 @@
 const API = "https://gdcatalog.go.th/api/3/action/package_search";
 
 export const CATALOG_AGENCIES = [
-  { key: "dld", metric: "cat_dld", agency: "กรมปศุสัตว์", q: "กรมปศุสัตว์" },
   { key: "md", metric: "cat_md", agency: "กรมเจ้าท่า", q: "กรมเจ้าท่า" },
   { key: "bma", metric: "cat_bma", agency: "กรุงเทพมหานคร", q: "organization_title:กรุงเทพมหานคร OR กรุงเทพมหานคร" },
   { key: "pao", metric: "cat_pao", agency: "อบจ./ท้องถิ่น", q: "องค์การบริหารส่วนจังหวัด" },
-  { key: "ddc", metric: "cat_ddc", agency: "กรมควบคุมโรค", q: "กรมควบคุมโรค" },
-  { key: "dlt", metric: "cat_dlt", agency: "กรมการขนส่งทางบก", q: "กรมการขนส่งทางบก" },
 ];
 export const catalogSourceName = (agency: string) => `ข้อมูลเปิดภาครัฐ: ${agency}`;
 
