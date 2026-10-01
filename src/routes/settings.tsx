@@ -116,7 +116,14 @@ function UpdateTimes() {
   const [last, setLast] = useState<{ key: string; text: string } | null>(null);
   useEffect(() => setLast(readLastResult()), [prefs.times.join(",")]);
   const add = () => { if (!prefs.times.includes(draft)) setPrefs({ ...prefs, times: [...prefs.times, draft].sort() }); };
+  const [, setNow] = useState(0);
+  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 15e3); return () => clearInterval(id); }, []);
   const next = nextSlot(prefs.times);
+  const mins = (() => {
+    if (!next || next.includes("พรุ่งนี้")) return null;
+    const d = new Date(Date.now() + 7 * 3600e3);
+    return Number(next.slice(0, 2)) * 60 + Number(next.slice(3, 5)) - (d.getUTCHours() * 60 + d.getUTCMinutes());
+  })();
   return (
     <div className="mt-6 border-2 border-foreground p-4 text-sm">
       <div className="font-semibold">เวลาอัปเดตข้อมูลรัฐ (เวลาไทย)</div>
@@ -133,7 +140,7 @@ function UpdateTimes() {
         <input type="time" value={draft} onChange={(e) => setDraft(e.target.value)} className="border-2 border-foreground bg-background px-2 py-1" aria-label="เลือกเวลา" />
         <button onClick={add} className="border-2 border-foreground px-3 py-1 font-semibold hover:bg-foreground hover:text-background">เพิ่มเวลา</button>
       </div>
-      <p className="mt-3">รอบถัดไป: <strong>{next ?? "—"}</strong>{last && <> · อัปเดตล่าสุด: {last.text}</>}</p>
+      <p className="mt-3">รอบถัดไป: <strong>{next ?? "—"}</strong>{mins != null && <> (อีก {mins >= 60 ? `${Math.floor(mins / 60)} ชม. ` : ""}{mins % 60} นาที)</>}{last && <> · อัปเดตล่าสุด: {last.text}</>}</p>
       <p className="mt-1 text-xs text-muted-foreground">เมื่อถึงเวลาที่เลือก ระบบจะอัปเดตและแจ้งผลขณะเปิดเว็บไว้ หรือแจ้งทันทีที่คุณเปิดเว็บครั้งถัดไป (ไม่มีระบบบัญชี จึงทำงานบนเครื่องนี้เท่านั้น)</p>
     </div>
   );
