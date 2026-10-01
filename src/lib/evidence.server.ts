@@ -28,7 +28,7 @@ function install() {
   }) as typeof fetch;
 }
 
-async function sha256(b: Uint8Array) {
+async function sha256(b: Uint8Array<ArrayBuffer>) {
   const h = await crypto.subtle.digest("SHA-256", b);
   return [...new Uint8Array(h)].map((x) => x.toString(16).padStart(2, "0")).join("");
 }
