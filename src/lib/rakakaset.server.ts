@@ -24,9 +24,10 @@ function thDate(s: string): string | null {
 }
 
 /** Returns latest prices whose table date is not later than `today` (YYYY-MM-DD, Bangkok). */
-export async function runRakaKaset(today: string): Promise<{ values: Record<string, number>; run: any }> {
+export async function runRakaKaset(today: string): Promise<{ values: Record<string, number>; dates: Record<string, string>; run: any }> {
   const ran_at = new Date().toISOString();
   const values: Record<string, number> = {};
+  const dates: Record<string, string> = {};
   const errors: string[] = [];
   try {
     const res = await fetch("https://rakakaset.com/prices/", {
@@ -43,6 +44,7 @@ export async function runRakaKaset(today: string): Promise<{ values: Record<stri
       if (!Number.isFinite(price) || price <= 0) { errors.push(`${label}: ราคาอ่านไม่ได้`); continue; }
       if (date && date > today) { errors.push(`${label}: วันที่ข้อมูล ${date} อยู่ในอนาคต — ข้าม`); continue; }
       values[metric] = price;
+      if (date) dates[metric] = date; // the day the price refers to, not the fetch day
     }
   } catch (e) {
     errors.push((e as Error).message);
@@ -50,6 +52,7 @@ export async function runRakaKaset(today: string): Promise<{ values: Record<stri
   const rows = Object.keys(values).length;
   return {
     values,
+    dates,
     run: {
       source: RAKAKASET_SOURCE, kind: "crawler", url: "https://rakakaset.com/prices/", ran_at, rows,
       ok: rows > 0, error: errors.length ? errors.join("; ").slice(0, 300) : null,
