@@ -14,10 +14,46 @@ export type Database = {
   }
   public: {
     Tables: {
+      brief_updates: {
+        Row: {
+          body: string | null
+          brief_date: string
+          created_at: string
+          event_id: string | null
+          id: number
+          kind: string
+          title: string
+          version: number | null
+        }
+        Insert: {
+          body?: string | null
+          brief_date: string
+          created_at?: string
+          event_id?: string | null
+          id?: number
+          kind: string
+          title: string
+          version?: number | null
+        }
+        Update: {
+          body?: string | null
+          brief_date?: string
+          created_at?: string
+          event_id?: string | null
+          id?: number
+          kind?: string
+          title?: string
+          version?: number | null
+        }
+        Relationships: []
+      }
       daily_briefs: {
         Row: {
           body: string
           brief_date: string
+          completeness: Json | null
+          cutoff_at: string | null
+          edition: number
           generated_at: string
           items: Json | null
           published_at: string | null
@@ -26,6 +62,9 @@ export type Database = {
         Insert: {
           body: string
           brief_date: string
+          completeness?: Json | null
+          cutoff_at?: string | null
+          edition?: number
           generated_at?: string
           items?: Json | null
           published_at?: string | null
@@ -34,6 +73,9 @@ export type Database = {
         Update: {
           body?: string
           brief_date?: string
+          completeness?: Json | null
+          cutoff_at?: string | null
+          edition?: number
           generated_at?: string
           items?: Json | null
           published_at?: string | null
@@ -400,29 +442,54 @@ export type Database = {
       observations: {
         Row: {
           created_at: string
+          effective_from: string | null
+          evidence_id: number | null
           id: number
           is_demo: boolean
           metric_id: string
           observed_on: string
+          period_end: string | null
+          period_start: string | null
+          published_at: string | null
+          received_at: string
           value: number
         }
         Insert: {
           created_at?: string
+          effective_from?: string | null
+          evidence_id?: number | null
           id?: number
           is_demo?: boolean
           metric_id: string
           observed_on: string
+          period_end?: string | null
+          period_start?: string | null
+          published_at?: string | null
+          received_at?: string
           value: number
         }
         Update: {
           created_at?: string
+          effective_from?: string | null
+          evidence_id?: number | null
           id?: number
           is_demo?: boolean
           metric_id?: string
           observed_on?: string
+          period_end?: string | null
+          period_start?: string | null
+          published_at?: string | null
+          received_at?: string
           value?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "observations_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "raw_evidence"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "observations_metric_id_fkey"
             columns: ["metric_id"]
@@ -508,6 +575,131 @@ export type Database = {
           },
         ]
       }
+      signal_events: {
+        Row: {
+          area: string
+          current_version: number
+          event_id: string
+          event_type: string
+          family_id: string
+          first_seen_at: string
+          is_demo: boolean
+          metric_id: string
+          signal_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          area?: string
+          current_version?: number
+          event_id: string
+          event_type: string
+          family_id: string
+          first_seen_at?: string
+          is_demo?: boolean
+          metric_id: string
+          signal_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          area?: string
+          current_version?: number
+          event_id?: string
+          event_type?: string
+          family_id?: string
+          first_seen_at?: string
+          is_demo?: boolean
+          metric_id?: string
+          signal_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_events_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "signal_events_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signal_versions: {
+        Row: {
+          advice: string | null
+          change_kind: string
+          created_at: string
+          event_id: string
+          evidence_ids: number[]
+          id: number
+          impact: Json | null
+          new_date: string | null
+          new_value: number | null
+          prev_date: string | null
+          prev_value: number | null
+          quality: string
+          reason: string | null
+          rules: Json | null
+          severity: string | null
+          title: string | null
+          version: number
+        }
+        Insert: {
+          advice?: string | null
+          change_kind: string
+          created_at?: string
+          event_id: string
+          evidence_ids?: number[]
+          id?: number
+          impact?: Json | null
+          new_date?: string | null
+          new_value?: number | null
+          prev_date?: string | null
+          prev_value?: number | null
+          quality: string
+          reason?: string | null
+          rules?: Json | null
+          severity?: string | null
+          title?: string | null
+          version: number
+        }
+        Update: {
+          advice?: string | null
+          change_kind?: string
+          created_at?: string
+          event_id?: string
+          evidence_ids?: number[]
+          id?: number
+          impact?: Json | null
+          new_date?: string | null
+          new_value?: number | null
+          prev_date?: string | null
+          prev_value?: number | null
+          quality?: string
+          reason?: string | null
+          rules?: Json | null
+          severity?: string | null
+          title?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signal_versions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "signal_events"
+            referencedColumns: ["event_id"]
+          },
+        ]
+      }
       signals: {
         Row: {
           change_abs: number | null
@@ -573,6 +765,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      source_registry: {
+        Row: {
+          area: string
+          cadence: string
+          channel: string
+          licence: string
+          owner: string
+          sort: number
+          source: string
+          stale_after_days: number
+          unit: string
+          url: string | null
+        }
+        Insert: {
+          area?: string
+          cadence: string
+          channel: string
+          licence?: string
+          owner: string
+          sort?: number
+          source: string
+          stale_after_days?: number
+          unit?: string
+          url?: string | null
+        }
+        Update: {
+          area?: string
+          cadence?: string
+          channel?: string
+          licence?: string
+          owner?: string
+          sort?: number
+          source?: string
+          stale_after_days?: number
+          unit?: string
+          url?: string | null
+        }
+        Relationships: []
       }
       source_run_history: {
         Row: {
@@ -674,9 +905,36 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      detect_core: {
+        Args: { _cutoff?: string; _d: string }
+        Returns: {
+          change_abs: number
+          change_pct: number
+          checks: Json
+          family_id: string
+          has_obs: boolean
+          is_demo: boolean
+          metric_id: string
+          new_value: number
+          prev_value: number
+          severity: string
+          title: string
+        }[]
+      }
       detect_signals: { Args: { _d: string }; Returns: number }
       family_evidence_source: { Args: { _family: string }; Returns: string }
       rank_signals: { Args: { _d: string }; Returns: number }
+      replay_signals: {
+        Args: { _d: string }
+        Returns: {
+          is_demo: boolean
+          metric_id: string
+          new_value: number
+          prev_value: number
+          severity: string
+          title: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
