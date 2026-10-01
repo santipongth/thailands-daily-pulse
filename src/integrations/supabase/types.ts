@@ -301,24 +301,36 @@ export type Database = {
       source_runs: {
         Row: {
           error: string | null
+          kind: string
+          last_ok_at: string | null
           ok: boolean
           ran_at: string
           rows: number
+          sample: string | null
           source: string
+          url: string | null
         }
         Insert: {
           error?: string | null
+          kind?: string
+          last_ok_at?: string | null
           ok: boolean
           ran_at?: string
           rows?: number
+          sample?: string | null
           source: string
+          url?: string | null
         }
         Update: {
           error?: string | null
+          kind?: string
+          last_ok_at?: string | null
           ok?: boolean
           ran_at?: string
           rows?: number
+          sample?: string | null
           source?: string
+          url?: string | null
         }
         Relationships: []
       }
