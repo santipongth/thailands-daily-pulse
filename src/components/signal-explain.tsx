@@ -93,6 +93,15 @@ export function SignalExplain({ s, family, metric, history, news }: { s: Signal;
                   )}
                 </dd>
               </div>
+              {s.checks?.score && (
+                <div>
+                  <dt className="font-semibold">คะแนนจัดอันดับ {Number(s.checks.score.total).toFixed(2)}</dt>
+                  <dd className="mt-1 text-muted-foreground">
+                    ความรุนแรง {s.checks.score.severity_weight} × ความแรงเทียบความผันผวน {Number(s.checks.score.z_factor).toFixed(2)} × ความน่าเชื่อถือแหล่ง {s.checks.score.trust_factor} × ผลต่อครัวเรือน {s.checks.score.reach}
+                    <span className="block text-xs">ตัวเลขคำนวณโดยระบบ — AI ใช้เรียบเรียงภาษาเท่านั้น · <a href="/method" className="underline">ดูสูตร</a></span>
+                  </dd>
+                </div>
+              )}
               {s.checks && (
                 <div>
                   <dt className="font-semibold">เกณฑ์ที่ผ่าน</dt>
