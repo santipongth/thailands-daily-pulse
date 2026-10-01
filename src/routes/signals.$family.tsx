@@ -31,7 +31,7 @@ function FamilyPage() {
   const { family: id } = Route.useParams();
   const { data } = useSuspenseQuery(familyQuery(id));
   if (!data) return null;
-  const { family, metrics, obs, signals } = data;
+  const { family, metrics, obs, signals, news } = data;
   const met = new Map(metrics.map((m) => [m.id, m]));
   return (
     <div className="min-h-screen">
@@ -63,6 +63,20 @@ function FamilyPage() {
             );
           })}
         </section>
+
+        {news.length > 0 && (
+          <section className="mt-12">
+            <h2 className="font-display text-2xl">ข่าวที่เกี่ยวข้องล่าสุด</h2>
+            <ul className="mt-4 space-y-3 text-sm">
+              {news.map((n) => (
+                <li key={n.id}>
+                  <a href={n.link} target="_blank" rel="noreferrer" className="underline">{n.title}</a>
+                  <span className="block text-xs text-muted-foreground">{n.agency ? `${n.agency} · ` : ""}{n.source} · {new Date(n.published_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium" })}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="mt-12">
           <h2 className="font-display text-2xl">สัญญาณที่เคยเกิด</h2>
