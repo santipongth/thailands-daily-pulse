@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useServerFn } from "@tanstack/react-start";
+
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +36,7 @@ export function readLastResult(): { key: string; text: string } | null {
 /** Runs the user's chosen update times while the site is open (or on the next visit) and reports the result. */
 export function ScheduledRefresh() {
   const [prefs] = useSourcePrefs();
-  const retry = useServerFn(retrySources);
+  const retry = retrySources;
   const qc = useQueryClient();
 
   useEffect(() => {
