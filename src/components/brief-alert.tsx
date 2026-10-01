@@ -23,15 +23,17 @@ export function BriefAlert() {
   useEffect(() => {
     const tick = async () => {
       const { date, mins } = bkk();
-      const { data: sigs } = await supabase.from("signals").select("id,title").eq("signal_date", date).eq("is_demo", false);
-      const ids = (sigs ?? []).map((s) => s.id).sort();
+      // Keyed on event_id#version: a re-fetch with no change keeps the same version, so no repeat alert.
+      const { data: evs } = await supabase.from("signal_events").select("event_id,current_version,status").eq("signal_date", date).eq("is_demo", false).neq("status", "withdrawn");
+      const ids = (evs ?? []).map((e) => `${e.event_id}#${e.current_version}`).sort();
       const key = `${date}:${ids.join(",")}`;
       const prev = localStorage.getItem(SEEN_SIGS);
       if (prev === null || !prev.startsWith(date)) {
         localStorage.setItem(SEEN_SIGS, key);
       } else if (prev !== key) {
         const old = new Set(prev.slice(11).split(",").filter(Boolean));
-        const added = ids.filter((i) => !old.has(i)).length;
+        const oldEvents = new Set([...old].map((k) => k.split("#")[0]));
+        const added = ids.filter((i) => !oldEvents.has(i.split("#")[0])).length;
         localStorage.setItem(SEEN_SIGS, key);
         if (added > 0) {
           const text = `มีสัญญาณใหม่จากข้อมูลจริง ${added} รายการวันนี้`;

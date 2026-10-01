@@ -3,7 +3,7 @@
 // makes is kept as raw evidence.
 
 type Run = { source: string; ok: boolean; rows: number; error: string | null; ran_at: string; kind?: string; url?: string; sample?: string | null };
-type Result = { values: Record<string, number>; runs: Run[] };
+type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> };
 type Ctx = { admin: any; date: string };
 
 const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = {
@@ -28,7 +28,7 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
   rakakaset: async ({ date }) => {
     const { runRakaKaset } = await import("./rakakaset.server");
     const r = await runRakaKaset(date);
-    return { values: r.values, runs: [r.run] };
+    return { values: r.values, dates: r.dates, runs: [r.run] };
   },
   catalog: async ({ admin, date }) => {
     const { runCatalog } = await import("./catalog.server");
@@ -92,10 +92,21 @@ export async function drain(admin: any, date: string, budgetMs = 240e3, maxJobs 
     const runs = res?.runs ?? [];
     const allFailed = !!err || (runs.length > 0 && runs.every((r) => !r.ok));
     if (res && Object.keys(res.values).length) {
+      // Four times per value: refers-to (observed_on/period), published (unknown here), received, effective.
       const now = new Date().toISOString();
-      const rows = Object.entries(res.values).map(([metric_id, value]) => ({ metric_id, value, observed_on: date, is_demo: false, created_at: now }));
-      const { error: oe } = await admin.from("observations").upsert(rows, { onConflict: "metric_id,observed_on" });
-      if (oe) console.error(oe);
+      const { data: ev } = await admin.from("raw_evidence").select("id").eq("job_id", job.id).order("id", { ascending: false }).limit(1).maybeSingle();
+      const rows = Object.entries(res.values).map(([metric_id, value]) => {
+        const d = res!.dates?.[metric_id] ?? date;
+        return { metric_id, value, observed_on: d, period_start: d, period_end: d, effective_from: d, is_demo: false, received_at: now, created_at: now, evidence_id: ev?.id ?? null };
+      });
+      // Re-fetching an unchanged value keeps the original received time (replay stays honest).
+      const { data: existing } = await admin.from("observations").select("metric_id,observed_on,value,is_demo").in("metric_id", rows.map((r) => r.metric_id)).in("observed_on", [...new Set(rows.map((r) => r.observed_on))]);
+      const same = new Set((existing ?? []).filter((e: any) => !e.is_demo).map((e: any) => `${e.metric_id}|${e.observed_on}|${Number(e.value)}`));
+      const changed = rows.filter((r) => !same.has(`${r.metric_id}|${r.observed_on}|${Number(r.value)}`));
+      if (changed.length) {
+        const { error: oe } = await admin.from("observations").upsert(changed, { onConflict: "metric_id,observed_on" });
+        if (oe) console.error(oe);
+      }
     }
     if (runs.length) {
       const okAt = (r: Run) => ({ ...(r.ok ? { ...r, last_ok_at: r.ran_at } : r), kind: r.kind ?? "api", run_kind: job.run_kind });

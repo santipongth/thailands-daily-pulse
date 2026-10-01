@@ -17,7 +17,10 @@
 - Sources: connectors `{metric_id: value}` in `connectors.server.ts`; crawlers (baseline links → `gov_*` new announcements); gdcatalog CKAN daily snapshots → `gov_changes`; CheckRaka/RakaKaset aggregators (trust medium); GLO lottery confirmed by 2nd endpoint; outcomes in `source_runs` + `source_run_history` (30d).
 - Every job fetch is archived as raw evidence (private `evidence` bucket, sha256 dedup, kept forever, `raw_evidence`, signed URLs); `/evidence` diffs vs previous different-hash file of same URL — every value auditable.
 - News RSS is keyword-tagged to agency/family and only tagged items stored; it never creates signals.
-- Brief: 06:00 cron `/api/public/brief`; items computed in `impact.ts` from real signals; AI writes only intro, rejected if it has numbers not in facts; regenerated only on signature change; frozen once published.
+- Brief: cron 05:45 `?step=freeze` (cutoff) and 05:55 `?step=publish`; items from real signals with event_id/version, data date, score and evidence; AI writes only intro (rejected if new numbers); frozen once published, later event versions go to `brief_updates`; completeness stored per edition.
+- Every observation keeps refers-to (`observed_on`/period), published, `received_at` and `effective_from`; connectors may return per-metric dates; unchanged re-fetches are not rewritten so `received_at` stays honest for replay.
+- `source_registry` holds owner/channel/licence/cadence/unit/area/`stale_after_days`; `completeness.ts` marks sources ok/stale/unverifiable — never treated as no change.
+- Signals are versioned by trigger `record_signal_version` into `signal_events`/`signal_versions` (event_id = metric:date; new version only on content change; delete = withdrawal); detection logic is `detect_core(date, cutoff)`, reused by `replay_signals` (data received by 05:45).
 - Household cost = fixed `BASKET` × real price changes (`impact.ts`, `HouseholdBasket`) — code-only math.
 - No accounts: all preferences (sources, sensitivity, interval, update `times`, seen state) are per-device localStorage; `ScheduledRefresh` and `BriefAlert` in __root run in the browser.
 - Public reads via browser client under anon SELECT RLS; writes server-side with admin client. `is_demo`/`is_live` label real vs illustrative data.

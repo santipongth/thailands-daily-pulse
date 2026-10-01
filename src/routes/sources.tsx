@@ -1,17 +1,17 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Masthead } from "@/components/masthead";
-import { DataBadge } from "@/components/signals-ui";
-import { sourcesQuery } from "@/lib/signals";
+import { registryQuery } from "@/lib/registry";
+import { STATUS_TH } from "@/lib/completeness";
 
 export const Route = createFileRoute("/sources")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(sourcesQuery),
+  loader: ({ context }) => context.queryClient.ensureQueryData(registryQuery),
   head: () => ({
     meta: [
-      { title: "แหล่งข้อมูล — Thailand Daily Signals" },
-      { name: "description", content: "รายชื่อแหล่งข้อมูลราชการและสาธารณะที่ใช้ตรวจจับสัญญาณการเปลี่ยนแปลงในประเทศไทย" },
-      { property: "og:title", content: "แหล่งข้อมูล — Thailand Daily Signals" },
-      { property: "og:description", content: "แหล่งข้อมูลราชการและสาธารณะ พร้อมสถานะการเชื่อมต่อ" },
+      { title: "ทะเบียนแหล่งข้อมูล — Thailand Daily Signals" },
+      { name: "description", content: "เจ้าของ ช่องทาง สิทธิ์ใช้ รอบอัปเดต หน่วย พื้นที่ และเกณฑ์ข้อมูลเก่าของทุกแหล่ง พร้อมสถานะความครบถ้วนวันนี้" },
+      { property: "og:title", content: "ทะเบียนแหล่งข้อมูล — Thailand Daily Signals" },
+      { property: "og:description", content: "ทุกแหล่งข้อมูลที่ใช้ตรวจจับสัญญาณ พร้อมสถานะ ครบ / เก่า / ตรวจสอบไม่ได้" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -21,34 +21,46 @@ export const Route = createFileRoute("/sources")({
   notFoundComponent: () => <div className="p-8">ไม่พบข้อมูล</div>,
 });
 
+const dt = (s: string | null) => (s ? new Date(s).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" }) : "—");
+
 function Sources() {
-  const { data } = useSuspenseQuery(sourcesQuery);
+  const { data } = useSuspenseQuery(registryQuery);
+  const byS = new Map(data.completeness.map((c) => [c.source, c]));
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-4xl px-4 py-8">
-        <h1 className="font-display text-4xl">แหล่งข้อมูล</h1>
-        <p className="mt-2 text-muted-foreground">
-          ดึงข้อมูลจริงล่าสุดเมื่อ{" "}
-          {data.lastLive ? new Date(data.lastLive).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" }) : "—"} · อัปเดตอัตโนมัติทุกราว 3 ชั่วโมงเมื่อมีผู้เปิดหน้าแรก
-        </p>
-        <table className="mt-6 w-full text-sm">
-          <thead>
-            <tr className="border-b-2 border-foreground text-left">
-              <th className="py-2">กลุ่ม</th><th>แหล่งที่มา</th><th>ความถี่</th><th>สถานะ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.families.map((f) => (
-              <tr key={f.id} className="border-b border-border align-top">
-                <td className="py-2"><Link to="/signals/$family" params={{ family: f.id }} className="hover:underline">{f.emoji} {f.name_th}</Link></td>
-                <td className="py-2 pr-2">{f.source_url ? <a className="underline" href={f.source_url} target="_blank" rel="noreferrer">{f.source_name}</a> : f.source_name}</td>
-                <td className="py-2 pr-2">{f.cadence}</td>
-                <td className="py-2"><DataBadge demo={!f.is_live} /></td>
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        <h1 className="font-display text-4xl">ทะเบียนแหล่งข้อมูล</h1>
+        <p className="mt-2 text-muted-foreground">ทุกแหล่งมีเจ้าของ ช่องทาง สิทธิ์ใช้ รอบอัปเดต หน่วย พื้นที่ และเกณฑ์ "ข้อมูลเก่า" — แหล่งที่เก่าหรือตรวจสอบไม่ได้จะถูกแสดงตามนั้น ไม่ถูกนับว่า "ไม่เปลี่ยน"</p>
+        <div className="mt-6 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b-2 border-foreground text-left align-bottom">
+                <th className="py-2 pr-2">แหล่ง / เจ้าของ</th><th className="pr-2">ช่องทาง</th><th className="pr-2">สิทธิ์ใช้</th><th className="pr-2">รอบอัปเดต</th><th className="pr-2">หน่วย</th><th className="pr-2">พื้นที่</th><th className="pr-2">ถือว่าเก่าเมื่อ</th><th>สถานะวันนี้</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.registry.map((r) => {
+                const c = byS.get(r.source);
+                return (
+                  <tr key={r.source} className="border-b border-border align-top">
+                    <td className="py-2 pr-2"><div className="font-semibold">{r.url ? <a href={r.url} target="_blank" rel="noreferrer" className="underline">{r.source}</a> : r.source}</div><div className="text-xs text-muted-foreground">{r.owner}</div></td>
+                    <td className="pr-2">{r.channel}</td>
+                    <td className="pr-2 text-xs">{r.licence}</td>
+                    <td className="pr-2">{r.cadence}</td>
+                    <td className="pr-2">{r.unit}</td>
+                    <td className="pr-2">{r.area}</td>
+                    <td className="pr-2">เกิน {r.stale_after_days} วัน</td>
+                    <td>
+                      {c && <span className={c.status === "ok" ? "font-semibold text-primary" : "font-semibold text-destructive"}>{STATUS_TH[c.status]}</span>}
+                      {c && <div className="text-xs text-muted-foreground">ข้อมูลวันที่ {c.data_date ?? "—"} · ได้รับ {dt(c.last_ok_at)}<br />{c.reason}</div>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </main>
     </div>
   );
