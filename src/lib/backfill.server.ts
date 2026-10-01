@@ -43,15 +43,15 @@ export async function runBackfill(admin: any, days: number, today: string) {
     });
   } catch (e) { error = String((e as Error).message ?? e).slice(0, 300); }
 
-  // Never overwrite an existing value (real or demo) for that date.
+  // Never overwrite a real value; real history replaces illustrative demo rows.
   let inserted = 0;
   if (rows.length) {
-    const { data: ex } = await admin.from("observations").select("metric_id,observed_on").in("metric_id", [...new Set(rows.map((r) => r.metric_id))]).gte("observed_on", rows.map((r) => r.observed_on).sort()[0]);
-    const has = new Set((ex ?? []).map((e: any) => `${e.metric_id}|${e.observed_on}`));
+    const { data: ex } = await admin.from("observations").select("metric_id,observed_on,is_demo").in("metric_id", [...new Set(rows.map((r) => r.metric_id))]).gte("observed_on", rows.map((r) => r.observed_on).sort()[0]);
+    const has = new Set((ex ?? []).filter((e: any) => !e.is_demo).map((e: any) => `${e.metric_id}|${e.observed_on}`));
     const { data: ev } = await admin.from("raw_evidence").select("id").eq("job_id", job.id).order("id", { ascending: false }).limit(1).maybeSingle();
     const now = new Date().toISOString();
     const add = rows.filter((r) => !has.has(`${r.metric_id}|${r.observed_on}`)).map((r) => ({ ...r, period_start: r.observed_on, period_end: r.observed_on, effective_from: r.observed_on, is_demo: false, received_at: now, evidence_id: ev?.id ?? null }));
-    if (add.length) { const { error: e } = await admin.from("observations").insert(add); if (e) error = e.message; else inserted = add.length; }
+    if (add.length) { const { error: e } = await admin.from("observations").upsert(add, { onConflict: "metric_id,observed_on" }); if (e) error = e.message; else inserted = add.length; }
   }
   await admin.from("ingest_jobs").update({ status: error ? "failed" : "done", rows: inserted, error, finished_at: new Date().toISOString() }).eq("id", job.id);
 
