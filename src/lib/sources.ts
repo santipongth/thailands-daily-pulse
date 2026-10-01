@@ -17,6 +17,7 @@ export const SOURCES: SourceInfo[] = [
   { source: "กรมประมง (เว็บไซต์ทางการ)", agency: "กรมประมง", kind: "crawler", metrics: ["gov_fish"] },
   { source: "กรมการขนส่งทางบก (เว็บไซต์ทางการ)", agency: "กรมการขนส่งทางบก", kind: "crawler", metrics: ["gov_dlt"] },
   { source: "กรมปศุสัตว์ (เว็บไซต์ทางการ)", agency: "กรมปศุสัตว์", kind: "crawler", metrics: ["gov_dld"] },
+  { source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)", agency: "สำนักงานสลากกินแบ่งรัฐบาล", kind: "api", metrics: ["lotto"] },
   { source: "สมาคมค้าทองคำ", agency: "สมาคมค้าทองคำ", kind: "api", metrics: ["gold_bar", "gold_orn"] },
   { source: "ThaiWater (สสน.)", agency: "สสน. / กรมชลประทาน", kind: "api", metrics: ["dam_total", "dam_bhumibol"] },
   { source: "กรมอุตุฯ เตือนภัย", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["tmd_warn"] },
@@ -49,6 +50,7 @@ export const AGENCIES: Agency[] = [
   { key: "dlt", label: "กรมการขนส่งทางบก", sources: ["กรมการขนส่งทางบก (เว็บไซต์ทางการ)", "ข้อมูลเปิดภาครัฐ: กรมการขนส่งทางบก"], catalog: "กรมการขนส่งทางบก", newsAgency: "กรมการขนส่งทางบก" },
   { key: "dol", label: "กรมที่ดิน", sources: ["กรมที่ดิน (เว็บไซต์ทางการ)"], newsAgency: "กรมที่ดิน" },
   { key: "fish", label: "กรมประมง", sources: ["กรมประมง (เว็บไซต์ทางการ)"], newsAgency: "กรมประมง" },
+  { key: "glo", label: "สำนักงานสลากกินแบ่งรัฐบาล", sources: ["สำนักงานสลากกินแบ่งรัฐบาล (GLO)"] },
   { key: "energy", label: "ปตท. / บางจาก (ราคาน้ำมัน)", sources: ["PTT (thai-oil-api)", "บางจาก (Bangchak API)"] },
 ];
 

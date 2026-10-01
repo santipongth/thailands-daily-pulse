@@ -51,36 +51,64 @@ async function streamBrief(prompt: string, apiKey: string): Promise<string> {
   return text.trim();
 }
 
-export async function refreshBrief(admin: any, date: string) {
+const SEV_TH: Record<string, string> = { high: "สูง", medium: "กลาง", low: "ต่ำ" };
+const SEV_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
+
+/** Builds the 4-answer brief from real signals only. publish=true stamps it as the 06:00 edition. */
+export async function refreshBrief(admin: any, date: string, publish = false) {
+  const { householdImpact, officialAdvice } = await import("./impact");
   const { data: sigs } = await admin
     .from("signals")
-    .select("metric_id, severity, title, change_pct, is_demo, families(name_th)")
+    .select("metric_id, family_id, severity, title, prev_value, new_value, change_abs, change_pct, is_demo, checks, families(name_th, emoji, source_name, source_url)")
     .eq("signal_date", date)
-    .order("severity");
-  const signature = (sigs ?? []).map((s: any) => `${s.metric_id}:${s.title}`).sort().join("|");
-  const { data: existing } = await admin.from("daily_briefs").select("signature").eq("brief_date", date).maybeSingle();
-  if (existing && existing.signature === signature) return;
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) return;
-  const lines = (sigs ?? [])
-    .map((s: any) => `- [${s.severity}] ${s.families?.name_th}: ${s.title}${s.change_pct != null ? ` (${Number(s.change_pct).toFixed(1)}%)` : ""}`)
-    .join("\n");
-  const prompt = `คุณเป็นบรรณาธิการ "Thailand Daily Signals" ตอบคำถาม "วันนี้มีอะไรเปลี่ยนไปในประเทศไทยที่อาจกระทบชีวิตฉัน?"
-สัญญาณที่ตรวจพบวันนี้:
-${lines || "- ไม่มี"}
+    .eq("is_demo", false);
+  const list = (sigs ?? []).sort((x: any, y: any) => SEV_ORDER[x.severity] - SEV_ORDER[y.severity]);
+  const signature = list.map((s: any) => `${s.metric_id}:${s.title}`).sort().join("|");
+  const { data: existing } = await admin.from("daily_briefs").select("signature, published_at").eq("brief_date", date).maybeSingle();
+  if (existing && existing.signature === signature && (!publish || existing.published_at)) return;
+  if (existing?.published_at && !publish) return; // the 06:00 edition is frozen for the day
 
-เขียนสรุปภาษาไทย 3-5 ประโยค สั้น กระชับ เป็นภาษาคน เรียงเรื่องที่กระทบชีวิตประจำวันมากสุดก่อน
-ถ้ามีราคาน้ำมันเปลี่ยน ให้ประมาณผลต่อครัวเรือนที่ใช้น้ำมัน 40 ลิตร/เดือน ถ้ามีราคาอาหารเปลี่ยนให้บอกเป็นเปอร์เซ็นต์
-ห้ามแต่งตัวเลขที่ไม่มีในรายการ ไม่ต้องใส่หัวข้อ ไม่ใช้ bullet ไม่เกิน 600 ตัวอักษร`;
-  try {
-    const body = await streamBrief(prompt, apiKey);
-    if (body) await admin.from("daily_briefs").upsert({ brief_date: date, body, signature, generated_at: new Date().toISOString() });
-  } catch (e) {
-    console.error("brief failed", e);
+  const items = list.map((s: any) => {
+    const why = s.checks?.rule === "delta" && s.checks?.z != null
+      ? `เปลี่ยนแรงกว่าความผันผวนปกติ ${Number(s.checks.z).toFixed(1)} เท่า`
+      : s.checks?.rule === "level" ? "ข้ามระดับเกณฑ์ที่กำหนด" : s.checks?.rule === "release" ? "ตัวเลขรอบใหม่ประกาศวันนี้" : s.checks?.rule === "catalog" ? "ชุดข้อมูลทางการเปลี่ยนจริง" : "เกินเกณฑ์ที่กำหนด";
+    return {
+      metric_id: s.metric_id,
+      family: `${s.families?.emoji ?? ""} ${s.families?.name_th ?? ""}`.trim(),
+      what: s.title,
+      importance: SEV_TH[s.severity] ?? s.severity,
+      why,
+      impact: householdImpact(s),
+      advice: officialAdvice(s),
+      source: s.families?.source_name ?? null,
+      source_url: s.families?.source_url ?? null,
+    };
+  });
+
+  let body = items.length ? items.slice(0, 4).map((i: any) => i.what).join(" · ") : "วันนี้ยังไม่มีการเปลี่ยนแปลงอย่างมีนัยสำคัญจากข้อมูลจริง";
+  const apiKey = process.env["LOVABLE_API_KEY"];
+  if (apiKey && items.length) {
+    const facts = items.map((i: any) => `- [${i.importance}] ${i.what}${i.impact ? ` | ผลต่อครัวเรือน: ${i.impact}` : ""}`).join("\n");
+    const prompt = `คุณเป็นบรรณาธิการ "Thailand Daily Signals" เขียนบทนำ Daily Brief เช้านี้
+ข้อเท็จจริงที่คำนวณแล้ว (ข้อมูลจริงจากแหล่งทางการ):
+${facts}
+
+เขียนภาษาไทย 2-4 ประโยค สั้น เป็นภาษาคน เรื่องที่กระทบชีวิตประจำวันมากสุดก่อน
+ใช้เฉพาะตัวเลขที่ให้ไว้ ห้ามเพิ่มตัวเลขหรือข้อมูลใหม่ ไม่ใส่หัวข้อ ไม่ใช้ bullet ไม่เกิน 450 ตัวอักษร`;
+    try {
+      const t = await streamBrief(prompt, apiKey);
+      if (t) body = t;
+    } catch (e) {
+      console.error("brief failed", e);
+    }
   }
+  await admin.from("daily_briefs").upsert({
+    brief_date: date, body, signature, items, generated_at: new Date().toISOString(),
+    ...(publish ? { published_at: new Date().toISOString() } : {}),
+  });
 }
 
-export async function refreshIfStale(maxAgeHours = 3): Promise<{ refreshed: boolean }> {
+export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; publish?: boolean } = {}): Promise<{ refreshed: boolean }> {
   const STALE = Math.min(24, Math.max(1, maxAgeHours)) * 3600e3;
   const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
   const date = bangkokDate();
@@ -92,8 +120,8 @@ export async function refreshIfStale(maxAgeHours = 3): Promise<{ refreshed: bool
     .limit(1)
     .maybeSingle();
   const { data: lastNews } = await admin.from("job_locks").select("locked_until").eq("name", "news_fetched").maybeSingle();
-  const liveStale = !last || Date.now() - new Date(last.created_at).getTime() >= STALE;
-  const newsStale = !lastNews || Date.now() - new Date(lastNews.locked_until).getTime() >= STALE_MS;
+  const liveStale = !!opts.force || !last || Date.now() - new Date(last.created_at).getTime() >= STALE;
+  const newsStale = !!opts.force || !lastNews || Date.now() - new Date(lastNews.locked_until).getTime() >= STALE_MS;
   if (!liveStale && !newsStale) {
     const { data: b } = await admin.from("daily_briefs").select("brief_date").eq("brief_date", date).maybeSingle();
     if (b) return { refreshed: false };
@@ -112,6 +140,17 @@ export async function refreshIfStale(maxAgeHours = 3): Promise<{ refreshed: bool
       Object.assign(live, crawled.values);
       const { runCatalog } = await import("./catalog.server");
       const catalogRuns = await runCatalog(admin, date).catch((e) => { console.error("catalog failed", e); return []; });
+      const lot = await (async () => {
+        const ran_at = new Date().toISOString();
+        try {
+          const { syncLottery } = await import("./glo.server");
+          const r = await syncLottery(admin);
+          return { source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)", kind: "api", url: "https://www.glo.or.th/api/lottery/getLatestLottery", ok: true, rows: 1, error: null, ran_at, last_ok_at: ran_at, sample: `งวด ${r.date} รางวัลที่ 1 ${r.first}${r.verified ? " (ยืนยันแล้ว)" : " (รอยืนยัน)"}` };
+        } catch (e) {
+          return { source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)", kind: "api", url: "https://www.glo.or.th/api/lottery/getLatestLottery", ok: false, rows: 0, error: String((e as Error).message).slice(0, 200), ran_at };
+        }
+      })();
+      catalogRuns.push(lot);
       const okAt = (r: any) => (r.ok ? { ...r, last_ok_at: r.ran_at } : r);
       await admin.from("source_runs").upsert([...runs.map((r) => okAt({ ...r, kind: "api" })), ...crawled.runs, ...catalogRuns], { onConflict: "source" });
       const all = [...runs, ...crawled.runs, ...catalogRuns];
@@ -144,7 +183,7 @@ export async function refreshIfStale(maxAgeHours = 3): Promise<{ refreshed: bool
         console.error("news failed", e);
       }
     }
-    await refreshBrief(admin, date);
+    await refreshBrief(admin, date, !!opts.publish);
     return { refreshed: true };
   } finally {
     await admin.from("job_locks").upsert({ name: LOCK, locked_until: new Date(0).toISOString() });
