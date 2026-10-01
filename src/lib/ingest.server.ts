@@ -143,6 +143,15 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
       const { runCrawlers } = await import("./crawlers.server");
       const crawled = await runCrawlers(admin, date);
       Object.assign(live, crawled.values);
+      // CheckRaka food prices change once a day (05:00): fetch on daily/manual runs or if today's prices are missing.
+      const { count: foodToday } = await admin.from("observations").select("id", { count: "exact", head: true })
+        .eq("observed_on", date).eq("is_demo", false).in("metric_id", ["pork", "egg"]);
+      if (opts.runKind === "daily" || opts.runKind === "manual" || !foodToday) {
+        const { runCheckRaka } = await import("./checkraka.server");
+        const cr = await runCheckRaka();
+        Object.assign(live, cr.values);
+        crawled.runs.push(cr.run);
+      }
       const { runCatalog } = await import("./catalog.server");
       const catalogRuns: any[] = await runCatalog(admin, date).catch((e) => { console.error("catalog failed", e); return []; });
       const lot = await (async () => {
