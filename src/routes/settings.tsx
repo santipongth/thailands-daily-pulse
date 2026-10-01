@@ -83,7 +83,7 @@ function SourceSettings() {
             <li key={x.source} className="flex gap-3 py-3">
               <input type="checkbox" checked={!prefs.disabled.includes(x.source)} onChange={() => toggle(x.source)} className="mt-1.5 accent-[var(--up)]" aria-label={x.source} />
               <div className="min-w-0 flex-1 text-sm">
-                <div className="font-semibold">{x.source} <span className="font-normal text-muted-foreground">· {x.kind === "crawler" ? "crawler" : "API"}</span></div>
+                <div className="font-semibold">{x.source} <span className="font-normal text-muted-foreground">· {x.kind === "crawler" ? "crawler" : x.kind === "catalog" ? "ศูนย์ข้อมูลภาครัฐ" : "API"}</span></div>
                 {!r ? <div className="text-muted-foreground">ยังไม่เคยดึง</div> : r.ok ? (
                   <div className="text-muted-foreground">ดึงได้ {r.rows} รายการ · {new Date(r.ran_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" })}{r.sample ? ` · ${r.sample}` : ""}</div>
                 ) : (

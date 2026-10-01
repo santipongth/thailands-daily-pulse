@@ -14,6 +14,7 @@ import { Route as DataRouteImport } from './routes/data'
 import { Route as FailuresRouteImport } from './routes/failures'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SourcesRouteImport } from './routes/sources'
+import { Route as DayDateRouteImport } from './routes/day.$date'
 import { Route as SignalsFamilyRouteImport } from './routes/signals.$family'
 import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
 
@@ -42,6 +43,11 @@ const SourcesRoute = SourcesRouteImport.update({
   path: '/sources',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DayDateRoute = DayDateRouteImport.update({
+  id: '/day/$date',
+  path: '/day/$date',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignalsFamilyRoute = SignalsFamilyRouteImport.update({
   id: '/signals/$family',
   path: '/signals/$family',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/failures': typeof FailuresRoute
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
+  '/day/$date': typeof DayDateRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/failures': typeof FailuresRoute
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
+  '/day/$date': typeof DayDateRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/failures': typeof FailuresRoute
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
+  '/day/$date': typeof DayDateRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/failures'
     | '/settings'
     | '/sources'
+    | '/day/$date'
     | '/signals/$family'
     | '/api/public/ingest'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/failures'
     | '/settings'
     | '/sources'
+    | '/day/$date'
     | '/signals/$family'
     | '/api/public/ingest'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/failures'
     | '/settings'
     | '/sources'
+    | '/day/$date'
     | '/signals/$family'
     | '/api/public/ingest'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   FailuresRoute: typeof FailuresRoute
   SettingsRoute: typeof SettingsRoute
   SourcesRoute: typeof SourcesRoute
+  DayDateRoute: typeof DayDateRoute
   SignalsFamilyRoute: typeof SignalsFamilyRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
 }
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/day/$date': {
+      id: '/day/$date'
+      path: '/day/$date'
+      fullPath: '/day/$date'
+      preLoaderRoute: typeof DayDateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signals/$family': {
       id: '/signals/$family'
       path: '/signals/$family'
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   FailuresRoute: FailuresRoute,
   SettingsRoute: SettingsRoute,
   SourcesRoute: SourcesRoute,
+  DayDateRoute: DayDateRoute,
   SignalsFamilyRoute: SignalsFamilyRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
 }

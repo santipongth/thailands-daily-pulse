@@ -43,6 +43,13 @@
       "when": 1790871390825,
       "tag": "0005_gov_crawlers",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790871978281,
+      "tag": "0006_gov_catalog",
+      "breakpoints": true
     }
   ]
 }

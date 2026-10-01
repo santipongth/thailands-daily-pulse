@@ -13,3 +13,4 @@
 - [ ] DDC disease numbers — blocked: site down
 - [x] Gov website crawlers (DDC, DOL, Fisheries, DLT, DLD) + failures page + source/interval settings
 - [ ] DDC, Fisheries, DLT, DLD crawls currently fail (site down / timeout / bad SSL / bot block) — blocked on the agencies' sites
+- [x] Gov open-data catalog tracking (DLD, Marine Dept, BMA, PAO, DDC, DLT) with daily diffs, alerts, /day comparison page

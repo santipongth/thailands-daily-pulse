@@ -71,6 +71,115 @@ export type Database = {
         }
         Relationships: []
       }
+      gov_changes: {
+        Row: {
+          after_text: string | null
+          agency: string
+          before_text: string | null
+          change_date: string
+          created_at: string
+          dataset_id: string
+          id: number
+          kind: string
+          reason_th: string
+        }
+        Insert: {
+          after_text?: string | null
+          agency: string
+          before_text?: string | null
+          change_date: string
+          created_at?: string
+          dataset_id: string
+          id?: number
+          kind: string
+          reason_th: string
+        }
+        Update: {
+          after_text?: string | null
+          agency?: string
+          before_text?: string | null
+          change_date?: string
+          created_at?: string
+          dataset_id?: string
+          id?: number
+          kind?: string
+          reason_th?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gov_changes_dataset_id_fkey"
+            columns: ["dataset_id"]
+            isOneToOne: false
+            referencedRelation: "gov_datasets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gov_datasets: {
+        Row: {
+          agency: string
+          first_seen: string
+          id: string
+          org: string | null
+          title: string
+          url: string
+        }
+        Insert: {
+          agency: string
+          first_seen?: string
+          id: string
+          org?: string | null
+          title: string
+          url: string
+        }
+        Update: {
+          agency?: string
+          first_seen?: string
+          id?: string
+          org?: string | null
+          title?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      gov_snapshots: {
+        Row: {
+          csv_url: string | null
+          dataset_id: string
+          metadata_modified: string | null
+          numeric_total: number | null
+          resource_hash: string | null
+          row_count: number | null
+          snap_date: string
+        }
+        Insert: {
+          csv_url?: string | null
+          dataset_id: string
+          metadata_modified?: string | null
+          numeric_total?: number | null
+          resource_hash?: string | null
+          row_count?: number | null
+          snap_date: string
+        }
+        Update: {
+          csv_url?: string | null
+          dataset_id?: string
+          metadata_modified?: string | null
+          numeric_total?: number | null
+          resource_hash?: string | null
+          row_count?: number | null
+          snap_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gov_snapshots_dataset_id_fkey"
+            columns: ["dataset_id"]
+            isOneToOne: false
+            referencedRelation: "gov_datasets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_locks: {
         Row: {
           locked_until: string

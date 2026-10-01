@@ -21,3 +21,4 @@
 - Signal sensitivity is a per-device preference in localStorage that filters by severity on the client — there are no user accounts.
 - Agency websites without APIs are crawled by `src/lib/crawlers.server.ts`: first-seen links are stored as a baseline, later new links become `gov_*` observations (new announcements today) so detection uses official sources, not newspapers.
 - Source selection and refresh interval are per-device localStorage preferences (no accounts); the interval is passed to the refresh server function, clamped 1–24h.
+- Official open data is tracked via the gdcatalog.go.th CKAN API (`src/lib/catalog.server.ts`): one snapshot per dataset per Bangkok day, diffs vs the previous snapshot go to `gov_changes`, and catalog code writes one signal per agency/day directly (detect_signals skips metrics without observations).

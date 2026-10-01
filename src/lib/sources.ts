@@ -1,9 +1,17 @@
 // Client-safe registry of every data source and the metrics it feeds.
 // `source` must match the name the server writes into source_runs.
 
-export type SourceInfo = { source: string; agency: string; kind: "api" | "crawler"; metrics: string[] };
+export type SourceInfo = { source: string; agency: string; kind: "api" | "crawler" | "catalog"; metrics: string[] };
+
+const cat = (agency: string, metric: string): SourceInfo => ({ source: `ข้อมูลเปิดภาครัฐ: ${agency}`, agency, kind: "catalog", metrics: [metric] });
 
 export const SOURCES: SourceInfo[] = [
+  cat("กรมปศุสัตว์", "cat_dld"),
+  cat("กรมเจ้าท่า", "cat_md"),
+  cat("กรุงเทพมหานคร", "cat_bma"),
+  cat("อบจ./ท้องถิ่น", "cat_pao"),
+  cat("กรมควบคุมโรค", "cat_ddc"),
+  cat("กรมการขนส่งทางบก", "cat_dlt"),
   { source: "กรมควบคุมโรค (เว็บไซต์ทางการ)", agency: "กรมควบคุมโรค", kind: "crawler", metrics: ["gov_ddc"] },
   { source: "กรมที่ดิน (เว็บไซต์ทางการ)", agency: "กรมที่ดิน", kind: "crawler", metrics: ["gov_dol"] },
   { source: "กรมประมง (เว็บไซต์ทางการ)", agency: "กรมประมง", kind: "crawler", metrics: ["gov_fish"] },
@@ -20,3 +28,8 @@ export const SOURCES: SourceInfo[] = [
 ];
 
 export const isOfficial = (newsSource: string) => newsSource.includes("เว็บไซต์ทางการ");
+
+/** Metric id -> catalog agency name (for gov_changes lookups). */
+export const CATALOG_METRIC_AGENCY: Record<string, string> = Object.fromEntries(
+  SOURCES.filter((x) => x.kind === "catalog").map((x) => [x.metrics[0]!, x.agency]),
+);
