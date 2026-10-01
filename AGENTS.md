@@ -16,3 +16,5 @@
 - The AI daily brief is regenerated only when the day's signal set (signature) changes — bounds AI cost.
 - Public data is read from the browser client under anon SELECT RLS; all writes happen server-side with the admin client.
 - Observations carry `is_demo`; families carry `is_live` so the UI can always label real vs illustrative data.
+- News comes from newspaper RSS feeds parsed server-side and keyword-tagged to an agency and signal family; only tagged items are stored — keeps news relevant to signals.
+- Signal sensitivity is a per-device preference in localStorage that filters by severity on the client — there are no user accounts.
