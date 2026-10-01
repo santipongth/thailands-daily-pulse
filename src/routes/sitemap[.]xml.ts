@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { createFileRoute, getRouterInstance } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
+import { getRouterInstance } from "@tanstack/react-start";
 import { sitemapStaticPaths, sitemapXML, type SitemapEntry } from "@/lib/sitemap";
 
 const BASE_URL = "https://thailands-daily-pulse.lovable.app";
