@@ -15,3 +15,6 @@
 - [ ] DDC, Fisheries, DLT, DLD crawls currently fail (site down / timeout / bad SSL / bot block) — blocked on the agencies' sites
 - [x] Gov open-data catalog tracking (DLD, Marine Dept, BMA, PAO, DDC, DLT) with daily diffs, alerts, /day comparison page
 - [x] Agency pages, stricter signal rules (min %, freshness, trust), fetch monitor with unseen-change badge
+- [x] GLO lottery (verified), volatility-aware detection, deterministic household impact + official advice, 06:00 Daily Brief + archive
+- [ ] Food prices and economic releases (CPI/GDP/unemployment) from official catalog CSVs — series selection pending
+- [ ] Interest rates — blocked: needs BOT API key

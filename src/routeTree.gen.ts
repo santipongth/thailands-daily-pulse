@@ -17,8 +17,11 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SourcesRouteImport } from './routes/sources'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
 import { Route as AgenciesAgencyRouteImport } from './routes/agencies.$agency'
+import { Route as BriefIndexRouteImport } from './routes/brief.index'
+import { Route as BriefDateRouteImport } from './routes/brief.$date'
 import { Route as DayDateRouteImport } from './routes/day.$date'
 import { Route as SignalsFamilyRouteImport } from './routes/signals.$family'
+import { Route as ApiPublicBriefRouteImport } from './routes/api/public/brief'
 import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
 
 const IndexRoute = IndexRouteImport.update({
@@ -61,6 +64,16 @@ const AgenciesAgencyRoute = AgenciesAgencyRouteImport.update({
   path: '/agencies/$agency',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BriefIndexRoute = BriefIndexRouteImport.update({
+  id: '/brief/',
+  path: '/brief/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BriefDateRoute = BriefDateRouteImport.update({
+  id: '/brief/$date',
+  path: '/brief/$date',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DayDateRoute = DayDateRouteImport.update({
   id: '/day/$date',
   path: '/day/$date',
@@ -69,6 +82,11 @@ const DayDateRoute = DayDateRouteImport.update({
 const SignalsFamilyRoute = SignalsFamilyRouteImport.update({
   id: '/signals/$family',
   path: '/signals/$family',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBriefRoute = ApiPublicBriefRouteImport.update({
+  id: '/api/public/brief',
+  path: '/api/public/brief',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicIngestRoute = ApiPublicIngestRouteImport.update({
@@ -85,9 +103,12 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
+  '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies/': typeof AgenciesIndexRoute
+  '/brief/': typeof BriefIndexRoute
+  '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
 }
 export interface FileRoutesByTo {
@@ -98,9 +119,12 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
+  '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies': typeof AgenciesIndexRoute
+  '/brief': typeof BriefIndexRoute
+  '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
 }
 export interface FileRoutesById {
@@ -112,9 +136,12 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
+  '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies/': typeof AgenciesIndexRoute
+  '/brief/': typeof BriefIndexRoute
+  '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
 }
 export interface FileRouteTypes {
@@ -127,9 +154,12 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sources'
     | '/agencies/$agency'
+    | '/brief/$date'
     | '/day/$date'
     | '/signals/$family'
     | '/agencies/'
+    | '/brief/'
+    | '/api/public/brief'
     | '/api/public/ingest'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -140,9 +170,12 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sources'
     | '/agencies/$agency'
+    | '/brief/$date'
     | '/day/$date'
     | '/signals/$family'
     | '/agencies'
+    | '/brief'
+    | '/api/public/brief'
     | '/api/public/ingest'
   id:
     | '__root__'
@@ -153,9 +186,12 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sources'
     | '/agencies/$agency'
+    | '/brief/$date'
     | '/day/$date'
     | '/signals/$family'
     | '/agencies/'
+    | '/brief/'
+    | '/api/public/brief'
     | '/api/public/ingest'
   fileRoutesById: FileRoutesById
 }
@@ -167,9 +203,12 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SourcesRoute: typeof SourcesRoute
   AgenciesAgencyRoute: typeof AgenciesAgencyRoute
+  BriefDateRoute: typeof BriefDateRoute
   DayDateRoute: typeof DayDateRoute
   SignalsFamilyRoute: typeof SignalsFamilyRoute
   AgenciesIndexRoute: typeof AgenciesIndexRoute
+  BriefIndexRoute: typeof BriefIndexRoute
+  ApiPublicBriefRoute: typeof ApiPublicBriefRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
 }
 
@@ -231,6 +270,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgenciesAgencyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/brief/': {
+      id: '/brief/'
+      path: '/brief'
+      fullPath: '/brief/'
+      preLoaderRoute: typeof BriefIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brief/$date': {
+      id: '/brief/$date'
+      path: '/brief/$date'
+      fullPath: '/brief/$date'
+      preLoaderRoute: typeof BriefDateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/day/$date': {
       id: '/day/$date'
       path: '/day/$date'
@@ -243,6 +296,13 @@ declare module '@tanstack/react-router' {
       path: '/signals/$family'
       fullPath: '/signals/$family'
       preLoaderRoute: typeof SignalsFamilyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/brief': {
+      id: '/api/public/brief'
+      path: '/api/public/brief'
+      fullPath: '/api/public/brief'
+      preLoaderRoute: typeof ApiPublicBriefRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/ingest': {
@@ -263,9 +323,12 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SourcesRoute: SourcesRoute,
   AgenciesAgencyRoute: AgenciesAgencyRoute,
+  BriefDateRoute: BriefDateRoute,
   DayDateRoute: DayDateRoute,
   SignalsFamilyRoute: SignalsFamilyRoute,
   AgenciesIndexRoute: AgenciesIndexRoute,
+  BriefIndexRoute: BriefIndexRoute,
+  ApiPublicBriefRoute: ApiPublicBriefRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
 }
 export const routeTree = rootRouteImport

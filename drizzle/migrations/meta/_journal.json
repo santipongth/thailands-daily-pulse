@@ -57,6 +57,13 @@
       "when": 1790872963510,
       "tag": "0007_stricter_signals",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790873383505,
+      "tag": "0008_brief_lottery_volatility",
+      "breakpoints": true
     }
   ]
 }

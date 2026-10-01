@@ -13,6 +13,7 @@ export function Masthead() {
         </Link>
         <nav className="flex flex-wrap justify-end gap-x-4 gap-y-1 text-sm">
           <Link to="/" search={{}} className="hover:underline" activeOptions={{ exact: true }} activeProps={{ className: "font-semibold underline" }}>วันนี้</Link>
+          <Link to="/brief" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>Brief</Link>
           <Link to="/day/$date" params={{ date: bkkToday() }} className="hover:underline" activeProps={{ className: "font-semibold underline" }}>รายวัน</Link>
           <Link to="/agencies" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>หน่วยงาน</Link>
           <Link to="/monitor" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>

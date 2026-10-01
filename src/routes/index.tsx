@@ -12,6 +12,7 @@ import { useSensitivity } from "@/hooks/use-sensitivity";
 import { useSourcePrefs, readIntervalHours } from "@/hooks/use-source-prefs";
 import { SOURCES } from "@/lib/sources";
 import { GovAlert } from "@/components/gov-alert";
+import { BriefItems, type BriefItem } from "@/components/brief-items";
 
 export const Route = createFileRoute("/")({
   validateSearch: z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() }),
@@ -90,8 +91,14 @@ function Today() {
               {data.brief?.body ?? (data.signals.length ? fallback : "วันนี้ยังไม่มีอะไรเปลี่ยนแปลงอย่างมีนัยสำคัญ")}
             </p>
             <p className="mt-3 text-xs text-muted-foreground">
-              {data.brief ? "เรียบเรียงโดย AI จากสัญญาณด้านล่างเท่านั้น" : "กำลังเตรียมสรุป…"} · ตรวจพบ {data.signals.length} สัญญาณ จาก {data.families.length} กลุ่มข้อมูล
+              {data.brief ? (data.brief.published_at ? "Daily Brief ฉบับ 06:00 · บทนำเรียบเรียงโดย AI จากข้อมูลจริงเท่านั้น" : "ฉบับระหว่างวัน · บทนำเรียบเรียงโดย AI จากข้อมูลจริงเท่านั้น") : "กำลังเตรียมสรุป…"} · ตรวจพบ {data.signals.length} สัญญาณ จาก {data.families.length} กลุ่มข้อมูล
             </p>
+            {Array.isArray(data.brief?.items) && data.brief!.items.length > 0 && (
+              <div className="mt-6">
+                <BriefItems items={(data.brief!.items as BriefItem[]).slice(0, 4)} />
+                <Link to="/brief/$date" params={{ date }} className="mt-4 inline-block text-sm underline">อ่าน Daily Brief ฉบับเต็ม →</Link>
+              </div>
+            )}
           </div>
           <aside className="border-l border-foreground/30 pl-6 max-md:border-l-0 max-md:border-t max-md:pl-0 max-md:pt-6">
             <h2 className="font-display text-lg">กำลังจะมา</h2>

@@ -39,7 +39,7 @@ export const dayQuery = (date: string) =>
         throwing<Metric[]>(supabase.from("metrics").select("id,family_id,name_th,unit,kind,decimals,sort,threshold_abs,threshold_pct,bands").order("sort")),
         throwing<Signal[]>(supabase.from("signals").select("*").eq("signal_date", date)),
         throwing<Obs[]>(supabase.from("observations").select("metric_id,observed_on,value,is_demo").gte("observed_on", from).lte("observed_on", date).order("observed_on").limit(1000)),
-        throwing<{ body: string; generated_at: string } | null>(supabase.from("daily_briefs").select("body,generated_at").eq("brief_date", date).maybeSingle()),
+        throwing<{ body: string; generated_at: string; published_at: string | null; items: any } | null>(supabase.from("daily_briefs").select("body,generated_at,published_at,items").eq("brief_date", date).maybeSingle()),
         throwing<{ id: number; family_id: string; title: string; release_date: string }[]>(
           supabase.from("release_calendar").select("*").gt("release_date", date).order("release_date").limit(6),
         ),

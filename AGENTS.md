@@ -24,3 +24,6 @@
 - Official open data is tracked via the gdcatalog.go.th CKAN API (`src/lib/catalog.server.ts`): one snapshot per dataset per Bangkok day, diffs vs the previous snapshot go to `gov_changes`, and catalog code writes one signal per agency/day directly (detect_signals skips metrics without observations).
 - Signal strictness lives in SQL: `metrics.min_pct`/`max_gap_days`, `families.trust` (medium needs 1.5x threshold, demo capped at medium) and each signal stores the passed rules in `signals.checks` for the explain dialog.
 - Every fetch attempt is appended to `source_run_history` (30-day retention) for the /monitor page; unseen-change tracking is per-device in localStorage.
+- Daily Brief is published at 06:00 Bangkok by pg_cron POSTing `/api/public/brief` (forced refresh + publish); items (what/importance/impact/advice) are computed deterministically in `src/lib/impact.ts` from real signals only, AI writes just the intro, and the published edition is frozen for the day.
+- Lottery results come only from the official GLO API (`src/lib/glo.server.ts`), stored as text in `lottery_draws` and signalled only when a second GLO endpoint confirms the first prize.
+- Detection also requires changes to exceed `metrics.vol_k` × the 30-observation stddev of daily changes when ≥10 points exist.
