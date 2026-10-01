@@ -29,6 +29,13 @@
       "when": 1790868133210,
       "tag": "0003_news_items",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790870044169,
+      "tag": "0004_real_sources",
+      "breakpoints": true
     }
   ]
 }

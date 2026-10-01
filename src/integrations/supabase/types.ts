@@ -298,6 +298,30 @@ export type Database = {
           },
         ]
       }
+      source_runs: {
+        Row: {
+          error: string | null
+          ok: boolean
+          ran_at: string
+          rows: number
+          source: string
+        }
+        Insert: {
+          error?: string | null
+          ok: boolean
+          ran_at?: string
+          rows?: number
+          source: string
+        }
+        Update: {
+          error?: string | null
+          ok?: boolean
+          ran_at?: string
+          rows?: number
+          source?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
