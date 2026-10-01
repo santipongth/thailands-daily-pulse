@@ -171,6 +171,16 @@ export async function refreshIfStale(): Promise<{ refreshed: boolean }> {
         if (error) console.error(error);
       }
       await admin.rpc("detect_signals", { _d: date });
+      try {
+        const { collectNews } = await import("./news.server");
+        const news = await collectNews();
+        if (news.length) {
+          const { error } = await admin.from("news_items").upsert(news, { onConflict: "link", ignoreDuplicates: true });
+          if (error) console.error(error);
+        }
+      } catch (e) {
+        console.error("news failed", e);
+      }
     }
     await refreshBrief(admin, date);
     return { refreshed: true };
