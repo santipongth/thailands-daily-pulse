@@ -44,7 +44,7 @@ function decode(s: string) {
 }
 const tag = (block: string, name: string) => {
   const m = block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`));
-  return m ? decode(m[1]) : "";
+  return m ? decode(m[1] ?? "") : "";
 };
 
 export async function collectNews() {
