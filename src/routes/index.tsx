@@ -88,8 +88,9 @@ function Today() {
         <div className="mt-3 text-right text-xs"><Link to="/day/$date" params={{ date }} className="underline">เทียบสัญญาณกับวันก่อน →</Link></div>
         <section className="grid gap-8 py-8 md:grid-cols-[2fr_1fr]">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-up">สรุปวันนี้</p>
-            <p className="mt-3 font-display text-2xl leading-relaxed sm:text-3xl">
+            <h1 className="font-display text-2xl leading-snug sm:text-3xl">Thailand Daily Signals — สรุปสัญญาณประจำวัน</h1>
+            <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-up">สรุปวันนี้</p>
+            <p className="mt-3 font-display text-xl leading-relaxed sm:text-2xl">
               {data.brief?.body ?? (data.signals.length ? fallback : "วันนี้ยังไม่มีอะไรเปลี่ยนแปลงอย่างมีนัยสำคัญ")}
             </p>
             <p className="mt-3 text-xs text-muted-foreground">
