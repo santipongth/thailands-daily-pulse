@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://thailands-daily-pulse.lovable.app/sitemap.xml
