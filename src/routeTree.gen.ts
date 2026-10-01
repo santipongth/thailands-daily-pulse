@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DataRouteImport } from './routes/data'
+import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as FailuresRouteImport } from './routes/failures'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as MonitorRouteImport } from './routes/monitor'
@@ -33,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
 const DataRoute = DataRouteImport.update({
   id: '/data',
   path: '/data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvidenceRoute = EvidenceRouteImport.update({
+  id: '/evidence',
+  path: '/evidence',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FailuresRoute = FailuresRouteImport.update({
@@ -104,6 +110,7 @@ const ApiPublicIngestRoute = ApiPublicIngestRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/data': typeof DataRoute
+  '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/method': typeof MethodRoute
   '/monitor': typeof MonitorRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/data': typeof DataRoute
+  '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/method': typeof MethodRoute
   '/monitor': typeof MonitorRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/data': typeof DataRoute
+  '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/method': typeof MethodRoute
   '/monitor': typeof MonitorRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/data'
+    | '/evidence'
     | '/failures'
     | '/method'
     | '/monitor'
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/data'
+    | '/evidence'
     | '/failures'
     | '/method'
     | '/monitor'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/data'
+    | '/evidence'
     | '/failures'
     | '/method'
     | '/monitor'
@@ -210,6 +222,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DataRoute: typeof DataRoute
+  EvidenceRoute: typeof EvidenceRoute
   FailuresRoute: typeof FailuresRoute
   MethodRoute: typeof MethodRoute
   MonitorRoute: typeof MonitorRoute
@@ -239,6 +252,13 @@ declare module '@tanstack/react-router' {
       path: '/data'
       fullPath: '/data'
       preLoaderRoute: typeof DataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evidence': {
+      id: '/evidence'
+      path: '/evidence'
+      fullPath: '/evidence'
+      preLoaderRoute: typeof EvidenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/failures': {
@@ -338,6 +358,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DataRoute: DataRoute,
+  EvidenceRoute: EvidenceRoute,
   FailuresRoute: FailuresRoute,
   MethodRoute: MethodRoute,
   MonitorRoute: MonitorRoute,

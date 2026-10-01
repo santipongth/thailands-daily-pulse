@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { SOURCES } from "@/lib/sources";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
@@ -75,6 +76,7 @@ function DataPage() {
             </tbody>
           </table>
         </section>
+        <DailyArrival obs={data.obs} />
         <section className="mt-6">
           <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">คิวงานดึงข้อมูล (1 งานต่อ 1 แหล่ง)</h2>
           <p className="mt-1 text-xs text-muted-foreground">แต่ละแหล่งเป็นงานแยกกัน ถ้าล้มเหลวจะลองใหม่อัตโนมัติสูงสุด 3 ครั้ง (เว้น 20 / 40 นาที)</p>
@@ -95,7 +97,7 @@ function DataPage() {
           </table>
         </section>
         <section className="mt-6">
-          <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">หลักฐานดิบ (ไฟล์ต้นฉบับที่ดึงมา)</h2>
+          <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">หลักฐานดิบ (ไฟล์ต้นฉบับที่ดึงมา) <Link to="/evidence" className="text-sm font-normal underline">ดูทั้งหมดและเทียบไฟล์ก่อนหน้า →</Link></h2>
           <p className="mt-1 text-xs text-muted-foreground">เก็บไฟล์ต้นฉบับทุกครั้งที่ดึงไว้ถาวร พร้อมรหัส SHA-256 เพื่อพิสูจน์ว่าข้อมูลที่เห็นมาจากแหล่งจริง ไฟล์ที่เนื้อหาเหมือนเดิมเก็บครั้งเดียว</p>
           <table className="mt-2 w-full text-sm">
             <thead><tr className="text-left text-muted-foreground"><th className="py-1">แหล่ง</th><th>URL</th><th>ขนาด</th><th>SHA-256</th><th>ดึงเมื่อ</th><th></th></tr></thead>
@@ -155,5 +157,33 @@ function DataPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+const TRACKED = ["CheckRaka (ราคาอาหาร)", "RakaKaset (ราคาเกษตร)", "Longdo Traffic Index"];
+function DailyArrival({ obs }: { obs: Row[] }) {
+  const days = Array.from({ length: 7 }, (_, i) => new Date(Date.now() + 7 * 3600e3 - i * 86400e3).toISOString().slice(0, 10)).reverse();
+  return (
+    <section className="mt-6">
+      <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">ข้อมูลรายวัน 7 วันล่าสุด</h2>
+      <p className="mt-1 text-xs text-muted-foreground">✓ = มีค่าจริงเข้ามาในวันนั้น (จำนวนตัวชี้วัด) · — = ไม่มีค่า</p>
+      <table className="mt-2 w-full text-sm">
+        <thead><tr className="text-left text-muted-foreground"><th className="py-1">แหล่ง</th>{days.map((d) => <th key={d}>{d.slice(8)}/{d.slice(5, 7)}</th>)}</tr></thead>
+        <tbody>
+          {TRACKED.map((name) => {
+            const ms = new Set(SOURCES.find((s) => s.source === name)?.metrics ?? []);
+            return (
+              <tr key={name} className="border-b border-border">
+                <td className="py-1">{name}</td>
+                {days.map((d) => {
+                  const n = new Set(obs.filter((o) => !o.is_demo && o.observed_on === d && ms.has(o.metric_id)).map((o) => o.metric_id)).size;
+                  return <td key={d} className={n ? "font-semibold text-primary" : "text-muted-foreground"}>{n ? `✓ ${n}` : "—"}</td>;
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </section>
   );
 }
