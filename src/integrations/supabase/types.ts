@@ -19,16 +19,19 @@ export type Database = {
           body: string
           brief_date: string
           generated_at: string
+          signature: string
         }
         Insert: {
           body: string
           brief_date: string
           generated_at?: string
+          signature?: string
         }
         Update: {
           body?: string
           brief_date?: string
           generated_at?: string
+          signature?: string
         }
         Relationships: []
       }
