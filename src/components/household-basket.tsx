@@ -31,10 +31,10 @@ export function HouseholdBasket({ date }: { date: string }) {
           <tbody>{lines.map((l) => (
             <tr key={l.metric_id} className="border-b border-border">
               <td className="py-1">{l.label}</td><td>{l.qty} {l.unit}</td>
-              <td className="tabular-nums">{l.prev == null ? "—" : b2(l.prev)}</td>
-              <td className="tabular-nums font-semibold">{b2(l.cur)}</td>
+              <td className="tabular-nums">{l.prev == null ? <span className="text-xs text-muted-foreground">ยังไม่มีข้อมูลเทียบ</span> : <>{b2(l.prev)} <span className="text-xs text-muted-foreground">({l.prevDate})</span></>}</td>
+              <td className="tabular-nums font-semibold">{b2(l.cur)} <span className="text-xs font-normal text-muted-foreground">({l.curDate})</span></td>
               <td className="tabular-nums">{b2(l.costCur)} ฿</td>
-              <td className={`tabular-nums ${l.delta > 0.005 ? "text-destructive font-semibold" : l.delta < -0.005 ? "text-primary font-semibold" : ""}`}>{sign(l.delta)} ฿</td>
+              <td className={`tabular-nums ${l.delta > 0.005 ? "text-destructive font-semibold" : l.delta < -0.005 ? "text-primary font-semibold" : ""}`}>{l.prev == null ? "—" : `${sign(l.delta)} ฿`}</td>
             </tr>
           ))}</tbody>
         </table>

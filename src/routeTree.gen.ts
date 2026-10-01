@@ -22,6 +22,7 @@ import { Route as AgenciesAgencyRouteImport } from './routes/agencies.$agency'
 import { Route as BriefIndexRouteImport } from './routes/brief.index'
 import { Route as BriefDateRouteImport } from './routes/brief.$date'
 import { Route as DayDateRouteImport } from './routes/day.$date'
+import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsIdRouteImport } from './routes/events.$id'
 import { Route as SignalsFamilyRouteImport } from './routes/signals.$family'
 import { Route as ApiPublicBriefRouteImport } from './routes/api/public/brief'
@@ -92,6 +93,11 @@ const DayDateRoute = DayDateRouteImport.update({
   path: '/day/$date',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsIdRoute = EventsIdRouteImport.update({
   id: '/events/$id',
   path: '/events/$id',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/brief/': typeof BriefIndexRoute
+  '/events/': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
 }
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies': typeof AgenciesIndexRoute
   '/brief': typeof BriefIndexRoute
+  '/events': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
 }
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/brief/': typeof BriefIndexRoute
+  '/events/': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
 }
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/signals/$family'
     | '/agencies/'
     | '/brief/'
+    | '/events/'
     | '/api/public/brief'
     | '/api/public/ingest'
   fileRoutesByTo: FileRoutesByTo
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/signals/$family'
     | '/agencies'
     | '/brief'
+    | '/events'
     | '/api/public/brief'
     | '/api/public/ingest'
   id:
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/signals/$family'
     | '/agencies/'
     | '/brief/'
+    | '/events/'
     | '/api/public/brief'
     | '/api/public/ingest'
   fileRoutesById: FileRoutesById
@@ -247,6 +259,7 @@ export interface RootRouteChildren {
   SignalsFamilyRoute: typeof SignalsFamilyRoute
   AgenciesIndexRoute: typeof AgenciesIndexRoute
   BriefIndexRoute: typeof BriefIndexRoute
+  EventsIndexRoute: typeof EventsIndexRoute
   ApiPublicBriefRoute: typeof ApiPublicBriefRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
 }
@@ -344,6 +357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DayDateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events/'
+      preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/$id': {
       id: '/events/$id'
       path: '/events/$id'
@@ -391,6 +411,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignalsFamilyRoute: SignalsFamilyRoute,
   AgenciesIndexRoute: AgenciesIndexRoute,
   BriefIndexRoute: BriefIndexRoute,
+  EventsIndexRoute: EventsIndexRoute,
   ApiPublicBriefRoute: ApiPublicBriefRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
 }

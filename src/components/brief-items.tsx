@@ -17,6 +17,7 @@ export type BriefItem = {
   rule?: string | null;
   evidence_ids?: number[];
   quality?: string;
+  impact_calc?: { per_day: number; per_month: number; formula: string } | null;
 };
 
 /** Renders the 4 answers per item: what changed, importance, household impact, what to do. */
@@ -32,7 +33,7 @@ export function BriefItems({ items }: { items: BriefItem[] }) {
             <dd className="font-display text-lg leading-snug">{i.what}</dd>
             <dt className="font-semibold">สำคัญแค่ไหน</dt>
             <dd><span className="font-semibold">{i.importance}</span> — {i.why}</dd>
-            {i.impact && (<><dt className="font-semibold">กระทบครัวเรือน</dt><dd>{i.impact}</dd></>)}
+            {i.impact && (<><dt className="font-semibold">กระทบครัวเรือน</dt><dd>{i.impact}{i.impact_calc && <span className="block font-mono text-xs text-muted-foreground">สูตร: {i.impact_calc.formula}</span>}</dd></>)}
             {i.advice && (
               <>
                 <dt className="font-semibold">ควรทำอะไร</dt>

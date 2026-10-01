@@ -7,6 +7,17 @@ export const Route = createFileRoute("/api/public/ingest")({
     handlers: {
       POST: async ({ request }) => {
         const { refreshIfStale } = await import("@/lib/ingest.server");
+        // mode=backfill: one-off history import; requires the scheduler secret.
+        if (new URL(request.url).searchParams.get("mode") === "backfill") {
+          const { authenticateCronRequest } = await import("@/integrations/supabase/cron-auth");
+          const denied = await authenticateCronRequest(request);
+          if (denied) return denied;
+          const days = Math.min(60, Math.max(1, Number(new URL(request.url).searchParams.get("days") ?? 30)));
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { runBackfill } = await import("@/lib/backfill.server");
+          const today = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+          return Response.json(await runBackfill(supabaseAdmin, days, today));
+        }
         // mode=daily (05:30 Bangkok) forces a full run of every government source; lease-guarded and once per day.
         if (new URL(request.url).searchParams.get("mode") === "daily") {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

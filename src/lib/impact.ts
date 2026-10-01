@@ -97,3 +97,15 @@ export function basketLines(obs: { metric_id: string; observed_on: string; value
   }
   return out;
 }
+
+export type ImpactCalc = { metric_id: string; label: string; qty: number; unit: string; prev: number; cur: number; per_day: number; per_month: number; formula: string };
+
+/** Structured, recomputable household cost of one real price change: (new − prev) × daily qty; × 30 per month. Null if the metric is not in BASKET or has no previous value. */
+export function impactFor(s: { metric_id: string; prev_value: number | null; new_value: number }): ImpactCalc | null {
+  const b = BASKET.find((x) => x.metric_id === s.metric_id);
+  if (!b || s.prev_value == null) return null;
+  const prev = Number(s.prev_value), cur = Number(s.new_value);
+  const per_day = +((cur - prev) * b.qty).toFixed(2);
+  return { metric_id: b.metric_id, label: b.label, qty: b.qty, unit: b.unit, prev, cur, per_day, per_month: +(per_day * 30).toFixed(2),
+    formula: `(${cur} − ${prev}) × ${b.qty} ${b.unit}/วัน = ${per_day} บาท/วัน; × 30 = ${+(per_day * 30).toFixed(2)} บาท/เดือน` };
+}
