@@ -12,7 +12,8 @@
 # AGENTS.md
 
 - Signals are detected in SQL by `public.detect_signals(date)` using per-metric rules (`kind` delta/level/release + thresholds) — keeps detection consistent for seeded and live data.
-- Live data refresh is on-demand: the homepage calls a server function that refreshes when live data is >3h old, guarded by a `job_locks` lease — avoids needing a cron secret.
+- Live data refresh runs hourly via pg_cron POSTing `/api/public/ingest` (no secret: refresh is idempotent, staleness-gated >3h and lease-guarded) plus on-demand from the homepage — data stays fresh without visitors.
+- Each real source is a connector in `src/lib/connectors.server.ts` returning `{metric_id: value}`; per-source outcomes go to `source_runs` — failures are isolated and visible on /data.
 - The AI daily brief is regenerated only when the day's signal set (signature) changes — bounds AI cost.
 - Public data is read from the browser client under anon SELECT RLS; all writes happen server-side with the admin client.
 - Observations carry `is_demo`; families carry `is_live` so the UI can always label real vs illustrative data.

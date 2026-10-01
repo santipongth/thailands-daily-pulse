@@ -8,63 +8,6 @@ export function bangkokDate(offsetDays = 0) {
 const STALE_MS = 3 * 3600e3;
 const LOCK = "ingest";
 
-async function getJson(url: string) {
-  const res = await fetch(url, { headers: { accept: "application/json" } });
-  if (!res.ok) throw new Error(`${url} -> ${res.status}`);
-  return res.json() as Promise<any>;
-}
-
-async function collectLive(): Promise<Record<string, number>> {
-  const out: Record<string, number> = {};
-  const [oil, fx, gold, aqB, aqC, wx] = await Promise.allSettled([
-    getJson("https://api.chnwt.dev/thai-oil-api/latest"),
-    getJson("https://open.er-api.com/v6/latest/USD"),
-    getJson("https://api.gold-api.com/price/XAU"),
-    getJson("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=13.75&longitude=100.5&current=pm2_5"),
-    getJson("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=18.79&longitude=98.98&current=pm2_5"),
-    getJson(
-      "https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.5&daily=precipitation_sum,temperature_2m_max&timezone=Asia/Bangkok&forecast_days=2",
-    ),
-  ]);
-  const num = (v: unknown) => {
-    const n = Number(v);
-    return Number.isFinite(n) && n > 0 ? n : undefined;
-  };
-  const set = (k: string, v: number | undefined) => {
-    if (v !== undefined) out[k] = v;
-  };
-  if (oil.status === "fulfilled") {
-    const p = oil.value?.response?.stations?.ptt;
-    set("gsh95", num(p?.gasohol_95?.price));
-    set("e20", num(p?.gasohol_e20?.price));
-    set("diesel", num(p?.diesel?.price));
-  }
-  let usd: number | undefined;
-  if (fx.status === "fulfilled") {
-    const r = fx.value?.rates ?? {};
-    usd = num(r.THB);
-    if (usd) {
-      set("usdthb", +usd.toFixed(3));
-      if (num(r.EUR)) set("eurthb", +(usd / r.EUR).toFixed(3));
-      if (num(r.JPY)) set("jpythb", +((100 * usd) / r.JPY).toFixed(3));
-    }
-  }
-  if (gold.status === "fulfilled" && usd) {
-    const oz = num(gold.value?.price);
-    // 1 baht-weight = 15.244 g, Thai bar purity 96.5%
-    if (oz) set("gold_bar", Math.round(((oz * usd) / 31.1035) * 15.244 * 0.965 / 50) * 50);
-  }
-  if (aqB.status === "fulfilled") set("pm25_bkk", num(aqB.value?.current?.pm2_5));
-  if (aqC.status === "fulfilled") set("pm25_cnx", num(aqC.value?.current?.pm2_5));
-  if (wx.status === "fulfilled") {
-    const d = wx.value?.daily;
-    const rain = Number(d?.precipitation_sum?.[1]);
-    if (Number.isFinite(rain)) out['rain_bkk'] = rain;
-    set("tmax_bkk", num(d?.temperature_2m_max?.[0]));
-  }
-  return out;
-}
-
 async function streamBrief(prompt: string, apiKey: string): Promise<string> {
   const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
     method: "POST",
@@ -161,7 +104,9 @@ export async function refreshIfStale(): Promise<{ refreshed: boolean }> {
   await admin.from("job_locks").upsert({ name: LOCK, locked_until: new Date(now.getTime() + 5 * 60e3).toISOString() });
   try {
     if (liveStale) {
-      const live = await collectLive();
+      const { runConnectors } = await import("./connectors.server");
+      const { values: live, runs } = await runConnectors(date);
+      await admin.from("source_runs").upsert(runs, { onConflict: "source" });
       const rows = Object.entries(live).map(([metric_id, value]) => ({
         metric_id,
         value,

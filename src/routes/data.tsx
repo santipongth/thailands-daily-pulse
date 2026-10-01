@@ -9,15 +9,16 @@ type Row = { metric_id: string; observed_on: string; value: number; is_demo: boo
 const rawQuery = queryOptions({
   queryKey: ["raw-data"],
   queryFn: async () => {
-    const [f, m, o, n] = await Promise.all([
+    const [f, m, o, n, r] = await Promise.all([
       supabase.from("families").select("*").order("sort"),
       supabase.from("metrics").select("*").order("sort"),
       supabase.from("observations").select("metric_id,observed_on,value,is_demo,created_at").order("observed_on", { ascending: false }).limit(1000),
       supabase.from("news_items").select("*").order("published_at", { ascending: false }).limit(60),
+      supabase.from("source_runs").select("*").order("source"),
     ]);
-    const err = f.error || m.error || o.error || n.error;
+    const err = f.error || m.error || o.error || n.error || r.error;
     if (err) throw err;
-    return { families: f.data as Family[], metrics: m.data as Metric[], obs: o.data as Row[], news: n.data as News[] };
+    return { families: f.data as Family[], metrics: m.data as Metric[], obs: o.data as Row[], news: n.data as News[], runs: (r.data ?? []) as { source: string; ran_at: string; ok: boolean; rows: number; error: string | null }[] };
   },
 });
 
@@ -51,6 +52,23 @@ function DataPage() {
       <main className="mx-auto max-w-5xl px-4 py-8">
         <h1 className="font-display text-4xl">ข้อมูลดิบรายวัน</h1>
         <p className="mt-2 text-muted-foreground">ค่าที่เข้ามาจริงทุกตัว ก่อนเทียบเกณฑ์ — ค่าที่ไม่ผ่านเกณฑ์จะไม่กลายเป็นสัญญาณ</p>
+        <section className="mt-6">
+          <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">สถานะการดึงข้อมูลแต่ละแหล่ง</h2>
+          <table className="mt-2 w-full text-sm">
+            <thead><tr className="text-left text-muted-foreground"><th className="py-1">แหล่ง</th><th>สถานะ</th><th>ค่าที่ได้</th><th>ดึงล่าสุด</th></tr></thead>
+            <tbody>
+              {data.runs.length === 0 && <tr><td colSpan={4} className="py-2 text-muted-foreground">ยังไม่มีการดึงข้อมูลรอบใหม่</td></tr>}
+              {data.runs.map((r) => (
+                <tr key={r.source} className="border-b border-border">
+                  <td className="py-1">{r.source}</td>
+                  <td>{r.ok ? <span className="font-semibold text-primary">สำเร็จ</span> : <span className="text-destructive" title={r.error ?? ""}>ล้มเหลว</span>}</td>
+                  <td>{r.rows}</td>
+                  <td>{new Date(r.ran_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
         {data.families.map((f) => {
           const ms = data.metrics.filter((m) => m.family_id === f.id);
           if (!ms.length) return null;
