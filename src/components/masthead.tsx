@@ -1,3 +1,4 @@
+import { bkkToday } from "@/lib/signals";
 import { Link } from "@tanstack/react-router";
 
 export function Masthead() {
@@ -9,6 +10,7 @@ export function Masthead() {
         </Link>
         <nav className="flex gap-4 text-sm">
           <Link to="/" search={{}} className="hover:underline" activeOptions={{ exact: true }} activeProps={{ className: "font-semibold underline" }}>วันนี้</Link>
+          <Link to="/day/$date" params={{ date: bkkToday() }} className="hover:underline" activeProps={{ className: "font-semibold underline" }}>รายวัน</Link>
           <Link to="/data" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ข้อมูลดิบ</Link>
           <Link to="/failures" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ดึงไม่ได้</Link>
           <Link to="/sources" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>แหล่งข้อมูล</Link>

@@ -110,8 +110,10 @@ export async function refreshIfStale(maxAgeHours = 3): Promise<{ refreshed: bool
       const { runCrawlers } = await import("./crawlers.server");
       const crawled = await runCrawlers(admin, date);
       Object.assign(live, crawled.values);
+      const { runCatalog } = await import("./catalog.server");
+      const catalogRuns = await runCatalog(admin, date).catch((e) => { console.error("catalog failed", e); return []; });
       const okAt = (r: any) => (r.ok ? { ...r, last_ok_at: r.ran_at } : r);
-      await admin.from("source_runs").upsert([...runs.map((r) => okAt({ ...r, kind: "api" })), ...crawled.runs], { onConflict: "source" });
+      await admin.from("source_runs").upsert([...runs.map((r) => okAt({ ...r, kind: "api" })), ...crawled.runs, ...catalogRuns], { onConflict: "source" });
       const rows = Object.entries(live).map(([metric_id, value]) => ({
         metric_id,
         value,
