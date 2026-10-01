@@ -1,6 +1,9 @@
 import type React from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { householdImpact } from "@/lib/impact";
+import { registryQuery } from "@/lib/registry";
 import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
 import { EVIDENCE_FACTOR, SEVERITY_WEIGHT, TRUST_FACTOR } from "@/lib/impact";
@@ -64,7 +67,7 @@ function Method() {
 
         <section>
           <h2 className="font-display text-2xl">2. จัดอันดับ</h2>
-          <p className="mt-3 border-2 border-foreground p-4 font-mono text-sm">คะแนน = น้ำหนักความรุนแรง × ตัวคูณความแรง × ความน่าเชื่อถือแหล่ง × ผลต่อครัวเรือน</p>
+          <p className="mt-3 border-2 border-foreground p-4 font-mono text-sm">คะแนน = น้ำหนักความรุนแรง × ตัวคูณความแรง × ความน่าเชื่อถือแหล่ง × ผลต่อครัวเรือน × หลักฐานไฟล์ดิบ</p>
           <ul className="mt-3 list-disc space-y-1 pl-6 text-sm">
             <li>น้ำหนักความรุนแรง: สูง {SEVERITY_WEIGHT.high} · กลาง {SEVERITY_WEIGHT.medium} · ต่ำ {SEVERITY_WEIGHT.low}</li>
             <li>ตัวคูณความแรง = z ÷ vol_k จำกัดช่วง 1–2 (ไม่มีข้อมูลพอ = 1)</li>
@@ -127,7 +130,91 @@ function Method() {
             </table>
           </div>
         </section>
+      <ReplayAndChecks />
       </main>
     </div>
+  );
+}
+
+function ReplayAndChecks() {
+  const today = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+  const [d, setD] = useState(new Date(Date.now() + 7 * 3600e3 - 86400e3).toISOString().slice(0, 10));
+  const replay = useQuery({
+    queryKey: ["replay", d],
+    queryFn: async () => {
+      const [r, a, b] = await Promise.all([
+        supabase.rpc("replay_signals", { _d: d }),
+        supabase.from("signals").select("metric_id,title,severity,is_demo").eq("signal_date", d),
+        supabase.from("daily_briefs").select("items,published_at").eq("brief_date", d).maybeSingle(),
+      ]);
+      if (r.error) throw r.error;
+      return { replay: (r.data ?? []) as any[], current: (a.data ?? []) as any[], published: ((b.data?.items ?? []) as any[]).map((i) => i.metric_id as string), wasPublished: !!b.data?.published_at };
+    },
+  });
+  const checks = useQuery({
+    queryKey: ["golive"],
+    queryFn: async () => {
+      const since = new Date(Date.now() + 7 * 3600e3 - 7 * 86400e3).toISOString().slice(0, 10);
+      const { data: evs } = await supabase.from("signal_events").select("event_id,current_version,is_demo,status").eq("is_demo", false).gte("signal_date", since);
+      const ids = (evs ?? []).map((e) => e.event_id);
+      const { data: vers } = ids.length ? await supabase.from("signal_versions").select("event_id,version,change_kind,severity,title,prev_value,new_value,rules,evidence_ids,impact").in("event_id", ids).order("version") : { data: [] as any[] };
+      const cur = (evs ?? []).filter((e) => e.status !== "withdrawn").map((e) => (vers ?? []).find((v: any) => v.event_id === e.event_id && v.version === e.current_version)).filter(Boolean) as any[];
+      const traced = cur.filter((v) => v.rules?.rule && (v.evidence_ids?.length ?? 0) > 0).length;
+      const withImpact = cur.filter((v) => v.impact?.inputs);
+      const recalcOk = withImpact.filter((v) => householdImpact(v.impact.inputs) === v.impact.text).length;
+      let dup = 0;
+      const byE = new Map<string, any[]>();
+      for (const v of vers ?? []) byE.set(v.event_id, [...(byE.get(v.event_id) ?? []), v]);
+      for (const list of byE.values()) for (let i = 1; i < list.length; i++) {
+        const a = list[i - 1], b = list[i];
+        if (b.change_kind === "corrected" && a.title === b.title && a.severity === b.severity && Number(a.prev_value) === Number(b.prev_value) && Number(a.new_value) === Number(b.new_value)) dup++;
+      }
+      return { total: cur.length, traced, impactTotal: withImpact.length, recalcOk, dup };
+    },
+  });
+  const reg = useQuery(registryQuery);
+  const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : "—");
+  const notOk = reg.data?.completeness.filter((c) => c.status !== "ok") ?? [];
+  const rset = new Set(replay.data?.replay.map((r) => r.metric_id));
+  const cset = new Set(replay.data?.current.filter((c) => !c.is_demo).map((c) => c.metric_id));
+  return (
+    <>
+      <section>
+        <h2 className="font-display text-2xl">เกณฑ์เปิดใช้งาน (7 วันล่าสุด, ข้อมูลจริง)</h2>
+        {checks.data ? (
+          <ul className="mt-3 list-disc space-y-1 pl-6 text-sm">
+            <li>Signal ที่ย้อนถึงกฎและไฟล์หลักฐานต้นทางได้: <b>{checks.data.traced}/{checks.data.total} ({pct(checks.data.traced, checks.data.total)})</b> — เป้าหมาย 100%</li>
+            <li>ตัวเลขผลกระทบที่คำนวณซ้ำแล้วตรงกับที่เผยแพร่: <b>{checks.data.recalcOk}/{checks.data.impactTotal} ({pct(checks.data.recalcOk, checks.data.impactTotal)})</b> — เป้าหมาย 100%</li>
+            <li>แหล่งที่ข้อมูลเก่า/ตรวจสอบไม่ได้วันนี้ (แสดงตามจริง ไม่นับว่าไม่เปลี่ยน): <b>{notOk.length}</b>{notOk.length > 0 && ` — ${notOk.map((c) => c.source).join(", ")}`}</li>
+            <li>เหตุเดิมที่ถูกบันทึกซ้ำจากการดึงรอบใหม่โดยค่าไม่เปลี่ยน: <b>{checks.data.dup}</b> — เป้าหมาย 0</li>
+          </ul>
+        ) : <p className="mt-3 text-sm text-muted-foreground">กำลังตรวจ…</p>}
+        <p className="mt-2 text-xs text-muted-foreground">ระบบไม่ตั้งเป้าจำนวนข่าวต่อวัน</p>
+      </section>
+      <section>
+        <h2 className="font-display text-2xl">Replay: ย้อนตรวจด้วยข้อมูลที่ระบบรู้ ณ 05:45 ของวันนั้น</h2>
+        <div className="mt-3 flex items-center gap-2 text-sm">
+          <input type="date" value={d} max={today} onChange={(e) => setD(e.target.value)} className="border-2 border-foreground bg-background px-2 py-1" aria-label="วันที่ replay" />
+        </div>
+        {replay.isLoading && <p className="mt-2 text-sm text-muted-foreground">กำลังคำนวณ…</p>}
+        {replay.data && (
+          <table className="mt-3 w-full text-sm">
+            <thead><tr className="text-left text-muted-foreground"><th className="py-1">ตัวชี้วัด</th><th>Replay (ข้อมูลถึง 05:45)</th><th>ปัจจุบัน</th><th>ใน Brief ที่เผยแพร่</th></tr></thead>
+            <tbody>
+              {[...new Set([...rset, ...cset])].map((m) => (
+                <tr key={m} className="border-b border-border">
+                  <td className="py-1">{m}</td>
+                  <td>{replay.data!.replay.find((r) => r.metric_id === m)?.title ?? "—"}</td>
+                  <td>{replay.data!.current.find((c) => c.metric_id === m)?.title ?? "—"}</td>
+                  <td>{replay.data!.wasPublished ? (replay.data!.published.includes(m) ? "✓" : "—") : "ยังไม่เผยแพร่"}</td>
+                </tr>
+              ))}
+              {rset.size + cset.size === 0 && <tr><td colSpan={4} className="py-2 text-muted-foreground">ไม่มีสัญญาณจากข้อมูลจริงในวันนี้ ทั้งแบบ replay และปัจจุบัน</td></tr>}
+            </tbody>
+          </table>
+        )}
+        <p className="mt-2 text-xs text-muted-foreground">Replay ใช้เฉพาะค่าที่ "ระบบได้รับ" ก่อน 05:45 ของวันนั้น — ค่าที่มาถึงทีหลังไม่ถูกนำมาใช้ย้อนหลัง</p>
+      </section>
+    </>
   );
 }
