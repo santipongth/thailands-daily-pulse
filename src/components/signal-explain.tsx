@@ -24,6 +24,24 @@ export function explainReason(s: Signal, m: Metric): string {
   return `เปลี่ยน ${fmt(ch, m.decimals)} ${m.unit}${s.change_pct != null ? ` (${s.change_pct > 0 ? "+" : ""}${s.change_pct.toFixed(1)}%)` : ""} จากค่าก่อนหน้า ซึ่งเกินเกณฑ์ที่ตั้งไว้ (${rules.join(" หรือ ")}) จึงถือเป็นสัญญาณ`;
 }
 
+const TRUST: Record<string, string> = { high: "สูง (แหล่งทางการโดยตรง)", medium: "กลาง (ผู้รวบรวม/ค่าประมาณ — ต้องเปลี่ยนมากกว่าปกติ 1.5 เท่า)", low: "ต่ำ (ข้อมูลตัวอย่าง)" };
+
+function checkLines(c: Record<string, any>, m: Metric): string[] {
+  const out: string[] = [];
+  if (c.rule === "delta") {
+    const t = [c.threshold_abs != null ? `${c.threshold_abs} ${m.unit}` : null, c.threshold_pct != null ? `${c.threshold_pct}%` : null].filter(Boolean).join(" หรือ ");
+    out.push(`ขนาดการเปลี่ยนแปลง: ${c.ratio} เท่าของเกณฑ์ (${t})`);
+    if (c.min_pct != null) out.push(`เปลี่ยนอย่างน้อย ${c.min_pct}% ตามเกณฑ์ขั้นต่ำ`);
+  }
+  if (c.rule === "level") out.push(`ข้ามระดับเกณฑ์ ${(c.bands ?? []).join(", ")} ${m.unit}`);
+  if (c.rule === "release") out.push("เป็นตัวเลขรอบใหม่ที่เพิ่งประกาศ");
+  if (c.rule === "catalog") out.push(`ชุดข้อมูลทางการเปลี่ยนจริง ${c.datasets} ชุด (ใหม่ หรือแถว/ผลรวมเปลี่ยน ≥ ${c.min_pct}%) — การอัปโหลดซ้ำโดยตัวเลขไม่เปลี่ยนไม่นับ`);
+  if (c.compared_with) out.push(`เทียบกับข้อมูลวันที่ ${thaiDate(c.compared_with)}${c.gap_days != null ? ` (ห่าง ${c.gap_days} วัน, ไม่เกิน ${c.max_gap_days} วัน)` : ""}`);
+  if (c.trust) out.push(`ความน่าเชื่อถือของแหล่ง: ${TRUST[c.trust] ?? c.trust}`);
+  if (c.capped) out.push("เป็นข้อมูลตัวอย่าง จึงจำกัดความรุนแรงไม่เกินระดับกลาง");
+  return out;
+}
+
 export function SignalExplain({ s, family, metric, history, news }: { s: Signal; family: Family; metric: Metric; history: Obs[]; news: News[] }) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -75,6 +93,16 @@ export function SignalExplain({ s, family, metric, history, news }: { s: Signal;
                   )}
                 </dd>
               </div>
+              {s.checks && (
+                <div>
+                  <dt className="font-semibold">เกณฑ์ที่ผ่าน</dt>
+                  <dd className="mt-1">
+                    <ul className="space-y-1 text-muted-foreground">
+                      {checkLines(s.checks, metric).map((l) => <li key={l}>✓ {l}</li>)}
+                    </ul>
+                  </dd>
+                </div>
+              )}
               <div>
                 <dt className="font-semibold">วันที่ข้อมูลเปลี่ยน</dt>
                 <dd className="mt-1 text-muted-foreground">

@@ -10,10 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AgenciesRouteImport } from './routes/agencies'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as FailuresRouteImport } from './routes/failures'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SourcesRouteImport } from './routes/sources'
+import { Route as AgenciesAgencyRouteImport } from './routes/agencies.$agency'
 import { Route as DayDateRouteImport } from './routes/day.$date'
 import { Route as SignalsFamilyRouteImport } from './routes/signals.$family'
 import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
@@ -21,6 +23,11 @@ import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgenciesRoute = AgenciesRouteImport.update({
+  id: '/agencies',
+  path: '/agencies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DataRoute = DataRouteImport.update({
@@ -43,6 +50,11 @@ const SourcesRoute = SourcesRouteImport.update({
   path: '/sources',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgenciesAgencyRoute = AgenciesAgencyRouteImport.update({
+  id: '/$agency',
+  path: '/$agency',
+  getParentRoute: () => AgenciesRoute,
+} as any)
 const DayDateRoute = DayDateRouteImport.update({
   id: '/day/$date',
   path: '/day/$date',
@@ -61,20 +73,24 @@ const ApiPublicIngestRoute = ApiPublicIngestRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agencies': typeof AgenciesRouteWithChildren
   '/data': typeof DataRoute
   '/failures': typeof FailuresRoute
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
+  '/agencies/$agency': typeof AgenciesAgencyRoute
   '/day/$date': typeof DayDateRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agencies': typeof AgenciesRouteWithChildren
   '/data': typeof DataRoute
   '/failures': typeof FailuresRoute
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
+  '/agencies/$agency': typeof AgenciesAgencyRoute
   '/day/$date': typeof DayDateRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
@@ -82,10 +98,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agencies': typeof AgenciesRouteWithChildren
   '/data': typeof DataRoute
   '/failures': typeof FailuresRoute
   '/settings': typeof SettingsRoute
   '/sources': typeof SourcesRoute
+  '/agencies/$agency': typeof AgenciesAgencyRoute
   '/day/$date': typeof DayDateRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
@@ -94,30 +112,36 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agencies'
     | '/data'
     | '/failures'
     | '/settings'
     | '/sources'
+    | '/agencies/$agency'
     | '/day/$date'
     | '/signals/$family'
     | '/api/public/ingest'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agencies'
     | '/data'
     | '/failures'
     | '/settings'
     | '/sources'
+    | '/agencies/$agency'
     | '/day/$date'
     | '/signals/$family'
     | '/api/public/ingest'
   id:
     | '__root__'
     | '/'
+    | '/agencies'
     | '/data'
     | '/failures'
     | '/settings'
     | '/sources'
+    | '/agencies/$agency'
     | '/day/$date'
     | '/signals/$family'
     | '/api/public/ingest'
@@ -125,6 +149,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgenciesRoute: typeof AgenciesRouteWithChildren
   DataRoute: typeof DataRoute
   FailuresRoute: typeof FailuresRoute
   SettingsRoute: typeof SettingsRoute
@@ -141,6 +166,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agencies': {
+      id: '/agencies'
+      path: '/agencies'
+      fullPath: '/agencies'
+      preLoaderRoute: typeof AgenciesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/data': {
@@ -171,6 +203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agencies/$agency': {
+      id: '/agencies/$agency'
+      path: '/$agency'
+      fullPath: '/agencies/$agency'
+      preLoaderRoute: typeof AgenciesAgencyRouteImport
+      parentRoute: typeof AgenciesRoute
+    }
     '/day/$date': {
       id: '/day/$date'
       path: '/day/$date'
@@ -195,8 +234,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AgenciesRouteChildren {
+  AgenciesAgencyRoute: typeof AgenciesAgencyRoute
+}
+
+const AgenciesRouteChildren: AgenciesRouteChildren = {
+  AgenciesAgencyRoute: AgenciesAgencyRoute,
+}
+
+const AgenciesRouteWithChildren = AgenciesRoute._addFileChildren(
+  AgenciesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgenciesRoute: AgenciesRouteWithChildren,
   DataRoute: DataRoute,
   FailuresRoute: FailuresRoute,
   SettingsRoute: SettingsRoute,

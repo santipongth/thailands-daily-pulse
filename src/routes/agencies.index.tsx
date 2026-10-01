@@ -1,11 +1,11 @@
-import { createFileRoute, Link, Outlet, useMatch } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
 import { AGENCIES, agencyMetrics } from "@/lib/sources";
 import { bkkToday, fmt, type Metric } from "@/lib/signals";
 
-export const agenciesQuery = queryOptions({
+const agenciesQuery = queryOptions({
   queryKey: ["agencies-overview"],
   queryFn: async () => {
     const today = bkkToday();
@@ -28,7 +28,7 @@ export const agenciesQuery = queryOptions({
   },
 });
 
-export const Route = createFileRoute("/agencies")({
+export const Route = createFileRoute("/agencies/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(agenciesQuery),
   head: () => ({
     meta: [
@@ -40,14 +40,9 @@ export const Route = createFileRoute("/agencies")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: AgenciesLayout,
+  component: Agencies,
   errorComponent: ({ error }) => <div role="alert" className="p-8">โหลดข้อมูลไม่สำเร็จ: {(error as Error).message}</div>,
 });
-
-function AgenciesLayout() {
-  const child = useMatch({ from: "/agencies/$agency", shouldThrow: false });
-  return child ? <Outlet /> : <Agencies />;
-}
 
 function Agencies() {
   const { data } = useSuspenseQuery(agenciesQuery);
