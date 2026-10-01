@@ -1,0 +1,57 @@
+// Client-safe, deterministic household impact and official advice per signal. Never AI-generated.
+
+type S = { metric_id: string; family_id: string; prev_value: number | null; new_value: number; change_abs: number | null };
+
+const baht = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toLocaleString("th-TH", { maximumFractionDigits: 0 })} บาท`;
+const pay = (n: number) => (n >= 0 ? "จ่ายเพิ่ม" : "ประหยัด");
+
+const PER: Record<string, (ch: number, s: S) => string> = {
+  gsh95: (ch) => `รถเก๋งเติมแก๊สโซฮอล์ 95 เต็มถัง 50 ลิตร ${pay(ch)} ${baht(50 * ch).replace(/^[+−]/, "")} ต่อถัง`,
+  e20: (ch) => `รถเก๋งเติม E20 เต็มถัง 50 ลิตร ${pay(ch)} ${baht(50 * ch).replace(/^[+−]/, "")} ต่อถัง`,
+  diesel: (ch) => `กระบะเติมดีเซลเต็มถัง 70 ลิตร ${pay(ch)} ${baht(70 * ch).replace(/^[+−]/, "")} ต่อถัง`,
+  gold_bar: (ch) => `ซื้อทองคำแท่ง 1 บาท ${pay(ch)} ${baht(ch).replace(/^[+−]/, "")}`,
+  gold_orn: (ch) => `ซื้อสร้อยทองรูปพรรณ 1 บาท ${pay(ch)} ${baht(ch).replace(/^[+−]/, "")}`,
+  pork: (ch) => `ครอบครัวซื้อหมู 2 กก./สัปดาห์ ${pay(ch)} ${baht(2 * ch).replace(/^[+−]/, "")} ต่อสัปดาห์`,
+  egg: (ch) => `ซื้อไข่ไก่ 30 ฟอง/เดือน ${pay(ch)} ${baht(30 * ch).replace(/^[+−]/, "")} ต่อเดือน`,
+  usdthb: (ch) => `งบเที่ยวต่างประเทศ 1,000 ดอลลาร์ ${pay(ch)} ${baht(1000 * ch).replace(/^[+−]/, "")}`,
+  eurthb: (ch) => `งบเที่ยวยุโรป 1,000 ยูโร ${pay(ch)} ${baht(1000 * ch).replace(/^[+−]/, "")}`,
+  jpythb: (ch) => `งบเที่ยวญี่ปุ่น 100,000 เยน ${pay(ch)} ${baht(1000 * ch).replace(/^[+−]/, "")}`,
+  pm25_bkk: (_c, s) => `ฝุ่น PM2.5 กรุงเทพฯ ${s.new_value.toFixed(0)} µg/m³ (มาตรฐานไทย 37.5)${s.new_value > 37.5 ? ` เกินมาตรฐาน ${(s.new_value / 37.5).toFixed(1)} เท่า` : " อยู่ในเกณฑ์"}`,
+  pm25_cnx: (_c, s) => `ฝุ่น PM2.5 เชียงใหม่ ${s.new_value.toFixed(0)} µg/m³ (มาตรฐานไทย 37.5)${s.new_value > 37.5 ? ` เกินมาตรฐาน ${(s.new_value / 37.5).toFixed(1)} เท่า` : " อยู่ในเกณฑ์"}`,
+  rain_bkk: (_c, s) => `ฝนพรุ่งนี้ กทม. ประมาณ ${s.new_value.toFixed(0)} มม. — ${s.new_value >= 35 ? "ฝนหนัก อาจมีน้ำรอระบาย เผื่อเวลาเดินทาง" : "ฝนปานกลาง"}`,
+  dam_total: (_c, s) => `น้ำในเขื่อนใหญ่ทั้งประเทศ ${s.new_value.toFixed(1)}% ของความจุ`,
+};
+
+export function householdImpact(s: S): string | null {
+  const ch = Number(s.change_abs ?? (s.prev_value != null ? s.new_value - s.prev_value : 0));
+  const f = PER[s.metric_id];
+  return f ? f(ch, s) : null;
+}
+
+export type Advice = { text: string; source: string; url: string };
+
+const PCD = "https://air4thai.pcd.go.th";
+function pmAdvice(v: number): Advice {
+  const text =
+    v > 75 ? "ระดับมีผลกระทบต่อสุขภาพ (สีแดง): ทุกคนควรงดกิจกรรมกลางแจ้ง สวมหน้ากาก N95 เมื่อออกนอกอาคาร"
+    : v > 37.5 ? "เริ่มมีผลกระทบ (สีส้ม): กลุ่มเสี่ยง เด็ก ผู้สูงอายุ ผู้มีโรคทางเดินหายใจ ควรลดกิจกรรมกลางแจ้งและสวมหน้ากาก"
+    : v > 25 ? "ปานกลาง (สีเหลือง): กลุ่มเสี่ยงควรสังเกตอาการ ทำกิจกรรมกลางแจ้งได้ตามปกติ"
+    : "คุณภาพอากาศดี ทำกิจกรรมกลางแจ้งได้ตามปกติ";
+  return { text, source: "กรมควบคุมมลพิษ (เกณฑ์ AQI)", url: PCD };
+}
+
+export function officialAdvice(s: S): Advice | null {
+  switch (s.family_id) {
+    case "air": return pmAdvice(s.new_value);
+    case "weather":
+      if (s.metric_id === "quake_max") return { text: "ตรวจสอบประกาศและคำแนะนำล่าสุดจากกรมอุตุนิยมวิทยา หากรู้สึกสั่นไหวให้ออกจากอาคารอย่างปลอดภัย", source: "กรมอุตุนิยมวิทยา", url: "https://earthquake.tmd.go.th" };
+      return { text: "ติดตามประกาศเตือนภัยฉบับเต็มของกรมอุตุนิยมวิทยาก่อนเดินทาง", source: "กรมอุตุนิยมวิทยา", url: "https://www.tmd.go.th" };
+    case "water": return { text: "ประชาชนในพื้นที่ลุ่มต่ำริมแม่น้ำติดตามประกาศระดับน้ำและการระบายน้ำจากกรมชลประทาน", source: "กรมชลประทาน / สสน.", url: "https://www.thaiwater.net" };
+    case "oil": return { text: "ราคาขายปลีกประกาศโดยผู้ค้าน้ำมัน ตรวจสอบราคาหน้าปั๊มและโครงสร้างราคาที่ สนพ.", source: "สำนักงานนโยบายและแผนพลังงาน", url: "https://www.eppo.go.th" };
+    case "gold": return { text: "ราคาประกาศอาจเปลี่ยนหลายครั้งต่อวัน ตรวจราคาล่าสุดก่อนซื้อขาย", source: "สมาคมค้าทองคำ", url: "https://www.goldtraders.or.th" };
+    case "fx": return { text: "อัตราที่ใช้จริงขึ้นกับธนาคารผู้ให้บริการ ดูอัตราอ้างอิงจากธนาคารแห่งประเทศไทย", source: "ธนาคารแห่งประเทศไทย", url: "https://www.bot.or.th/th/statistics/exchange-rate.html" };
+    case "lottery": return { text: "ตรวจผลจากเอกสารทางการของสำนักงานสลากฯ เท่านั้น ระวังผลปลอมในโซเชียล", source: "สำนักงานสลากกินแบ่งรัฐบาล", url: "https://www.glo.or.th/mission/awarding/orderby-time" };
+    case "govdata": return { text: "เปิดดูชุดข้อมูลต้นฉบับเพื่อรายละเอียดรายพื้นที่", source: "ศูนย์กลางข้อมูลเปิดภาครัฐ", url: "https://gdcatalog.go.th" };
+    default: return null;
+  }
+}
