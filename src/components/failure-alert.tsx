@@ -26,14 +26,5 @@ export function FailureAlert() {
     n.onclick = () => { window.focus(); window.location.href = "/failures?followed=1"; };
   }, [mine.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!mine.length) return null;
-  return (
-    <div role="alert" className="mx-auto mt-3 flex max-w-6xl flex-wrap items-center justify-between gap-2 border-2 border-destructive px-4 py-2 text-sm">
-      <span>⚠️ แหล่งข้อมูลที่คุณติดตามดึงไม่ได้ {mine.length} แหล่ง: {mine.slice(0, 3).map((r) => r.source.replace(" (เว็บไซต์ทางการ)", "")).join(", ")}{mine.length > 3 ? " …" : ""}</span>
-      <span className="flex gap-3">
-        <Link to="/failures" search={{ followed: 1 }} className="font-semibold underline">ดูเหตุผล</Link>
-        <Link to="/settings" className="underline">ปิดการติดตาม</Link>
-      </span>
-    </div>
-  );
+  return null;
 }
