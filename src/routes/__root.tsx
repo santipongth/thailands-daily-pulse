@@ -1,3 +1,5 @@
+import { ScheduledRefresh } from "@/components/scheduled-refresh";
+import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -126,6 +128,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <ScheduledRefresh />
+      <Toaster />
     </QueryClientProvider>
   );
 }

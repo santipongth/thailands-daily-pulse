@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 
 const KEY = "tds-source-prefs";
 const EVT = "tds-source-prefs-change";
-export type SourcePrefs = { disabled: string[]; intervalHours: number };
-const DEF: SourcePrefs = { disabled: [], intervalHours: 3 };
+export type SourcePrefs = { disabled: string[]; intervalHours: number; times: string[] };
+const DEF: SourcePrefs = { disabled: [], intervalHours: 3, times: ["07:00"] };
 
 export function useSourcePrefs(): [SourcePrefs, (p: SourcePrefs) => void] {
   const [v, setV] = useState<SourcePrefs>(DEF);
@@ -11,7 +11,7 @@ export function useSourcePrefs(): [SourcePrefs, (p: SourcePrefs) => void] {
     const read = () => {
       try {
         const p = JSON.parse(localStorage.getItem(KEY) ?? "null");
-        if (p && Array.isArray(p.disabled)) setV({ disabled: p.disabled, intervalHours: Number(p.intervalHours) || 3 });
+        if (p && Array.isArray(p.disabled)) setV({ disabled: p.disabled, intervalHours: Number(p.intervalHours) || 3, times: Array.isArray(p.times) ? p.times.filter((t: unknown) => typeof t === "string" && /^\d\d:\d\d$/.test(t)) : DEF.times });
       } catch { /* ignore */ }
     };
     read();

@@ -18,6 +18,7 @@ export const SOURCES: SourceInfo[] = [
   { source: "กรมการขนส่งทางบก (เว็บไซต์ทางการ)", agency: "กรมการขนส่งทางบก", kind: "crawler", metrics: ["gov_dlt"] },
   { source: "กรมปศุสัตว์ (เว็บไซต์ทางการ)", agency: "กรมปศุสัตว์", kind: "crawler", metrics: ["gov_dld"] },
   { source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)", agency: "สำนักงานสลากกินแบ่งรัฐบาล", kind: "api", metrics: ["lotto"] },
+  { source: "CheckRaka (ราคาอาหาร)", agency: "CheckRaka", kind: "crawler", metrics: ["pork", "egg", "chicken", "rice_jasmine", "morning_glory", "palm_oil", "chili", "lime"] },
   { source: "สมาคมค้าทองคำ", agency: "สมาคมค้าทองคำ", kind: "api", metrics: ["gold_bar", "gold_orn"] },
   { source: "ThaiWater (สสน.)", agency: "สสน. / กรมชลประทาน", kind: "api", metrics: ["dam_total", "dam_bhumibol"] },
   { source: "กรมอุตุฯ เตือนภัย", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["tmd_warn"] },

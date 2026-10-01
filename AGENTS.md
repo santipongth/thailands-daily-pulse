@@ -30,3 +30,5 @@
 - Signals are ranked by SQL `public.rank_signals(date)` (severity weight × z/vol_k factor × source trust × `families.reach`), components stored in `signals.checks.score` — ranking is formula-based and auditable on /method.
 - AI brief text is rejected if it contains any number not present in the code-computed facts (`numbersInText` in `src/lib/impact.ts`) — the LLM only phrases.
 - A daily 05:30 Bangkok pg_cron POSTs `/api/public/ingest?mode=daily` to force all government sources once per day; runs are tagged `run_kind` (hourly/daily/manual) — guarantees a daily official-data snapshot.
+- Food prices come from CheckRaka (`src/lib/checkraka.server.ts`, schema.org ItemList JSON-LD), an aggregator — family trust is medium; fetched on daily/manual runs or when today's prices are missing.
+- User-chosen update times are per-device (localStorage `times`) and run in the browser via `ScheduledRefresh` in __root (calls the rate-limited `retrySources`); no accounts, so no per-user server schedules.
