@@ -1,0 +1,1 @@
+alter table public.daily_briefs add column signature text not null default '';
