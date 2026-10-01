@@ -19,3 +19,5 @@
 - Observations carry `is_demo`; families carry `is_live` so the UI can always label real vs illustrative data.
 - News comes from newspaper RSS feeds parsed server-side and keyword-tagged to an agency and signal family; only tagged items are stored — keeps news relevant to signals.
 - Signal sensitivity is a per-device preference in localStorage that filters by severity on the client — there are no user accounts.
+- Agency websites without APIs are crawled by `src/lib/crawlers.server.ts`: first-seen links are stored as a baseline, later new links become `gov_*` observations (new announcements today) so detection uses official sources, not newspapers.
+- Source selection and refresh interval are per-device localStorage preferences (no accounts); the interval is passed to the refresh server function, clamped 1–24h.
