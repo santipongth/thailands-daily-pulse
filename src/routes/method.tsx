@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
-import { SEVERITY_WEIGHT, TRUST_FACTOR } from "@/lib/impact";
+import { EVIDENCE_FACTOR, SEVERITY_WEIGHT, TRUST_FACTOR } from "@/lib/impact";
 
 const methodQuery = queryOptions({
   queryKey: ["method"],
@@ -69,6 +69,8 @@ function Method() {
             <li>น้ำหนักความรุนแรง: สูง {SEVERITY_WEIGHT.high} · กลาง {SEVERITY_WEIGHT.medium} · ต่ำ {SEVERITY_WEIGHT.low}</li>
             <li>ตัวคูณความแรง = z ÷ vol_k จำกัดช่วง 1–2 (ไม่มีข้อมูลพอ = 1)</li>
             <li>ความน่าเชื่อถือแหล่ง: สูง {TRUST_FACTOR.high} · กลาง {TRUST_FACTOR.medium} · ต่ำ {TRUST_FACTOR.low}</li>
+            <li>หลักฐานไฟล์ดิบ: {EVIDENCE_FACTOR.changed} เมื่อไฟล์ต้นฉบับของแหล่งในวันนั้นเปลี่ยนจากไฟล์ก่อนหน้า (SHA-256 ต่างกัน) · {EVIDENCE_FACTOR.unchanged} เมื่อไฟล์เหมือนเดิมหรือไม่มีไฟล์</li>
+            <li>ข่าวหนังสือพิมพ์ไม่สร้างและไม่เพิ่มคะแนนสัญญาณ · วันที่มีข้อมูลจริง สัญญาณตัวอย่างได้คะแนน 0</li>
           </ul>
           <table className="mt-4 w-full text-sm">
             <thead><tr className="border-b-2 border-foreground text-left"><th className="py-1">กลุ่ม</th><th>ความน่าเชื่อถือ</th><th>ผลต่อครัวเรือน</th></tr></thead>
@@ -100,7 +102,7 @@ function Method() {
                   {c.rule === "level" && st("4. ข้ามระดับ", `bands: ${(c.bands ?? []).join(", ")}`)}
                   {c.rule === "release" && st("4. ประกาศใหม่", "มีค่ารอบใหม่จากแหล่งทางการ")}
                   {st("6. ความรุนแรง", `${s.severity} (ratio ≥ 3 สูง, ≥ 1.5 กลาง, ≥ 1 ต่ำ)`)}
-                  {st("7. คะแนนจัดอันดับ", `${n(k.severity_weight)} × ${n(k.z_factor)} × ${n(k.trust_factor)} × ${n(k.reach)} = ${n(k.total ?? s.score)}`)}
+                  {st("7. คะแนนจัดอันดับ", `${n(k.severity_weight)} × ${n(k.z_factor)} × ${n(k.trust_factor)} × ${n(k.reach)} × ${n(k.evidence_factor ?? 1)} = ${n(k.total ?? s.score)}`)}
                 </ol>
               </div>
             );

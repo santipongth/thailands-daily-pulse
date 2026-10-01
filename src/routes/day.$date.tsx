@@ -114,7 +114,7 @@ function DayCompare() {
                       </div>
                       <div className="mt-1 h-2 bg-muted"><div className="h-2 bg-primary" style={{ width: `${(sc(s) / maxScore) * 100}%` }} /></div>
                       <div className="mt-1 text-xs tabular-nums text-muted-foreground">
-                        คะแนน <b className="text-foreground">{sc(s).toFixed(2)}</b> = ความรุนแรง {sevTh[s.severity] ?? s.severity} {k.severity_weight ?? "—"} × ความแรง {k.z_factor != null ? Number(k.z_factor).toFixed(2) : "—"} × แหล่ง {k.trust_factor ?? "—"} × ครัวเรือน {k.reach ?? "—"}
+                        คะแนน <b className="text-foreground">{sc(s).toFixed(2)}</b> = ความรุนแรง {sevTh[s.severity] ?? s.severity} {k.severity_weight ?? "—"} × ความแรง {k.z_factor != null ? Number(k.z_factor).toFixed(2) : "—"} × แหล่ง {k.trust_factor ?? "—"} × ครัวเรือน {k.reach ?? "—"} × ไฟล์ดิบ {k.evidence_factor ?? "—"}{k.demo_zeroed ? " (ตัวอย่าง → 0)" : ""}
                         {" · "}ก่อน {v(s, s.prev_value)} → หลัง {v(s, s.new_value)}{s.change_pct != null ? ` (${Number(s.change_pct) > 0 ? "+" : ""}${Number(s.change_pct).toFixed(1)}%)` : ""}
                       </div>
                       {imp && <div className="mt-1 text-sm">🏠 {imp}</div>}

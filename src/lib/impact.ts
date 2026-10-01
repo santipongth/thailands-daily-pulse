@@ -66,6 +66,8 @@ export function numbersInText(t: string): string[] {
 
 export const SEVERITY_WEIGHT = { high: 3, medium: 2, low: 1 } as const;
 export const TRUST_FACTOR = { high: 1.0, medium: 0.7, low: 0.5 } as const;
+/** Mirrors rank_signals: raw source file changed that day vs previous fetch. */
+export const EVIDENCE_FACTOR = { changed: 1.0, unchanged: 0.8 } as const;
 
 /** Reference household daily basket (assumed quantities per day, family of 3–4). Cost is computed only from real observations. */
 export const BASKET: { metric_id: string; label: string; qty: number; unit: string }[] = [

@@ -97,7 +97,7 @@ export function SignalExplain({ s, family, metric, history, news }: { s: Signal;
                 <div>
                   <dt className="font-semibold">คะแนนจัดอันดับ {Number(s.checks.score.total).toFixed(2)}</dt>
                   <dd className="mt-1 text-muted-foreground">
-                    ความรุนแรง {s.checks.score.severity_weight} × ความแรงเทียบความผันผวน {Number(s.checks.score.z_factor).toFixed(2)} × ความน่าเชื่อถือแหล่ง {s.checks.score.trust_factor} × ผลต่อครัวเรือน {s.checks.score.reach}
+                    ความรุนแรง {s.checks.score.severity_weight} × ความแรงเทียบความผันผวน {Number(s.checks.score.z_factor).toFixed(2)} × ความน่าเชื่อถือแหล่ง {s.checks.score.trust_factor} × ผลต่อครัวเรือน {s.checks.score.reach} × หลักฐานไฟล์ดิบ {s.checks.score.evidence_factor ?? "—"}
                     <span className="block text-xs">ตัวเลขคำนวณโดยระบบ — AI ใช้เรียบเรียงภาษาเท่านั้น · <a href="/method" className="underline">ดูสูตร</a></span>
                   </dd>
                 </div>

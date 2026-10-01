@@ -71,7 +71,7 @@ export function ScheduledRefresh() {
       }
     };
     tick();
-    const id = setInterval(tick, 60e3);
+    const id = setInterval(tick, 15e3);
     return () => clearInterval(id);
   }, [prefs.times.join(","), prefs.disabled.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 
