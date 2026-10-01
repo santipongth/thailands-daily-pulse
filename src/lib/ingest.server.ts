@@ -128,8 +128,10 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
   const liveStale = !!opts.force || !last || Date.now() - new Date(last.created_at).getTime() >= STALE;
   const newsStale = !!opts.force || !lastNews || Date.now() - new Date(lastNews.locked_until).getTime() >= STALE_MS;
   if (!liveStale && !newsStale) {
+    const { count: due } = await admin.from("ingest_jobs").select("id", { count: "exact", head: true }).eq("status", "queued").lte("run_after", new Date().toISOString());
+    if (due) { opts = { ...opts }; }
     const { data: b } = await admin.from("daily_briefs").select("brief_date").eq("brief_date", date).maybeSingle();
-    if (b) return { refreshed: false };
+    if (b && !due) return { refreshed: false };
   }
   // single-flight lease
   const now = new Date();
@@ -137,71 +139,29 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
   if (lock && new Date(lock.locked_until) > now) return { refreshed: false };
   await admin.from("job_locks").upsert({ name: LOCK, locked_until: new Date(now.getTime() + 5 * 60e3).toISOString() });
   try {
+    const { enqueue, drain } = await import("./queue.server");
+    const specs: { job_type: string; source: string }[] = [];
     if (liveStale) {
-      const { runConnectors } = await import("./connectors.server");
-      const { values: live, runs } = await runConnectors(date);
-      const { runCrawlers } = await import("./crawlers.server");
-      const crawled = await runCrawlers(admin, date);
-      Object.assign(live, crawled.values);
-      // CheckRaka food prices change once a day (05:00): fetch on daily/manual runs or if today's prices are missing.
+      const { CONNECTORS } = await import("./connectors.server");
+      for (const c of CONNECTORS) specs.push({ job_type: "connector", source: c.source });
+      specs.push({ job_type: "crawlers", source: "เว็บไซต์หน่วยงานรัฐ (crawler)" });
+      // Food/farm prices change once a day: fetch on daily/manual runs or if today's prices are missing.
       const { count: foodToday } = await admin.from("observations").select("id", { count: "exact", head: true })
         .eq("observed_on", date).eq("is_demo", false).in("metric_id", ["pork", "egg"]);
       if (opts.runKind === "daily" || opts.runKind === "manual" || !foodToday) {
-        const { runCheckRaka } = await import("./checkraka.server");
-        const cr = await runCheckRaka();
-        Object.assign(live, cr.values);
-        crawled.runs.push(cr.run);
-        const { runRakaKaset } = await import("./rakakaset.server");
-        const rkk = await runRakaKaset(date);
-        Object.assign(live, rkk.values);
-        crawled.runs.push(rkk.run);
+        specs.push({ job_type: "checkraka", source: "CheckRaka (ราคาอาหาร)" });
+        specs.push({ job_type: "rakakaset", source: "RakaKaset (ราคาเกษตร)" });
       }
-      const { runCatalog } = await import("./catalog.server");
-      const catalogRuns: any[] = await runCatalog(admin, date).catch((e) => { console.error("catalog failed", e); return []; });
-      const lot = await (async () => {
-        const ran_at = new Date().toISOString();
-        try {
-          const { syncLottery } = await import("./glo.server");
-          const r = await syncLottery(admin);
-          return { source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)", kind: "api", url: "https://www.glo.or.th/api/lottery/getLatestLottery", ok: true, rows: 1, error: null, ran_at, last_ok_at: ran_at, sample: `งวด ${r.date} รางวัลที่ 1 ${r.first}${r.verified ? " (ยืนยันแล้ว)" : " (รอยืนยัน)"}` };
-        } catch (e) {
-          return { source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)", kind: "api", url: "https://www.glo.or.th/api/lottery/getLatestLottery", ok: false, rows: 0, error: String((e as Error).message).slice(0, 200), ran_at };
-        }
-      })();
-      catalogRuns.push(lot);
-      const rk = opts.runKind ?? "hourly";
-      const okAt = (r: any) => ({ ...(r.ok ? { ...r, last_ok_at: r.ran_at } : r), run_kind: rk });
-      await admin.from("source_runs").upsert([...runs.map((r) => okAt({ ...r, kind: "api" })), ...crawled.runs.map(okAt), ...catalogRuns.map(okAt)], { onConflict: "source" });
-      const all = [...runs, ...crawled.runs, ...catalogRuns];
-      await admin.from("source_run_history").insert(all.map((r: any) => ({ source: r.source, ran_at: r.ran_at, ok: r.ok, rows: r.rows, error: r.error, run_kind: rk })));
-      await admin.from("source_run_history").delete().lt("ran_at", new Date(Date.now() - 30 * 86400e3).toISOString());
-      const rows = Object.entries(live).map(([metric_id, value]) => ({
-        metric_id,
-        value,
-        observed_on: date,
-        is_demo: false,
-        created_at: new Date().toISOString(),
-      }));
-      if (rows.length) {
-        const { error } = await admin.from("observations").upsert(rows, { onConflict: "metric_id,observed_on" });
-        if (error) console.error(error);
-      }
+      specs.push({ job_type: "catalog", source: "ข้อมูลเปิดภาครัฐ (gdcatalog)" });
+      specs.push({ job_type: "lottery", source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)" });
+    }
+    if (newsStale) specs.push({ job_type: "news", source: "ข่าว RSS" });
+    if (specs.length) await enqueue(admin, specs, opts.runKind ?? "hourly");
+    const processed = await drain(admin, date);
+    await admin.from("source_run_history").delete().lt("ran_at", new Date(Date.now() - 30 * 86400e3).toISOString());
+    if (processed) {
       await admin.rpc("detect_signals", { _d: date });
       await admin.rpc("rank_signals", { _d: date });
-    }
-    if (newsStale) {
-      try {
-        const { collectNews } = await import("./news.server");
-        const news = await collectNews();
-        if (news.length) {
-          const { error } = await admin.from("news_items").upsert(news, { onConflict: "link", ignoreDuplicates: true });
-          if (error) console.error(error);
-        }
-        // records last news fetch time
-        await admin.from("job_locks").upsert({ name: "news_fetched", locked_until: new Date().toISOString() });
-      } catch (e) {
-        console.error("news failed", e);
-      }
     }
     await refreshBrief(admin, date, !!opts.publish);
     return { refreshed: true };
