@@ -86,12 +86,12 @@ export function basketLines(obs: { metric_id: string; observed_on: string; value
   for (const b of BASKET) {
     const rows = obs.filter((o) => o.metric_id === b.metric_id && o.observed_on <= date);
     if (!rows.length) continue;
-    const cur = Number(rows[0].value);
+    const first = rows[0]!; const cur = Number(first.value);
     const prevRow = rows[1];
     const prev = prevRow ? Number(prevRow.value) : null;
     const costCur = cur * b.qty;
     const costPrev = prev == null ? null : prev * b.qty;
-    out.push({ ...b, cur, prev, curDate: rows[0].observed_on, prevDate: prevRow?.observed_on ?? null, costCur, costPrev, delta: costPrev == null ? 0 : costCur - costPrev });
+    out.push({ ...b, cur, prev, curDate: first.observed_on, prevDate: prevRow?.observed_on ?? null, costCur, costPrev, delta: costPrev == null ? 0 : costCur - costPrev });
   }
   return out;
 }
