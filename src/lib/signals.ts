@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type Family = { id: string; name_th: string; emoji: string; description: string; cadence: string; is_live: boolean; source_name: string; source_url: string | null; sort: number };
 export type Metric = { id: string; family_id: string; name_th: string; unit: string; kind: string; decimals: number; sort: number; threshold_abs: number | null; threshold_pct: number | null; bands: number[] | null };
-export type Signal = { id: string; family_id: string; metric_id: string; signal_date: string; severity: string; title: string; prev_value: number | null; new_value: number; change_abs: number | null; change_pct: number | null; is_demo: boolean; created_at: string; checks?: any };
+export type Signal = { id: string; family_id: string; metric_id: string; signal_date: string; severity: string; title: string; prev_value: number | null; new_value: number; change_abs: number | null; change_pct: number | null; is_demo: boolean; created_at: string; checks?: any; score?: number | null };
 export type News = { id: number; source: string; title: string; link: string; published_at: string; agency: string | null; family_id: string | null };
 export type Obs = { metric_id: string; observed_on: string; value: number; is_demo: boolean };
 
@@ -47,7 +47,7 @@ export const dayQuery = (date: string) =>
           supabase.from("news_items").select("*").lte("published_at", shiftDate(date, 1) + "T00:00:00+07:00").gte("published_at", shiftDate(date, -3) + "T00:00:00+07:00").order("published_at", { ascending: false }).limit(200),
         ),
       ]);
-      signals.sort((a, b) => (sevRank[a.severity] ?? 3) - (sevRank[b.severity] ?? 3));
+      signals.sort((a, b) => Number(b.score ?? 0) - Number(a.score ?? 0) || (sevRank[a.severity] ?? 3) - (sevRank[b.severity] ?? 3));
       return { families, metrics, signals, obs, brief, calendar, news };
     },
   });

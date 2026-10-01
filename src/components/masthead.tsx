@@ -20,6 +20,7 @@ export function Masthead() {
             ติดตาม{count > 0 && <span className="ml-1 rounded-full bg-up px-1.5 text-xs text-background">{count}</span>}
           </Link>
           <Link to="/data" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ข้อมูลดิบ</Link>
+          <Link to="/method" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>วิธีคำนวณ</Link>
           <Link to="/sources" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>แหล่งข้อมูล</Link>
           <Link to="/settings" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ตั้งค่า</Link>
         </nav>

@@ -27,3 +27,6 @@
 - Daily Brief is published at 06:00 Bangkok by pg_cron POSTing `/api/public/brief` (forced refresh + publish); items (what/importance/impact/advice) are computed deterministically in `src/lib/impact.ts` from real signals only, AI writes just the intro, and the published edition is frozen for the day.
 - Lottery results come only from the official GLO API (`src/lib/glo.server.ts`), stored as text in `lottery_draws` and signalled only when a second GLO endpoint confirms the first prize.
 - Detection also requires changes to exceed `metrics.vol_k` × the 30-observation stddev of daily changes when ≥10 points exist.
+- Signals are ranked by SQL `public.rank_signals(date)` (severity weight × z/vol_k factor × source trust × `families.reach`), components stored in `signals.checks.score` — ranking is formula-based and auditable on /method.
+- AI brief text is rejected if it contains any number not present in the code-computed facts (`numbersInText` in `src/lib/impact.ts`) — the LLM only phrases.
+- A daily 05:30 Bangkok pg_cron POSTs `/api/public/ingest?mode=daily` to force all government sources once per day; runs are tagged `run_kind` (hourly/daily/manual) — guarantees a daily official-data snapshot.
