@@ -10,6 +10,7 @@ export function Masthead() {
         <nav className="flex gap-4 text-sm">
           <Link to="/" search={{}} className="hover:underline" activeOptions={{ exact: true }} activeProps={{ className: "font-semibold underline" }}>วันนี้</Link>
           <Link to="/sources" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>แหล่งข้อมูล</Link>
+          <Link to="/settings" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ตั้งค่า</Link>
         </nav>
       </div>
       <p className="mx-auto max-w-6xl px-4 pb-3 text-sm text-muted-foreground">

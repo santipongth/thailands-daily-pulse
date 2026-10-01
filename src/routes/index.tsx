@@ -7,6 +7,8 @@ import { Masthead } from "@/components/masthead";
 import { DataBadge, SignalCard, Sparkline } from "@/components/signals-ui";
 import { bkkToday, dayQuery, fmt, shiftDate, thaiDate } from "@/lib/signals";
 import { refreshData } from "@/lib/signals.functions";
+import { SENS_SEVERITIES } from "@/lib/signals";
+import { useSensitivity } from "@/hooks/use-sensitivity";
 
 export const Route = createFileRoute("/")({
   validateSearch: z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() }),
@@ -50,8 +52,12 @@ function Today() {
   const met = new Map(data.metrics.map((m) => [m.id, m]));
   const hist = (id: string) => data.obs.filter((o) => o.metric_id === id);
   const releases = data.signals.filter((s) => met.get(s.metric_id)?.kind === "release");
-  const moves = data.signals.filter((s) => met.get(s.metric_id)?.kind !== "release");
-  const activeFams = new Set(data.signals.map((s) => s.family_id));
+  const [sens] = useSensitivity();
+  const allMoves = data.signals.filter((s) => met.get(s.metric_id)?.kind !== "release");
+  const moves = allMoves.filter((s) => SENS_SEVERITIES[sens].includes(s.severity));
+  const hidden = allMoves.length - moves.length;
+  const agencyNews = data.news.filter((n) => n.agency).slice(0, 6);
+  const activeFams = new Set([...releases, ...moves].map((s) => s.family_id));
   const quiet = data.families.filter((f) => !activeFams.has(f.id));
 
   const fallback = moves.slice(0, 4).map((s) => s.title).join(" · ");
@@ -113,17 +119,37 @@ function Today() {
         )}
 
         <section>
-          <h2 className="mb-4 font-display text-2xl">สัญญาณวันนี้</h2>
+          <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-display text-2xl">สัญญาณวันนี้</h2>
+            <Link to="/settings" className="text-xs text-muted-foreground hover:underline">
+              ความไว: {{ low: "ต่ำสุด", medium: "ปานกลาง", high: "สูง" }[sens]}{hidden > 0 ? ` · ซ่อน ${hidden} เรื่องเล็ก` : ""} — ปรับ
+            </Link>
+          </div>
           {moves.length === 0 ? (
             <p className="text-muted-foreground">ไม่มีการเปลี่ยนแปลงที่เกินเกณฑ์ — No change, no signal.</p>
           ) : (
             <div className="grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
               {moves.map((s) => (
-                <SignalCard key={s.id} s={s} family={fam.get(s.family_id)!} metric={met.get(s.metric_id)!} history={hist(s.metric_id)} />
+                <SignalCard key={s.id} s={s} family={fam.get(s.family_id)!} metric={met.get(s.metric_id)!} history={hist(s.metric_id)} news={data.news} />
               ))}
             </div>
           )}
         </section>
+
+        {agencyNews.length > 0 && (
+          <section className="mt-14 border-t border-foreground pt-4">
+            <h2 className="font-display text-lg">ความเคลื่อนไหวจากหน่วยงานราชการ <span className="text-sm font-normal text-muted-foreground">— จาก RSS หนังสือพิมพ์</span></h2>
+            <ul className="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+              {agencyNews.map((n) => (
+                <li key={n.id} className="border-b border-border pb-3 text-sm">
+                  <span className="text-xs font-semibold text-up">{n.agency}</span>
+                  <a href={n.link} target="_blank" rel="noreferrer" className="mt-0.5 block hover:underline">{n.title}</a>
+                  <span className="text-xs text-muted-foreground">{n.source} · {new Date(n.published_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium", timeStyle: "short" })}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <section className="mt-14 border-t border-foreground pt-4">
           <h2 className="font-display text-lg">เงียบวันนี้ <span className="text-sm font-normal text-muted-foreground">— ไม่มีอะไรเปลี่ยนอย่างมีนัยสำคัญ</span></h2>

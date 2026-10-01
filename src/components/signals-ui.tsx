@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import type { Family, Metric, Obs, Signal } from "@/lib/signals";
+import type { Family, Metric, News, Obs, Signal } from "@/lib/signals";
+import { SignalExplain } from "@/components/signal-explain";
 import { fmt } from "@/lib/signals";
 
 export function Sparkline({ values, className = "" }: { values: number[]; className?: string }) {
@@ -27,15 +28,12 @@ export function DataBadge({ demo }: { demo: boolean }) {
 
 const sevLabel: Record<string, string> = { high: "สำคัญมาก", medium: "น่าจับตา", low: "เล็กน้อย" };
 
-export function SignalCard({ s, family, metric, history }: { s: Signal; family: Family; metric: Metric; history: Obs[] }) {
+export function SignalCard({ s, family, metric, history, news }: { s: Signal; family: Family; metric: Metric; history: Obs[]; news: News[] }) {
   const up = (s.change_abs ?? 0) > 0;
   const tone = metric.kind === "release" ? "text-foreground" : up ? "text-up" : "text-down";
   return (
-    <Link
-      to="/signals/$family"
-      params={{ family: family.id }}
-      className={`group block border-t-2 pt-3 transition-colors hover:bg-card ${s.severity === "high" ? "border-up" : "border-foreground"}`}
-    >
+    <div className={`border-t-2 pt-3 ${s.severity === "high" ? "border-up" : "border-foreground"}`}>
+    <Link to="/signals/$family" params={{ family: family.id }} className="group block transition-colors hover:bg-card">
       <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span className="font-medium uppercase tracking-wide">{family.emoji} {family.name_th}</span>
         <span className={s.severity === "high" ? "font-semibold text-up" : ""}>{sevLabel[s.severity]}</span>
@@ -53,10 +51,12 @@ export function SignalCard({ s, family, metric, history }: { s: Signal; family: 
         </div>
         <Sparkline values={history.map((o) => Number(o.value))} className={tone} />
       </div>
-      <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>ที่มา: {family.source_name}</span>
+    </Link>
+      <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+        <span className="truncate">ที่มา: {family.source_name}</span>
         <DataBadge demo={s.is_demo} />
       </div>
-    </Link>
+      <div className="mt-2"><SignalExplain s={s} family={family} metric={metric} history={history} news={news} /></div>
+    </div>
   );
 }

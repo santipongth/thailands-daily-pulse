@@ -147,7 +147,10 @@ export async function refreshIfStale(): Promise<{ refreshed: boolean }> {
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (last && Date.now() - new Date(last.created_at).getTime() < STALE_MS) {
+  const { data: lastNews } = await admin.from("job_locks").select("locked_until").eq("name", "news_fetched").maybeSingle();
+  const liveStale = !last || Date.now() - new Date(last.created_at).getTime() >= STALE_MS;
+  const newsStale = !lastNews || Date.now() - new Date(lastNews.locked_until).getTime() >= STALE_MS;
+  if (!liveStale && !newsStale) {
     const { data: b } = await admin.from("daily_briefs").select("brief_date").eq("brief_date", date).maybeSingle();
     if (b) return { refreshed: false };
   }
@@ -157,7 +160,7 @@ export async function refreshIfStale(): Promise<{ refreshed: boolean }> {
   if (lock && new Date(lock.locked_until) > now) return { refreshed: false };
   await admin.from("job_locks").upsert({ name: LOCK, locked_until: new Date(now.getTime() + 5 * 60e3).toISOString() });
   try {
-    if (!last || Date.now() - new Date(last.created_at).getTime() >= STALE_MS) {
+    if (liveStale) {
       const live = await collectLive();
       const rows = Object.entries(live).map(([metric_id, value]) => ({
         metric_id,
@@ -171,6 +174,20 @@ export async function refreshIfStale(): Promise<{ refreshed: boolean }> {
         if (error) console.error(error);
       }
       await admin.rpc("detect_signals", { _d: date });
+    }
+    if (newsStale) {
+      try {
+        const { collectNews } = await import("./news.server");
+        const news = await collectNews();
+        if (news.length) {
+          const { error } = await admin.from("news_items").upsert(news, { onConflict: "link", ignoreDuplicates: true });
+          if (error) console.error(error);
+        }
+        // records last news fetch time
+        await admin.from("job_locks").upsert({ name: "news_fetched", locked_until: new Date().toISOString() });
+      } catch (e) {
+        console.error("news failed", e);
+      }
     }
     await refreshBrief(admin, date);
     return { refreshed: true };

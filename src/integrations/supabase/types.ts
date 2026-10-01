@@ -133,6 +133,47 @@ export type Database = {
           },
         ]
       }
+      news_items: {
+        Row: {
+          agency: string | null
+          created_at: string
+          family_id: string | null
+          id: number
+          link: string
+          published_at: string
+          source: string
+          title: string
+        }
+        Insert: {
+          agency?: string | null
+          created_at?: string
+          family_id?: string | null
+          id?: number
+          link: string
+          published_at: string
+          source: string
+          title: string
+        }
+        Update: {
+          agency?: string | null
+          created_at?: string
+          family_id?: string | null
+          id?: number
+          link?: string
+          published_at?: string
+          source?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_items_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       observations: {
         Row: {
           created_at: string

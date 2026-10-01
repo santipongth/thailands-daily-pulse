@@ -2,8 +2,9 @@ import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export type Family = { id: string; name_th: string; emoji: string; description: string; cadence: string; is_live: boolean; source_name: string; source_url: string | null; sort: number };
-export type Metric = { id: string; family_id: string; name_th: string; unit: string; kind: string; decimals: number; sort: number };
-export type Signal = { id: string; family_id: string; metric_id: string; signal_date: string; severity: string; title: string; prev_value: number | null; new_value: number; change_abs: number | null; change_pct: number | null; is_demo: boolean };
+export type Metric = { id: string; family_id: string; name_th: string; unit: string; kind: string; decimals: number; sort: number; threshold_abs: number | null; threshold_pct: number | null; bands: number[] | null };
+export type Signal = { id: string; family_id: string; metric_id: string; signal_date: string; severity: string; title: string; prev_value: number | null; new_value: number; change_abs: number | null; change_pct: number | null; is_demo: boolean; created_at: string };
+export type News = { id: number; source: string; title: string; link: string; published_at: string; agency: string | null; family_id: string | null };
 export type Obs = { metric_id: string; observed_on: string; value: number; is_demo: boolean };
 
 export function bkkToday() {
@@ -33,18 +34,21 @@ export const dayQuery = (date: string) =>
     queryKey: ["day", date],
     queryFn: async () => {
       const from = shiftDate(date, -14);
-      const [families, metrics, signals, obs, brief, calendar] = await Promise.all([
+      const [families, metrics, signals, obs, brief, calendar, news] = await Promise.all([
         throwing<Family[]>(supabase.from("families").select("*").order("sort")),
-        throwing<Metric[]>(supabase.from("metrics").select("id,family_id,name_th,unit,kind,decimals,sort").order("sort")),
+        throwing<Metric[]>(supabase.from("metrics").select("id,family_id,name_th,unit,kind,decimals,sort,threshold_abs,threshold_pct,bands").order("sort")),
         throwing<Signal[]>(supabase.from("signals").select("*").eq("signal_date", date)),
         throwing<Obs[]>(supabase.from("observations").select("metric_id,observed_on,value,is_demo").gte("observed_on", from).lte("observed_on", date).order("observed_on").limit(1000)),
         throwing<{ body: string; generated_at: string } | null>(supabase.from("daily_briefs").select("body,generated_at").eq("brief_date", date).maybeSingle()),
         throwing<{ id: number; family_id: string; title: string; release_date: string }[]>(
           supabase.from("release_calendar").select("*").gt("release_date", date).order("release_date").limit(6),
         ),
+        throwing<News[]>(
+          supabase.from("news_items").select("*").lte("published_at", shiftDate(date, 1) + "T00:00:00+07:00").gte("published_at", shiftDate(date, -3) + "T00:00:00+07:00").order("published_at", { ascending: false }).limit(200),
+        ),
       ]);
       signals.sort((a, b) => (sevRank[a.severity] ?? 3) - (sevRank[b.severity] ?? 3));
-      return { families, metrics, signals, obs, brief, calendar };
+      return { families, metrics, signals, obs, brief, calendar, news };
     },
   });
 
@@ -54,13 +58,14 @@ export const familyQuery = (id: string) =>
     queryFn: async () => {
       const family = await throwing<Family | null>(supabase.from("families").select("*").eq("id", id).maybeSingle());
       if (!family) return null;
-      const metrics = await throwing<Metric[]>(supabase.from("metrics").select("id,family_id,name_th,unit,kind,decimals,sort").eq("family_id", id).order("sort"));
+      const metrics = await throwing<Metric[]>(supabase.from("metrics").select("id,family_id,name_th,unit,kind,decimals,sort,threshold_abs,threshold_pct,bands").eq("family_id", id).order("sort"));
       const ids = metrics.map((m) => m.id);
-      const [obs, signals] = await Promise.all([
+      const [obs, signals, news] = await Promise.all([
         throwing<Obs[]>(supabase.from("observations").select("metric_id,observed_on,value,is_demo").in("metric_id", ids).order("observed_on")),
         throwing<Signal[]>(supabase.from("signals").select("*").eq("family_id", id).order("signal_date", { ascending: false }).limit(50)),
+        throwing<News[]>(supabase.from("news_items").select("*").eq("family_id", id).order("published_at", { ascending: false }).limit(10)),
       ]);
-      return { family, metrics, obs, signals };
+      return { family, metrics, obs, signals, news };
     },
   });
 
@@ -74,3 +79,10 @@ export const sourcesQuery = queryOptions({
     return { families, lastLive: latest?.created_at ?? null };
   },
 });
+
+export type Sensitivity = "low" | "medium" | "high";
+export const SENS_SEVERITIES: Record<Sensitivity, string[]> = {
+  low: ["high"],
+  medium: ["high", "medium"],
+  high: ["high", "medium", "low"],
+};
