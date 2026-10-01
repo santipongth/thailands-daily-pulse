@@ -59,7 +59,7 @@ async function collectLive(): Promise<Record<string, number>> {
   if (wx.status === "fulfilled") {
     const d = wx.value?.daily;
     const rain = Number(d?.precipitation_sum?.[1]);
-    if (Number.isFinite(rain)) out.rain_bkk = rain;
+    if (Number.isFinite(rain)) out['rain_bkk'] = rain;
     set("tmax_bkk", num(d?.temperature_2m_max?.[0]));
   }
   return out;

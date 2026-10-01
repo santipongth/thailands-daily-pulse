@@ -21,7 +21,7 @@ export const Route = createFileRoute("/signals/$family")({
     ],
   }),
   component: FamilyPage,
-  errorComponent: ({ error }) => <div role="alert" className="p-8">โหลดข้อมูลไม่สำเร็จ: {error.message}</div>,
+  errorComponent: ({ error }) => <div role="alert" className="p-8">โหลดข้อมูลไม่สำเร็จ: {(error as Error).message}</div>,
   notFoundComponent: () => (
     <div className="p-8">ไม่พบกลุ่มข้อมูลนี้ <Link to="/" className="underline">กลับหน้าแรก</Link></div>
   ),

@@ -17,7 +17,7 @@ export const Route = createFileRoute("/sources")({
     ],
   }),
   component: Sources,
-  errorComponent: ({ error }) => <div role="alert" className="p-8">โหลดข้อมูลไม่สำเร็จ: {error.message}</div>,
+  errorComponent: ({ error }) => <div role="alert" className="p-8">โหลดข้อมูลไม่สำเร็จ: {(error as Error).message}</div>,
   notFoundComponent: () => <div className="p-8">ไม่พบข้อมูล</div>,
 });
 
