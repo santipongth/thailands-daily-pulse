@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Masthead } from "@/components/masthead";
 import { useSensitivity } from "@/hooks/use-sensitivity";
@@ -57,6 +58,20 @@ function Settings() {
 
 type Run = { source: string; ran_at: string; ok: boolean; rows: number; error: string | null; sample: string | null };
 
+function NotifyToggle() {
+  const [perm, setPerm] = useState("default");
+  useEffect(() => { if (typeof Notification !== "undefined") setPerm(Notification.permission); }, []);
+  if (perm === "unsupported") return null;
+  return (
+    <p className="mt-4 text-sm">
+      <span className="font-semibold">แจ้งเตือนในเบราว์เซอร์</span> (เมื่อข้อมูลรัฐเปลี่ยน หรือแหล่งที่ติดตามดึงไม่ได้):{" "}
+      {perm === "granted" ? <span className="text-primary">เปิดอยู่</span> : perm === "denied" ? <span className="text-muted-foreground">ถูกปิดในเบราว์เซอร์ — เปิดได้จากการตั้งค่าเว็บไซต์ของเบราว์เซอร์</span> : (
+        <button type="button" className="underline" onClick={() => Notification.requestPermission().then(setPerm)}>เปิดการแจ้งเตือน</button>
+      )}
+    </p>
+  );
+}
+
 function SourceSettings() {
   const [prefs, setPrefs] = useSourcePrefs();
   const { data: runs } = useQuery({
@@ -76,6 +91,7 @@ function SourceSettings() {
           {[1, 3, 6, 12, 24].map((h) => <option key={h} value={h}>{h} ชั่วโมง</option>)}
         </select>
       </label>
+      <NotifyToggle />
       <ul className="mt-6 divide-y divide-border border-y-2 border-foreground">
         {SOURCES.filter((x) => x.metrics.length).map((x) => {
           const r = byName.get(x.source);
