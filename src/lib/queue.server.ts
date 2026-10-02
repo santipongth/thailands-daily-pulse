@@ -45,6 +45,23 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
       return { values: {}, runs: [{ ...base, ok: false, rows: 0, error: String((e as Error).message).slice(0, 200) }] };
     }
   },
+  holidays: async ({ admin }) => {
+    const { data: s } = await admin.from("app_settings").select("value").eq("key", "holiday_url").maybeSingle();
+    const url = s?.value ?? "https://calendar.kapook.com/2569/holiday";
+    const base = { source: "Kapook ปฏิทินวันหยุด", kind: "crawler", url, ran_at: new Date().toISOString() };
+    try {
+      const { parseKapook } = await import("./kapook");
+      const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals" }, signal: AbortSignal.timeout(15000) });
+      if (!res.ok) throw new Error(`${res.status} ${url}`);
+      const rows = parseKapook(await res.text());
+      if (!rows.length) throw new Error("ไม่พบรายการวันหยุดในหน้า (รูปแบบหน้าอาจเปลี่ยน)");
+      const { error } = await admin.from("holidays").upsert(rows.map((r) => ({ ...r, source: "kapook", source_url: url, delete_hash: "" })), { onConflict: "holiday_date,name" });
+      if (error) throw new Error(error.message);
+      return { values: {}, runs: [{ ...base, ok: true, rows: rows.length, error: null, sample: rows.slice(0, 2).map((r) => `${r.holiday_date} ${r.name}`).join(" · ") }] };
+    } catch (e) {
+      return { values: {}, runs: [{ ...base, ok: false, rows: 0, error: String((e as Error).message).slice(0, 200) }] };
+    }
+  },
   rdtax: async ({ admin, date }) => {
     const { RD_TAX_URL, parseRdTax } = await import("./rdtax");
     const base = { source: "กรมสรรพากร (ปฏิทินภาษี)", kind: "crawler", url: RD_TAX_URL, ran_at: new Date().toISOString() };

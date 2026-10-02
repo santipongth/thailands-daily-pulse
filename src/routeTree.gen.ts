@@ -20,6 +20,7 @@ import { Route as MonitorRouteImport } from './routes/monitor'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SourcesRouteImport } from './routes/sources'
+import { Route as TrackingRouteImport } from './routes/tracking'
 import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
 import { Route as AgenciesAgencyRouteImport } from './routes/agencies.$agency'
 import { Route as BriefIndexRouteImport } from './routes/brief.index'
@@ -86,6 +87,11 @@ const SourcesRoute = SourcesRouteImport.update({
   path: '/sources',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrackingRoute = TrackingRouteImport.update({
+  id: '/tracking',
+  path: '/tracking',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AgenciesIndexRoute = AgenciesIndexRouteImport.update({
   id: '/agencies/',
   path: '/agencies/',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
+  '/tracking': typeof TrackingRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
+  '/tracking': typeof TrackingRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
+  '/tracking': typeof TrackingRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/sources'
+    | '/tracking'
     | '/agencies/$agency'
     | '/brief/$date'
     | '/day/$date'
@@ -244,6 +254,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/sources'
+    | '/tracking'
     | '/agencies/$agency'
     | '/brief/$date'
     | '/day/$date'
@@ -267,6 +278,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/sources'
+    | '/tracking'
     | '/agencies/$agency'
     | '/brief/$date'
     | '/day/$date'
@@ -291,6 +303,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SourcesRoute: typeof SourcesRoute
+  TrackingRoute: typeof TrackingRoute
   AgenciesAgencyRoute: typeof AgenciesAgencyRoute
   BriefDateRoute: typeof BriefDateRoute
   DayDateRoute: typeof DayDateRoute
@@ -382,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tracking': {
+      id: '/tracking'
+      path: '/tracking'
+      fullPath: '/tracking'
+      preLoaderRoute: typeof TrackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/agencies/': {
       id: '/agencies/'
       path: '/agencies'
@@ -467,6 +487,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SourcesRoute: SourcesRoute,
+  TrackingRoute: TrackingRoute,
   AgenciesAgencyRoute: AgenciesAgencyRoute,
   BriefDateRoute: BriefDateRoute,
   DayDateRoute: DayDateRoute,

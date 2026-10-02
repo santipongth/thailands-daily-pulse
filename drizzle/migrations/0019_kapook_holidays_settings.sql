@@ -1,0 +1,11 @@
+alter table public.holidays drop constraint holidays_kind_check;
+alter table public.holidays add column is_gov boolean not null default false, add column is_bank boolean not null default false, add column source text not null default 'user', add column source_url text;
+delete from public.holidays where source = 'user';
+create unique index holidays_date_name_uq on public.holidays(holiday_date, name);
+create table public.app_settings (key text primary key, value text not null, updated_at timestamptz not null default now());
+grant select on public.app_settings to anon, authenticated;
+grant all on public.app_settings to service_role;
+alter table public.app_settings enable row level security;
+create policy "public read settings" on public.app_settings for select to anon, authenticated using (true);
+insert into public.app_settings(key, value) values ('holiday_url', 'https://calendar.kapook.com/2569/holiday');
+update public.source_registry set source = 'Kapook ปฏิทินวันหยุด', owner = 'Kapook (อ้างอิงประกาศ ครม./ธปท.)', channel = 'หน้าเว็บ (HTML)', cadence = 'วันละครั้ง', stale_after_days = 7, url = 'https://calendar.kapook.com/2569/holiday' where source = 'วันหยุด (ผู้ใช้เพิ่มเอง)';

@@ -27,6 +27,7 @@ export function Masthead() {
           <Link to="/evidence" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ไฟล์ดิบ</Link>
           <Link to="/method" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>วิธีคำนวณ</Link>
           <Link to="/sources" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>แหล่งข้อมูล</Link>
+          <Link to="/tracking" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ติดตามข้อมูล</Link>
           <Link to="/settings" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ตั้งค่า</Link>
         </nav>
       </div>
