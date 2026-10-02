@@ -14,7 +14,7 @@ const briefQuery = (date: string) =>
     queryKey: ["brief", date],
     queryFn: async () => {
       const [{ data, error }, { data: updates }] = await Promise.all([
-        supabase.from("daily_briefs").select("brief_date,body,published_at,generated_at,items,cutoff_at,edition,completeness").eq("brief_date", date).maybeSingle(),
+        supabase.from("daily_briefs").select("brief_date,body,published_at,generated_at,items,cutoff_at,edition,completeness,data_window").eq("brief_date", date).maybeSingle(),
         supabase.from("brief_updates").select("*").eq("brief_date", date).order("created_at"),
       ]);
       if (error) throw error;
@@ -75,6 +75,13 @@ function BriefPage() {
               {data.published_at ? `เผยแพร่ ${new Date(data.published_at).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.` : "ฉบับระหว่างวัน (ฉบับทางการเผยแพร่ 06:00 น.)"} · บทนำเรียบเรียงโดย AI จากข้อเท็จจริงด้านล่างเท่านั้น
             </p>
             {data.cutoff_at && <p className="mt-1 text-sm font-semibold">ข้อมูลถึง {hm(data.cutoff_at)} น. — ข้อมูลที่ได้รับหลังเวลานี้เข้าเป็นอัปเดตด้านล่างหรือฉบับถัดไป</p>}
+            {(data as any).data_window && (() => { const w = (data as any).data_window; return (
+              <div className="mt-2 border border-border p-3 text-sm">
+                <p className="font-semibold">ช่วงข้อมูลที่นับ: {hm(w.from)} น. เมื่อวาน → {hm(w.to)} น. วันนี้</p>
+                <p>ได้รับในช่วงนี้ {w.received_inside} ค่า · ใช้ในฉบับนี้ {w.included} เหตุการณ์ · ตัดออก {w.excluded?.length ?? 0} · ตรวจไม่ได้ {w.unverifiable?.length ?? 0} แหล่ง</p>
+                {w.excluded?.map((e: any) => <p key={e.metric_id} className="text-muted-foreground">ตัดออก: {e.title} ({e.reason})</p>)}
+                {w.unverifiable?.length > 0 && <p className="text-muted-foreground">ตรวจไม่ได้ (ไม่นับว่าไม่เปลี่ยน): {w.unverifiable.join(", ")}</p>}
+              </div>); })()}
             <p className="mt-6 font-display text-2xl leading-relaxed">{data.body}</p>
             <p className="mt-2 text-xs text-muted-foreground">ตัวเลขทั้งหมดคำนวณโดยระบบจากข้อมูลทางการ — AI ใช้เรียบเรียงภาษาบทนำเท่านั้น และถูกตรวจว่าไม่เพิ่มตัวเลขใหม่</p>
             <div className="mt-10"><BriefItems items={(data.items ?? []) as BriefItem[]} valueEvidence={data.valueEvidence} /></div>
