@@ -14,6 +14,7 @@ import { SOURCES } from "@/lib/sources";
 import { GovAlert } from "@/components/gov-alert";
 import { HouseholdBasket } from "@/components/household-basket";
 import { BriefItems, type BriefItem } from "@/components/brief-items";
+import { BkkForecast } from "@/components/bkk-forecast";
 
 export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
@@ -102,6 +103,7 @@ function Today() {
                 <Link to="/brief/$date" params={{ date }} className="mt-4 inline-block text-sm underline">อ่าน Daily Brief ฉบับเต็ม →</Link>
               </div>
             )}
+            {date === today && <div className="mt-6"><BkkForecast /></div>}
             <div className="mt-6"><HouseholdBasket date={date} /></div>
             <Link to="/day/$date" params={{ date }} className="mt-3 inline-block text-sm underline">อันดับสัญญาณวันนี้ เทียบเมื่อวาน →</Link>
           </div>
