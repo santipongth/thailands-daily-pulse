@@ -70,3 +70,22 @@ export const evidenceDiff = createServerFn({ method: "POST" })
     while (j < n) lines.push({ t: "+", s: B[j++]!.slice(0, 300) });
     return { ...base, status: "changed", lines: lines.slice(0, 200), truncated: lines.length > 200 || a.length > 2000 || b.length > 2000 };
   });
+
+/** TMD daily forecast for Bangkok & vicinity, parsed into a plain-Thai summary. Falls back to the last archived raw file. */
+export const getBkkForecast = createServerFn({ method: "GET" }).handler(async () => {
+  const { TMD_BKK_URL, parseBkkForecast } = await import("./tmd-forecast");
+  let xml = "";
+  let from: "live" | "archive" = "live";
+  try {
+    const r = await fetch(TMD_BKK_URL, { headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals" }, signal: AbortSignal.timeout(10000) });
+    if (r.ok) xml = await r.text();
+  } catch (e) { console.warn("tmd forecast live fetch failed", e); }
+  if (!xml.includes("<item>")) {
+    from = "archive";
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin.from("raw_evidence").select("storage_path").ilike("url", "%region-daily-forecast%").order("fetched_at", { ascending: false }).limit(1).maybeSingle();
+    if (row) { const { data: b } = await supabaseAdmin.storage.from("evidence").download(row.storage_path); xml = b ? await b.text() : ""; }
+  }
+  if (!xml.includes("<item>")) return null;
+  return { ...parseBkkForecast(xml), from };
+});
