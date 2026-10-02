@@ -16,7 +16,7 @@
 - Ingest: Postgres queue `ingest_jobs` (one job/source, `claim_ingest_job()` SKIP LOCKED, 3 attempts; `queue.server.ts`), hourly cron `/api/public/ingest` (staleness-gated), daily 05:30 `?mode=daily`, `run_kind` hourly/daily/manual — isolated failures, daily official snapshot.
 - Sources: connectors `{metric_id: value}` in `connectors.server.ts`; crawlers (baseline links → `gov_*` new announcements); gdcatalog CKAN daily snapshots → `gov_changes`; CheckRaka/RakaKaset aggregators (trust medium); GLO lottery confirmed by 2nd endpoint; outcomes in `source_runs` + `source_run_history` (30d).
 - Every job fetch is archived as raw evidence (private `evidence` bucket, sha256 dedup, kept forever, `raw_evidence`, signed URLs); `/evidence` diffs vs previous different-hash file of same URL — every value auditable.
-- News RSS is keyword-tagged to agency/family and only tagged items stored; it never creates signals.
+- News RSS: keyword-tagged, tagged items only; never creates signals.
 - Brief: cron 05:45 `?step=freeze` (cutoff) and 05:55 `?step=publish`; items from real signals with event_id/version, data date, score and evidence; AI writes only intro (rejected if new numbers); frozen once published, later event versions go to `brief_updates`; completeness stored per edition.
 - Every observation keeps refers-to (`observed_on`/period), published, `received_at` and `effective_from`; connectors may return per-metric dates; unchanged re-fetches are not rewritten so `received_at` stays honest for replay.
 - `source_registry` holds owner/channel/licence/cadence/unit/area/`stale_after_days`; `completeness.ts` marks sources ok/stale/unverifiable — never treated as no change.

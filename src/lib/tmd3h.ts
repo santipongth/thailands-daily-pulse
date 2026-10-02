@@ -5,7 +5,7 @@ export const TMD3H_URL = "https://data.tmd.go.th/api/Weather3Hours/V2/?uid=api&u
 const tag = (b: string, t: string) => b.match(new RegExp(`<${t}[^>]*>([^<]*)</${t}>`))?.[1]?.trim() ?? "";
 const num = (s: string) => { const n = Number(s); return s !== "" && Number.isFinite(n) ? n : undefined; };
 
-export type Bkk3h = { time: string | null; temp?: number; maxTemp?: number; rain24?: number; stationFound: boolean; stations: number };
+export type Bkk3h = { time: string | null; temp?: number | undefined; maxTemp?: number | undefined; rain24?: number | undefined; stationFound: boolean; stations: number };
 
 export function parseTmd3h(xml: string): Bkk3h {
   const blocks = xml.split(/<Station>/).slice(1).map((b) => b.split("</Station>")[0] ?? "");
