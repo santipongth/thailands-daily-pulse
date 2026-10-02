@@ -95,7 +95,7 @@ export async function refreshBrief(admin: any, date: string, publish = false, st
   const windowFrom = `${prevDay}T05:45:00+07:00`;
   const enforce = !!step || publish;
   const { data: recv } = await admin.from("observations").select("metric_id, received_at").eq("observed_on", date).eq("is_demo", false);
-  const recvOf = new Map((recv ?? []).map((o: any) => [o.metric_id, o.received_at as string]));
+  const recvOf = new Map<string, string>((recv ?? []).map((o: any) => [o.metric_id as string, o.received_at as string]));
   const excluded: { metric_id: string; title: string; received_at: string | null; reason: string }[] = [];
   const all = (sigs ?? []).filter((s: any) => {
     if (!enforce) return true;
