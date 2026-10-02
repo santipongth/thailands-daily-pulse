@@ -3,13 +3,23 @@
 type Values = Record<string, number>;
 export type Connector = { source: string; run: (date: string) => Promise<Values> };
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** Polite fetch: on 429 waits Retry-After (capped 20s; default 5s then 15s), max 3 tries. */
 async function get(url: string, ms = 12000) {
-  const res = await fetch(url, {
-    headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals", accept: "application/json, text/xml, */*" },
-    signal: AbortSignal.timeout(ms),
-  });
-  if (!res.ok) throw new Error(`${res.status} ${url}`);
-  return res;
+  const waits = [5000, 15000];
+  for (let i = 0; ; i++) {
+    const res = await fetch(url, {
+      headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals", accept: "application/json, text/xml, */*" },
+      signal: AbortSignal.timeout(ms),
+    });
+    if (res.ok) return res;
+    if (res.status === 429 && i < waits.length) {
+      const ra = Number(res.headers.get("retry-after"));
+      await sleep(Number.isFinite(ra) && ra > 0 ? Math.min(ra * 1000, 20000) : waits[i]!);
+      continue;
+    }
+    throw new Error(`${res.status} ${url}`);
+  }
 }
 const json = async (url: string) => (await get(url)).json() as Promise<any>;
 const text = async (url: string) => (await get(url)).text();
@@ -102,13 +112,11 @@ export const CONNECTORS: Connector[] = [
     source: "Open-Meteo (อากาศ/PM2.5)",
     run: async () => {
       const o: Values = {};
-      const [b, c, w] = await Promise.all([
-        json("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=13.75&longitude=100.5&current=pm2_5"),
-        json("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=18.79&longitude=98.98&current=pm2_5"),
-        json("https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.5&daily=precipitation_sum,temperature_2m_max&timezone=Asia/Bangkok&forecast_days=2"),
-      ]);
-      put(o, "pm25_bkk", pos(b?.current?.pm2_5));
-      put(o, "pm25_cnx", pos(c?.current?.pm2_5));
+      // one multi-location request for both cities (2 requests per run instead of 3)
+      const aq = await json("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=13.75,18.79&longitude=100.5,98.98&current=pm2_5");
+      const w = await json("https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.5&daily=precipitation_sum,temperature_2m_max&timezone=Asia/Bangkok&forecast_days=2");
+      put(o, "pm25_bkk", pos(aq?.[0]?.current?.pm2_5));
+      put(o, "pm25_cnx", pos(aq?.[1]?.current?.pm2_5));
       const rain = Number(w?.daily?.precipitation_sum?.[1]);
       if (Number.isFinite(rain)) o["rain_bkk"] = rain;
       put(o, "tmax_bkk", pos(w?.daily?.temperature_2m_max?.[0]));

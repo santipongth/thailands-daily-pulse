@@ -114,9 +114,12 @@ export async function drain(admin: any, date: string, budgetMs = 240e3, maxJobs 
       await admin.from("source_run_history").insert(runs.map((r) => ({ source: r.source, ran_at: r.ran_at, ok: r.ok, rows: r.rows, error: r.error, run_kind: job.run_kind })));
     }
     const retry = allFailed && job.attempts < job.max_attempts;
+    // provider rate-limit (429): retry sooner (15 min) so a pre-05:45 run still has a chance
+    const limited = runs.some((r) => r.error?.startsWith("429"));
+    const delay = limited ? 15 * 60e3 : job.attempts * 20 * 60e3;
     await admin.from("ingest_jobs").update({
       status: retry ? "queued" : allFailed ? "failed" : "done",
-      run_after: retry ? new Date(Date.now() + job.attempts * 20 * 60e3).toISOString() : job.run_after,
+      run_after: retry ? new Date(Date.now() + delay).toISOString() : job.run_after,
       locked_until: null,
       rows: runs.reduce((s, r) => s + (r.rows ?? 0), 0),
       error: err ?? (allFailed ? runs.map((r) => r.error).filter(Boolean).join("; ").slice(0, 300) : null),
