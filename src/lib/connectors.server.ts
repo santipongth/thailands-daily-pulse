@@ -109,6 +109,18 @@ export const CONNECTORS: Connector[] = [
     },
   },
   {
+    source: "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล",
+    run: async () => {
+      const { TMD_BKK_URL, parseBkkForecast } = await import("./tmd-forecast");
+      const f = parseBkkForecast(await text(TMD_BKK_URL));
+      const bkk = f.provinces.find((p) => p.name.includes("กรุงเทพ"));
+      const o: Values = {};
+      put(o, "fc_tmax_bkk", pos(bkk?.max ?? f.maxRange?.[1]));
+      put(o, "fc_tmin_bkk", pos(bkk?.min ?? f.minRange?.[0]));
+      return o;
+    },
+  },
+  {
     source: "Open-Meteo (อากาศ/PM2.5)",
     run: async () => {
       const o: Values = {};
