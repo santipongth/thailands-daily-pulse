@@ -24,7 +24,7 @@
 - Household cost = fixed `BASKET` × real price changes (`impact.ts`, `HouseholdBasket`) — code-only math.
 - No accounts: all preferences (sources, sensitivity, interval, update `times`, seen state) are per-device localStorage; `ScheduledRefresh` and `BriefAlert` in __root run in the browser.
 - Public reads via browser client under anon SELECT RLS; writes server-side with admin client. `is_demo`/`is_live` label real vs illustrative data.
-- Backfill (`backfill.server.ts`, `/api/public/ingest?mode=backfill`, cron-secret) only for sources that publish history (Open-Meteo); real rows replace demo rows, never real ones; then detect/rank/brief replayed oldest→newest, briefs left unpublished (archive editions).
+- Backfill (`backfill.server.ts`, `/api/public/ingest?mode=backfill`, cron-secret) only for sources that publish history (none now); real rows replace demo rows, never real ones; then detect/rank/brief replayed oldest→newest, briefs left unpublished (archive editions).
 - Household impact per signal = `impactFor` in impact.ts: `USAGE` holds per-metric usage with source/method/official flag (official = gov per-person or national figure converted per household; else labelled example); user overrides only on /impact via localStorage, briefs always use official — one formula, recomputable.
 - Brief data window = 00:00 → 05:45 Bangkok on the brief day (forced `?mode=early` runs 00:10/03:00/05:00 + 05:30 daily); on freeze/publish signals whose observation `received_at` is after it are excluded (become brief_updates); window stored in `daily_briefs.data_window` (first/last received, excluded with reason) and shown on brief, /events and /impact — honest cutoff.
 - Connector fetches retry 429 politely (Retry-After capped 20s, max 3 tries) and a 429-failed job re-queues after 15 min; /failures labels 429 as provider rate-limit — shared hosting egress gets throttled, not a site outage.
@@ -32,4 +32,5 @@
 - TMD Bangkok forecast (`tmd-forecast.ts`, pure parser) feeds connector metrics fc_tmax_bkk/fc_tmin_bkk and a live homepage card via `getBkkForecast` (falls back to last archived raw file; else "unverifiable") — one parser for both.
 - Calendar: `holidays` + `tax_deadlines` (rdtax) on /calendar + homepage aside; dates, never signals. Earthquake signal = `quake_th` from TMD RSS (`quake.ts`), Thai-province epicentres only, level bands {4,5}.
 - Holidays: Kapook yearly page (`kapook.ts`, job `holidays`); URL in `app_settings.holiday_url`, set on /calendar via `setHolidayUrl` — new year = new link.
+- Air/weather: GISTDA province API (pm25_bkk = กรุงเทพมหานคร pm25Avg24hr) and TMD Weather3Hours (`tmd3h.ts`, station BANGKOK METROPOLIS → tmax_bkk, rain_bkk).
 - /tracking: per-source fetch window, missing metrics, cut reasons (registry+run history+obs+data_window), read-only.
