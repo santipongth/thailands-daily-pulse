@@ -18,7 +18,21 @@ const briefQuery = (date: string) =>
         supabase.from("brief_updates").select("*").eq("brief_date", date).order("created_at"),
       ]);
       if (error) throw error;
-      return data ? { ...data, updates: updates ?? [] } : null;
+      if (!data) return null;
+      // Exact raw file behind each compared value (today's and the one it was compared with).
+      const items = (data.items ?? []) as BriefItem[];
+      const ids = [...new Set(items.map((i) => i.metric_id))];
+      const dates = [...new Set(items.flatMap((i) => [i.data_date, i.compared_with]).filter(Boolean))] as string[];
+      const valueEvidence: ValueEvidence = {};
+      if (ids.length && dates.length) {
+        const { data: obs, error: oe } = await supabase.from("observations").select("metric_id,observed_on,evidence_id").in("metric_id", ids).in("observed_on", dates);
+        if (oe) throw oe;
+        for (const i of items) {
+          const find = (d?: string | null) => obs?.find((o) => o.metric_id === i.metric_id && o.observed_on === d)?.evidence_id ?? null;
+          valueEvidence[i.metric_id] = { cur: find(i.data_date), prev: find(i.compared_with) };
+        }
+      }
+      return { ...data, updates: updates ?? [], valueEvidence };
     },
   });
 
