@@ -2,6 +2,7 @@ import { bkkToday } from "@/lib/signals";
 import { Link } from "@tanstack/react-router";
 import { FailureAlert } from "@/components/failure-alert";
 import { useUnseen } from "@/hooks/use-unseen";
+import { DailyTicker } from "@/components/daily-ticker";
 
 export function Masthead() {
   const { count } = useUnseen();
@@ -31,7 +32,7 @@ export function Masthead() {
       <p className="mx-auto max-w-6xl px-4 pb-3 text-sm text-muted-foreground">
         วันนี้ มีอะไรเปลี่ยนไปในประเทศไทยที่อาจกระทบชีวิตคุณ — อะไรไม่เปลี่ยน เราก็เงียบ
       </p>
-      <div className="h-3" />
+      <DailyTicker />
       {/* FailureAlert renders nothing visible; it only fires browser notifications */}
       <FailureAlert />
     </header>

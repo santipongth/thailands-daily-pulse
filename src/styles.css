@@ -63,6 +63,15 @@
   --color-down: var(--down);
   --color-live: var(--live);
   --color-live-foreground: var(--live-foreground);
+  --color-ticker: var(--ticker);
+  --color-ticker-foreground: var(--ticker-foreground);
+  --color-ticker-muted: var(--ticker-muted);
+  --color-ticker-grid: var(--ticker-grid);
+  --color-ticker-hover: var(--ticker-hover);
+  --color-ticker-live: var(--ticker-live);
+  --color-ticker-up: var(--ticker-up);
+  --color-ticker-down: var(--ticker-down);
+  --color-ticker-accent: var(--ticker-accent);
   --font-sans: "IBM Plex Sans Thai", system-ui, sans-serif;
   --font-display: "Noto Serif Thai", Georgia, serif;
 }
@@ -92,6 +101,15 @@
   --down: oklch(0.48 0.08 150);
   --live: oklch(0.48 0.08 150);
   --live-foreground: oklch(0.97 0.015 85);
+  --ticker: oklch(0.16 0.012 210);
+  --ticker-foreground: oklch(0.94 0.012 190);
+  --ticker-muted: oklch(0.68 0.016 200);
+  --ticker-grid: oklch(0.31 0.02 205 / 55%);
+  --ticker-hover: oklch(0.24 0.02 205);
+  --ticker-live: oklch(0.72 0.16 151);
+  --ticker-up: oklch(0.72 0.16 151);
+  --ticker-down: oklch(0.69 0.17 28);
+  --ticker-accent: oklch(0.78 0.13 85);
   --chart-1: oklch(0.52 0.17 35);
   --chart-2: oklch(0.48 0.08 150);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -140,6 +158,60 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --ticker: oklch(0.13 0.012 210);
+  --ticker-foreground: oklch(0.94 0.012 190);
+  --ticker-muted: oklch(0.68 0.016 200);
+  --ticker-grid: oklch(0.33 0.02 205 / 60%);
+  --ticker-hover: oklch(0.23 0.02 205);
+  --ticker-live: oklch(0.74 0.16 151);
+  --ticker-up: oklch(0.74 0.16 151);
+  --ticker-down: oklch(0.71 0.17 28);
+  --ticker-accent: oklch(0.8 0.13 85);
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes ticker-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in oklab, var(--ticker-live) 45%, transparent); }
+  50% { opacity: 0.55; box-shadow: 0 0 0 4px transparent; }
+}
+
+.ticker-grid {
+  background-image:
+    linear-gradient(to right, var(--ticker-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--ticker-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.ticker-track {
+  animation: ticker-scroll 34s linear infinite;
+}
+
+.ticker-viewport:hover .ticker-track,
+.ticker-viewport:focus-within .ticker-track {
+  animation-play-state: paused;
+}
+
+.ticker-live-dot {
+  animation: ticker-pulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track,
+  .ticker-live-dot {
+    animation: none;
+  }
+
+  .ticker-viewport {
+    overflow-x: auto;
+  }
+
+  .ticker-track > :last-child {
+    display: none;
+  }
 }
 
 @layer base {
