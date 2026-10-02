@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Masthead } from "@/components/masthead";
 import { HouseholdBasket } from "@/components/household-basket";
-import { BriefItems, type BriefItem } from "@/components/brief-items";
+import { BriefItems, type BriefItem, type ValueEvidence } from "@/components/brief-items";
 import { supabase } from "@/integrations/supabase/client";
 import { shiftDate, thaiDate } from "@/lib/signals";
 import { STATUS_TH, type Completeness } from "@/lib/completeness";
