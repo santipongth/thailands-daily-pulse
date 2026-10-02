@@ -30,6 +30,6 @@
 - Connector fetches retry 429 politely (Retry-After capped 20s, max 3 tries) and a 429-failed job re-queues after 15 min; /failures labels 429 as provider rate-limit — shared hosting egress gets throttled, not a site outage.
 - The masthead ticker reads today's ranked signals directly and links each item to its family page; it never creates fallback numbers or changes detection logic — the strip stays truthful.
 - TMD Bangkok forecast (`tmd-forecast.ts`, pure parser) feeds connector metrics fc_tmax_bkk/fc_tmin_bkk and a live homepage card via `getBkkForecast` (falls back to last archived raw file; else "unverifiable") — one parser for both.
-- Calendar: `holidays` (anyone adds via `addHoliday`, 30/h cap, delete only with per-device token hash) and `tax_deadlines` (rd.go.th crawl, job `rdtax`, parser `rdtax.ts`) shown on /calendar + homepage aside; dates, never signals. Earthquake signal = `quake_th` from TMD RSS (`quake.ts`), Thai-province epicentres only, level bands {4,5}.
-- Holidays come from a Kapook yearly page (`kapook.ts` parser, job `holidays`, daily); the URL lives in `app_settings.holiday_url`, changeable on /calendar via `setHolidayUrl` (only calendar.kapook.com/<year>/holiday) — next year needs only a new link.
-- /tracking joins source_registry, today's source_run_history, real observations and brief data_window per source: fetch window, missing metrics, cut reasons — read-only view.
+- Calendar: `holidays` + `tax_deadlines` (rdtax) on /calendar + homepage aside; dates, never signals. Earthquake signal = `quake_th` from TMD RSS (`quake.ts`), Thai-province epicentres only, level bands {4,5}.
+- Holidays: Kapook yearly page (`kapook.ts`, job `holidays`); URL in `app_settings.holiday_url`, set on /calendar via `setHolidayUrl` — new year = new link.
+- /tracking: per-source fetch window, missing metrics, cut reasons (registry+run history+obs+data_window), read-only.
