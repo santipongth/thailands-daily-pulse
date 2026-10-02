@@ -34,8 +34,9 @@ export function AllMetricsCompare({ date, cutoff, completeness }: { date: string
     if (m.id === "quake_th") return "ไม่มีแผ่นดินไหวในไทยวันนี้ (ไม่ใช่ข้อมูลขาด)";
     if (m.id.startsWith("lot")) return "ไม่ใช่วันออกสลาก — ออกรางวัลวันที่ 1 และ 16 ของเดือน";
     // Scheduled-release metrics (macro etc.): no daily fetch, they publish on fixed rounds.
-    const REL_KW: Record<string, string | undefined> = { cpi: "เงินเฟ้อ", gdp: "GDP", unemp: "ว่างงาน" };
-    const rel = data.releases.find((x) => x.family_id === m.family_id && (!REL_KW[m.id] || x.title.includes(REL_KW[m.id]))) ?? data.releases.find((x) => x.family_id === m.family_id);
+    const REL_KW: Record<string, string> = { cpi: "เงินเฟ้อ", gdp: "GDP", unemp: "ว่างงาน" };
+    const kw = REL_KW[m.id] as string | undefined;
+    const rel = data.releases.find((x) => x.family_id === m.family_id && (!kw || x.title.includes(kw))) ?? data.releases.find((x) => x.family_id === m.family_id);
     if (!srcOf(m.id) && rel) return `ประกาศตามรอบ ไม่ได้ดึงรายวัน — รอบถัดไป ${thaiDate(rel.release_date, { day: "numeric", month: "short" })} (${rel.title})`;
     const src = srcOf(m.id);
     const c = completeness?.find((x) => x.source === src);
