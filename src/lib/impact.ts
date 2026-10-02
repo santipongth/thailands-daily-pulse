@@ -73,13 +73,13 @@ export const EVIDENCE_FACTOR = { changed: 1.0, unchanged: 0.8 } as const;
 
 /** Reference household daily basket — quantities come from USAGE (official per-household figures where available). */
 export const BASKET: { metric_id: string; label: string; qty: number; unit: string }[] = [
-  { metric_id: "pork", label: "หมูเนื้อแดง", qty: 0.13, unit: "กก." },
-  { metric_id: "chicken", label: "เนื้อไก่", qty: 0.16, unit: "กก." },
-  { metric_id: "egg", label: "ไข่ไก่", qty: 1.9, unit: "ฟอง" },
-  { metric_id: "rice_jasmine", label: "ข้าวสาร", qty: 0.82, unit: "กก." },
+  { metric_id: "pork", label: "หมูเนื้อแดง", qty: 0.18, unit: "กก." },
+  { metric_id: "chicken", label: "เนื้อไก่", qty: 0.27, unit: "กก." },
+  { metric_id: "egg", label: "ไข่ไก่", qty: 1.54, unit: "ฟอง" },
+  { metric_id: "rice_jasmine", label: "ข้าวสาร", qty: 0.62, unit: "กก." },
   { metric_id: "morning_glory", label: "ผักบุ้ง", qty: 0.25, unit: "กก." },
   { metric_id: "palm_oil", label: "น้ำมันปาล์ม", qty: 0.05, unit: "ขวด" },
-  { metric_id: "gsh95", label: "แก๊สโซฮอล์ 95", qty: 0.68, unit: "ลิตร" },
+  { metric_id: "gsh95", label: "แก๊สโซฮอล์ 95", qty: 0.73, unit: "ลิตร" },
 ];
 
 export type BasketLine = { metric_id: string; label: string; qty: number; unit: string; prev: number | null; cur: number; prevDate: string | null; curDate: string; costPrev: number | null; costCur: number; delta: number };
@@ -112,15 +112,15 @@ export type Usage = {
 };
 const HH = "ขนาดครัวเรือนเฉลี่ย 3.0 คน (สำนักงานสถิติแห่งชาติ)";
 export const USAGE: Record<string, Usage> = {
-  pork: { label: "หมูเนื้อแดง", qty: 0.13, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภค 0.13 กก./วัน", official: true, source: "สำนักงานเศรษฐกิจการเกษตร — การบริโภคเนื้อสุกรต่อคน ~16 กก./ปี", method: `16 กก. × 3 คน ÷ 365 วัน; ${HH}`, url: "https://www.oae.go.th" },
-  chicken: { label: "เนื้อไก่", qty: 0.16, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภค 0.16 กก./วัน", official: true, source: "สำนักงานเศรษฐกิจการเกษตร — การบริโภคเนื้อไก่ต่อคน ~20 กก./ปี", method: `20 กก. × 3 คน ÷ 365 วัน; ${HH}`, url: "https://www.oae.go.th" },
-  egg: { label: "ไข่ไก่", qty: 1.9, unit: "ฟอง", priceUnit: "บาท/ฟอง", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภค 1.9 ฟอง/วัน", official: true, source: "กรมปศุสัตว์/คณะกรรมการนโยบายพัฒนาไก่ไข่ — การบริโภคไข่ต่อคน ~230 ฟอง/ปี", method: `230 ฟอง × 3 คน ÷ 365 วัน; ${HH}`, url: "https://www.oae.go.th" },
-  rice_jasmine: { label: "ข้าวสาร", qty: 0.82, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภคข้าว 0.82 กก./วัน", official: true, source: "สำนักงานเศรษฐกิจการเกษตร — การบริโภคข้าวต่อคน ~100 กก./ปี", method: `100 กก. × 3 คน ÷ 365 วัน; ${HH}`, url: "https://www.oae.go.th" },
+  pork: { label: "หมูเนื้อแดง", qty: 0.18, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภค 0.18 กก./วัน", official: true, source: "กรมปศุสัตว์ — การบริโภคเนื้อสุกร 21.7 กก./คน/ปี (ปี 2565)", method: `21.7 กก. × 3 คน ÷ 365 วัน; ${HH}`, url: "https://isaninsight.kku.ac.th/archives/8724" },
+  chicken: { label: "เนื้อไก่", qty: 0.27, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภค 0.27 กก./วัน", official: true, source: "กรมปศุสัตว์ — การบริโภคเนื้อไก่ 32.9 กก./คน/ปี (ปี 2565)", method: `32.9 กก. × 3 คน ÷ 365 วัน; ${HH}`, url: "https://isaninsight.kku.ac.th/archives/8724" },
+  egg: { label: "ไข่ไก่", qty: 1.54, unit: "ฟอง", priceUnit: "บาท/ฟอง", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภค 1.54 ฟอง/วัน", official: true, source: "กรมปศุสัตว์ — บริโภคไข่ไก่ทั้งประเทศ 41.50 ล้านฟอง/วัน (ปี 2568)", method: "41.50 ล้านฟอง ÷ 27 ล้านครัวเรือน", url: "https://www.eatecon.com/2025/10/10/egg-consumption/" },
+  rice_jasmine: { label: "ข้าวสาร", qty: 0.62, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภคข้าว 0.62 กก./วัน", official: true, source: "กรมการค้าภายใน — บริโภคข้าว 75.65 กก./คน/ปี (แผนความต้องการใช้ข้าว 2567/68)", method: `75.65 กก. × 3 คน ÷ 365 วัน; ${HH}`, url: "https://www.thansettakij.com/business/trade-agriculture/594161" },
   morning_glory: { label: "ผักบุ้ง", qty: 0.25, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ตัวอย่าง: ใช้ 0.25 กก./วัน", official: false, source: "ตัวเลขสมมติ — ยังไม่มีแหล่งรัฐ", method: "ตัวอย่างการทำกับข้าว 1 มื้อ" },
   palm_oil: { label: "น้ำมันปาล์ม", qty: 0.05, unit: "ขวด", priceUnit: "บาท/ขวด", period: "daily", scenario: "ตัวอย่าง: ใช้ 0.05 ขวด/วัน", official: false, source: "ตัวเลขสมมติ — ยังไม่มีแหล่งรัฐ", method: "1 ขวด 1 ลิตร ใช้ราว 20 วัน" },
-  gsh95: { label: "แก๊สโซฮอล์ 95", qty: 0.68, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 0.68 ลิตร/วัน", official: true, source: "สำนักงานนโยบายและแผนพลังงาน (สนพ.) — ใช้แก๊สโซฮอล์ 95 ทั้งประเทศ ~18.5 ล้านลิตร/วัน", method: "18.5 ล้านลิตร ÷ 27 ล้านครัวเรือน (สสช.)", url: "https://www.eppo.go.th" },
-  e20: { label: "แก๊สโซฮอล์ E20", qty: 0.26, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 0.26 ลิตร/วัน", official: true, source: "สนพ. — ใช้ E20 ทั้งประเทศ ~7 ล้านลิตร/วัน", method: "7 ล้านลิตร ÷ 27 ล้านครัวเรือน (สสช.)", url: "https://www.eppo.go.th" },
-  diesel: { label: "ดีเซล", qty: 2.5, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 2.5 ลิตร/วัน (รวมรถขนส่งที่ส่งต่อมาในราคาสินค้า)", official: true, source: "สนพ. — ใช้ดีเซลทั้งประเทศ ~68 ล้านลิตร/วัน", method: "68 ล้านลิตร ÷ 27 ล้านครัวเรือน (สสช.)", url: "https://www.eppo.go.th" },
+  gsh95: { label: "แก๊สโซฮอล์ 95", qty: 0.73, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 0.73 ลิตร/วัน", official: true, source: "กรมธุรกิจพลังงาน — ใช้แก๊สโซฮอล์ 95 ทั้งประเทศ 19.69 ล้านลิตร/วัน (ปี 2568)", method: "19.69 ล้านลิตร ÷ 27 ล้านครัวเรือน", url: "https://www.pptvhd36.com/wealth/economic/268526" },
+  e20: { label: "แก๊สโซฮอล์ E20", qty: 0.19, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 0.19 ลิตร/วัน", official: true, source: "กรมธุรกิจพลังงาน — ใช้ E20 ทั้งประเทศ 5.06 ล้านลิตร/วัน (ปี 2568)", method: "5.06 ล้านลิตร ÷ 27 ล้านครัวเรือน", url: "https://www.pptvhd36.com/wealth/economic/268526" },
+  diesel: { label: "ดีเซล", qty: 2.41, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 2.41 ลิตร/วัน (รวมรถขนส่งที่ส่งต่อมาในราคาสินค้า)", official: true, source: "กรมธุรกิจพลังงาน — ใช้ดีเซลหมุนเร็วทั้งประเทศ 65.03 ล้านลิตร/วัน (ปี 2568)", method: "65.03 ล้านลิตร ÷ 27 ล้านครัวเรือน", url: "https://www.pptvhd36.com/wealth/economic/268526" },
   gold_bar: { label: "ทองคำแท่ง", qty: 1, unit: "บาททอง", priceUnit: "บาท/บาททอง", period: "once", scenario: "ตัวอย่าง: ซื้อ 1 บาททอง 1 ครั้ง", official: false, source: "ไม่มีตัวเลขรัฐต่อครัวเรือน — ตัวอย่างการซื้อ", method: "1 ครั้ง" },
   gold_orn: { label: "ทองรูปพรรณ", qty: 1, unit: "บาททอง", priceUnit: "บาท/บาททอง", period: "once", scenario: "ตัวอย่าง: ซื้อ 1 บาททอง 1 ครั้ง", official: false, source: "ไม่มีตัวเลขรัฐต่อครัวเรือน — ตัวอย่างการซื้อ", method: "1 ครั้ง" },
   usdthb: { label: "เงินดอลลาร์", qty: 1000, unit: "ดอลลาร์", priceUnit: "บาท/ดอลลาร์", period: "once", scenario: "ตัวอย่าง: แลก 1,000 ดอลลาร์", official: false, source: "ไม่มีตัวเลขรัฐต่อครัวเรือน — ตัวอย่างการแลกเงิน", method: "1 ทริป" },
