@@ -24,6 +24,8 @@ const PER: Record<string, (ch: number, s: S) => string> = {
 
 export function householdImpact(s: S): string | null {
   const ch = Number(s.change_abs ?? (s.prev_value != null ? s.new_value - s.prev_value : 0));
+  const calc = impactFor(s);
+  if (calc) return impactSummary(calc); // money impact: one formula, same numbers as the shown steps
   const f = PER[s.metric_id];
   return f ? f(ch, s) : null;
 }
