@@ -117,6 +117,8 @@ function Today() {
                 </li>
               ))}
             </ul>
+            <UpcomingDates today={today} />
+            <Link to="/calendar" className="mt-3 inline-block text-sm underline">วันหยุดและกำหนดภาษีทั้งหมด →</Link>
           </aside>
         </section>
 

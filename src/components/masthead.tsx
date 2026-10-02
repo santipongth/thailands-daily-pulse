@@ -22,6 +22,7 @@ export function Masthead() {
           </Link>
           <Link to="/events" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>เหตุการณ์</Link>
           <Link to="/impact" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>สูตรผลกระทบ</Link>
+          <Link to="/calendar" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>วันหยุด/ภาษี</Link>
           <Link to="/data" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ข้อมูลดิบ</Link>
           <Link to="/evidence" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ไฟล์ดิบ</Link>
           <Link to="/method" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>วิธีคำนวณ</Link>
