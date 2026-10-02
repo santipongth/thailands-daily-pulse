@@ -9,20 +9,16 @@ const agenciesQuery = queryOptions({
   queryKey: ["agencies-overview"],
   queryFn: async () => {
     const today = bkkToday();
-    const [runs, metrics, obs, ds, ch, sig] = await Promise.all([
+    const [runs, metrics, obs, sig] = await Promise.all([
       supabase.from("source_runs").select("source,ok,ran_at,rows,error"),
       supabase.from("metrics").select("*"),
       supabase.from("observations").select("metric_id,observed_on,value,is_demo").eq("is_demo", false).gte("observed_on", today),
-      supabase.from("gov_datasets").select("agency"),
-      supabase.from("gov_changes").select("agency").eq("change_date", today),
       supabase.from("signals").select("metric_id").eq("signal_date", today),
     ]);
     return {
       runs: (runs.data ?? []) as { source: string; ok: boolean; ran_at: string; rows: number; error: string | null }[],
       metrics: (metrics.data ?? []) as Metric[],
       obs: obs.data ?? [],
-      datasets: ds.data ?? [],
-      changes: ch.data ?? [],
       signals: sig.data ?? [],
     };
   },
@@ -60,9 +56,7 @@ function Agencies() {
             const okCount = runs.filter((r) => r.ok).length;
             const mids = agencyMetrics(a);
             const latest = mids.map((id) => ({ m: met.get(id), o: data.obs.filter((o) => o.metric_id === id).at(-1) })).filter((x) => x.m && x.o);
-            const nDs = a.catalog ? data.datasets.filter((d) => d.agency === a.catalog).length : 0;
-            const nCh = a.catalog ? data.changes.filter((c) => c.agency === a.catalog).length : 0;
-            const nSig = data.signals.filter((s) => mids.includes(s.metric_id) || (a.catalog && s.metric_id.startsWith("cat_") && mids.includes(s.metric_id))).length;
+            const nSig = data.signals.filter((s) => mids.includes(s.metric_id)).length;
             return (
               <Link key={a.key} to="/agencies/$agency" params={{ agency: a.key }} className="block border-2 border-foreground p-4 hover:bg-card">
                 <div className="flex items-baseline justify-between gap-2">
@@ -75,10 +69,9 @@ function Agencies() {
                   {latest.slice(0, 3).map(({ m, o }) => (
                     <li key={m!.id} className="flex justify-between gap-2"><span className="truncate text-muted-foreground">{m!.name_th}</span><span>{fmt(Number(o!.value), m!.decimals)} {m!.unit}</span></li>
                   ))}
-                  {a.catalog && <li className="flex justify-between"><span className="text-muted-foreground">ชุดข้อมูลที่ติดตาม</span><span>{nDs}</span></li>}
                 </ul>
                 <p className="mt-3 text-xs">
-                  วันนี้: เปลี่ยน {nCh} ชุด · สัญญาณ {nSig}
+                  วันนี้: สัญญาณ {nSig}
                 </p>
               </Link>
             );

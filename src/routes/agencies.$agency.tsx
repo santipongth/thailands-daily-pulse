@@ -16,8 +16,8 @@ const agencyQuery = (key: string) =>
       const [metrics, obs, changes, datasets, history, news] = await Promise.all([
         supabase.from("metrics").select("*").in("id", mids.length ? mids : ["-"]),
         supabase.from("observations").select("metric_id,observed_on,value,is_demo").in("metric_id", mids.length ? mids : ["-"]).eq("is_demo", false).gte("observed_on", shiftDate(since, -1)).order("observed_on"),
-        a.catalog ? supabase.from("gov_changes").select("id,change_date,kind,reason_th,before_text,after_text,pct,gov_datasets(url)").eq("agency", a.catalog).gte("change_date", since).order("change_date", { ascending: false }) : Promise.resolve({ data: [] }),
-        a.catalog ? supabase.from("gov_datasets").select("id,title,org,url").eq("agency", a.catalog).order("title").limit(60) : Promise.resolve({ data: [] }),
+        Promise.resolve({ data: [] }),
+        Promise.resolve({ data: [] }),
         supabase.from("source_run_history").select("source,ran_at,ok,rows,error").in("source", a.sources).order("ran_at", { ascending: false }).limit(20),
         a.newsAgency ? supabase.from("news_items").select("id,title,link,source,published_at").eq("agency", a.newsAgency).like("source", "%เว็บไซต์ทางการ%").gte("published_at", since).order("published_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] }),
       ]);

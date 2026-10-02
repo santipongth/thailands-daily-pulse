@@ -52,7 +52,6 @@ export function officialAdvice(s: S): Advice | null {
     case "gold": return { text: "ราคาประกาศอาจเปลี่ยนหลายครั้งต่อวัน ตรวจราคาล่าสุดก่อนซื้อขาย", source: "สมาคมค้าทองคำ", url: "https://www.goldtraders.or.th" };
     case "fx": return { text: "อัตราที่ใช้จริงขึ้นกับธนาคารผู้ให้บริการ ดูอัตราอ้างอิงจากธนาคารแห่งประเทศไทย", source: "ธนาคารแห่งประเทศไทย", url: "https://www.bot.or.th/th/statistics/exchange-rate.html" };
     case "lottery": return { text: "ตรวจผลจากเอกสารทางการของสำนักงานสลากฯ เท่านั้น ระวังผลปลอมในโซเชียล", source: "สำนักงานสลากกินแบ่งรัฐบาล", url: "https://www.glo.or.th/mission/awarding/orderby-time" };
-    case "govdata": return { text: "เปิดดูชุดข้อมูลต้นฉบับเพื่อรายละเอียดรายพื้นที่", source: "ศูนย์กลางข้อมูลเปิดภาครัฐ", url: "https://gdcatalog.go.th" };
     default: return null;
   }
 }
