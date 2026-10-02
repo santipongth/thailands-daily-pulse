@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       brief_updates: {
         Row: {
           body: string | null
@@ -246,27 +264,39 @@ export type Database = {
           delete_hash: string
           holiday_date: string
           id: number
+          is_bank: boolean
+          is_gov: boolean
           kind: string
           name: string
           note: string | null
+          source: string
+          source_url: string | null
         }
         Insert: {
           created_at?: string
           delete_hash: string
           holiday_date: string
           id?: number
+          is_bank?: boolean
+          is_gov?: boolean
           kind: string
           name: string
           note?: string | null
+          source?: string
+          source_url?: string | null
         }
         Update: {
           created_at?: string
           delete_hash?: string
           holiday_date?: string
           id?: number
+          is_bank?: boolean
+          is_gov?: boolean
           kind?: string
           name?: string
           note?: string | null
+          source?: string
+          source_url?: string | null
         }
         Relationships: []
       }
