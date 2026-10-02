@@ -39,9 +39,9 @@ function changeText(signal: TickerSignal) {
   return `${direction}${fmt(Math.abs(change), metric.decimals)} ${metric.unit}`;
 }
 
-function TickerItems({ signals }: { signals: TickerSignal[] }) {
+function TickerItems({ signals, duplicate = false }: { signals: TickerSignal[]; duplicate?: boolean }) {
   return (
-    <div className="flex shrink-0 items-stretch" aria-hidden>
+    <div className="flex shrink-0 items-stretch" aria-hidden={duplicate || undefined}>
       {signals.map((signal) => {
         const up = (signal.change_abs ?? 0) > 0;
         const tone = signal.metric.kind === "release" ? "text-ticker-accent" : up ? "text-ticker-up" : "text-ticker-down";
@@ -51,7 +51,7 @@ function TickerItems({ signals }: { signals: TickerSignal[] }) {
             to="/signals/$family"
             params={{ family: signal.family_id }}
             className="group flex min-w-max items-center gap-3 border-r border-ticker-grid px-5 py-2.5 outline-none transition-colors hover:bg-ticker-hover focus-visible:bg-ticker-hover"
-            tabIndex={-1}
+            tabIndex={duplicate ? -1 : undefined}
           >
             <span className="text-[11px] text-ticker-muted">{signal.family.emoji} {signal.family.name_th}</span>
             <span className="font-semibold tabular-nums text-ticker-foreground">
@@ -92,7 +92,7 @@ export function DailyTicker() {
           ) : (
             <div className="ticker-track flex w-max">
               <TickerItems signals={signals} />
-              <TickerItems signals={signals} />
+              <TickerItems signals={signals} duplicate />
             </div>
           )}
         </div>
