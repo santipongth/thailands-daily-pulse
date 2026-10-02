@@ -17,7 +17,9 @@ export const SOURCES: SourceInfo[] = [
   { source: "สมาคมค้าทองคำ", agency: "สมาคมค้าทองคำ", kind: "api", metrics: ["gold_bar", "gold_orn"] },
   { source: "ThaiWater (สสน.)", agency: "สสน. / กรมชลประทาน", kind: "api", metrics: ["dam_total", "dam_bhumibol"] },
   { source: "กรมอุตุฯ เตือนภัย", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["tmd_warn"] },
-  { source: "กรมอุตุฯ แผ่นดินไหว", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["quake_max"] },
+  { source: "กรมอุตุฯ แผ่นดินไหว", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["quake_th"] },
+  { source: "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["fc_tmax_bkk", "fc_tmin_bkk"] },
+  { source: "กรมสรรพากร (ปฏิทินภาษี)", agency: "กรมสรรพากร", kind: "crawler", metrics: [] },
   { source: "PTT (thai-oil-api)", agency: "ปตท.", kind: "api", metrics: ["gsh95", "e20", "diesel"] },
   { source: "บางจาก (Bangchak API)", agency: "บางจาก", kind: "api", metrics: [] },
   { source: "Open-Meteo (อากาศ/PM2.5)", agency: "Open-Meteo", kind: "api", metrics: ["pm25_bkk", "pm25_cnx", "rain_bkk", "tmax_bkk"] },
@@ -35,13 +37,14 @@ export type Agency = { key: string; label: string; sources: string[]; catalog?: 
 
 /** Agencies shown on /agencies, each grouping its sources (by source name). */
 export const AGENCIES: Agency[] = [
-  { key: "tmd", label: "กรมอุตุนิยมวิทยา", sources: ["กรมอุตุฯ เตือนภัย", "กรมอุตุฯ แผ่นดินไหว"], newsAgency: "กรมอุตุนิยมวิทยา" },
+  { key: "tmd", label: "กรมอุตุนิยมวิทยา", sources: ["กรมอุตุฯ เตือนภัย", "กรมอุตุฯ แผ่นดินไหว", "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล"], newsAgency: "กรมอุตุนิยมวิทยา" },
   { key: "water", label: "สสน. / กรมชลประทาน", sources: ["ThaiWater (สสน.)"], newsAgency: "กรมชลประทาน / สทนช." },
   { key: "gold", label: "สมาคมค้าทองคำ", sources: ["สมาคมค้าทองคำ"] },
   { key: "md", label: "กรมเจ้าท่า", sources: ["ข้อมูลเปิดภาครัฐ: กรมเจ้าท่า"], catalog: "กรมเจ้าท่า" },
   { key: "bma", label: "กรุงเทพมหานคร", sources: ["ข้อมูลเปิดภาครัฐ: กรุงเทพมหานคร"], catalog: "กรุงเทพมหานคร" },
   { key: "pao", label: "อบจ. / ท้องถิ่น", sources: ["ข้อมูลเปิดภาครัฐ: อบจ./ท้องถิ่น"], catalog: "อบจ./ท้องถิ่น" },
   { key: "dol", label: "กรมที่ดิน", sources: ["กรมที่ดิน (เว็บไซต์ทางการ)"], newsAgency: "กรมที่ดิน" },
+  { key: "rd", label: "กรมสรรพากร", sources: ["กรมสรรพากร (ปฏิทินภาษี)"] },
   { key: "glo", label: "สำนักงานสลากกินแบ่งรัฐบาล", sources: ["สำนักงานสลากกินแบ่งรัฐบาล (GLO)"] },
   { key: "energy", label: "ปตท. / บางจาก (ราคาน้ำมัน)", sources: ["PTT (thai-oil-api)", "บางจาก (Bangchak API)"] },
 ];

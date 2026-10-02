@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { upcomingQuery } from "@/lib/calendar";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
 import { z } from "zod";
@@ -117,6 +118,8 @@ function Today() {
                 </li>
               ))}
             </ul>
+            <UpcomingDates today={today} />
+            <Link to="/calendar" className="mt-3 inline-block text-sm underline">วันหยุดและกำหนดภาษีทั้งหมด →</Link>
           </aside>
         </section>
 
@@ -199,5 +202,24 @@ function Today() {
         </section>
       </main>
     </div>
+  );
+}
+
+function UpcomingDates({ today }: { today: string }) {
+  const { data } = useQuery(upcomingQuery(today));
+  const rows = [
+    ...(data?.holidays ?? []).map((h) => ({ k: `h${h.id}`, d: h.holiday_date, t: `🗓️ ${h.name} (วันหยุด${h.kind})` })),
+    ...(data?.tax ?? []).map((t) => ({ k: `t${t.id}`, d: t.due_date, t: `🧾 ${t.items[0]}${t.items.length > 1 ? ` +${t.items.length - 1}` : ""}${t.channel.includes("อินเทอร์เน็ต") ? " (ออนไลน์)" : ""}` })),
+  ].sort((a, b) => a.d.localeCompare(b.d)).slice(0, 6);
+  if (!rows.length) return null;
+  return (
+    <ul className="mt-3 space-y-3 border-t border-foreground/20 pt-3 text-sm">
+      {rows.map((r) => (
+        <li key={r.k} className="flex gap-3">
+          <span className="w-20 shrink-0 tabular-nums text-muted-foreground">{thaiDate(r.d, { day: "numeric", month: "short" })}</span>
+          <span>{r.t}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

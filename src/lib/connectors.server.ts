@@ -98,14 +98,11 @@ export const CONNECTORS: Connector[] = [
   {
     source: "กรมอุตุฯ แผ่นดินไหว",
     run: async (date) => {
-      const xml = await text("https://data.tmd.go.th/api/DailySeismicEvent/v1/?uid=api&ukey=api12345");
-      let max = 0;
-      for (const b of blocks(xml, "DailyEarthquakes")) {
-        const lat = Number(field(b, "Latitude")), lon = Number(field(b, "Longitude")), mag = Number(field(b, "Magnitude"));
-        if (!field(b, "DateTimeThai").startsWith(date)) continue;
-        if (lat >= 4 && lat <= 22 && lon >= 96 && lon <= 107 && mag > max) max = mag;
-      }
-      return { quake_max: max };
+      // RSS of TMD seismic bureau; only epicentres inside Thailand (title names a จ. province, not another ประเทศ).
+      const { parseQuakeRss } = await import("./quake");
+      const qs = parseQuakeRss(await text("https://earthquake.tmd.go.th/feed/rss_tmd.xml"));
+      const max = qs.filter((q) => q.inThailand && q.dateBkk === date).reduce((m, q) => Math.max(m, q.magnitude), 0);
+      return { quake_th: max };
     },
   },
   {

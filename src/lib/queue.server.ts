@@ -45,6 +45,22 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
       return { values: {}, runs: [{ ...base, ok: false, rows: 0, error: String((e as Error).message).slice(0, 200) }] };
     }
   },
+  rdtax: async ({ admin, date }) => {
+    const { RD_TAX_URL, parseRdTax } = await import("./rdtax");
+    const base = { source: "กรมสรรพากร (ปฏิทินภาษี)", kind: "crawler", url: RD_TAX_URL, ran_at: new Date().toISOString() };
+    try {
+      const res = await fetch(RD_TAX_URL, { headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals" }, signal: AbortSignal.timeout(15000) });
+      if (!res.ok) throw new Error(`${res.status} ${RD_TAX_URL}`);
+      const rows = parseRdTax(await res.text(), date);
+      if (!rows.length) throw new Error("ไม่พบกำหนดยื่นภาษีในหน้า (รูปแบบหน้าอาจเปลี่ยน)");
+      const now = new Date().toISOString();
+      const { error } = await admin.from("tax_deadlines").upsert(rows.map((r) => ({ ...r, source_url: RD_TAX_URL, fetched_at: now })), { onConflict: "due_date,channel" });
+      if (error) throw new Error(error.message);
+      return { values: {}, runs: [{ ...base, ok: true, rows: rows.length, error: null, sample: rows.slice(0, 2).map((r) => `${r.due_date} ${r.items[0]}`).join(" · ") }] };
+    } catch (e) {
+      return { values: {}, runs: [{ ...base, ok: false, rows: 0, error: String((e as Error).message).slice(0, 200) }] };
+    }
+  },
   news: async ({ admin }) => {
     const { collectNews } = await import("./news.server");
     const news = await collectNews();

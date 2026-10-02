@@ -127,6 +127,13 @@
       "when": 1790961739146,
       "tag": "0017_tmd_bkk_forecast",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790963006684,
+      "tag": "0018_holidays_tax_quake",
+      "breakpoints": true
     }
   ]
 }
