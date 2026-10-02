@@ -78,6 +78,9 @@ function Failures() {
                   <h2 className="font-display text-xl">{r.source}</h2>
                   <span className="text-xs uppercase text-muted-foreground">{r.kind === "crawler" ? "crawler เว็บไซต์" : "API"} · {r.run_kind === "daily" ? "รอบประจำวัน" : r.run_kind === "manual" ? "ลองเอง" : "รอบรายชั่วโมง"}</span>
                 </div>
+                {r.error?.startsWith("429") && (
+                  <p className="mt-2 inline-block border border-foreground px-2 py-0.5 text-xs font-semibold">ผู้ให้บริการจำกัดจำนวนคำขอ (429) — ไม่ใช่เว็บล่ม ระบบส่วนอื่นทำงานปกติ จะลองใหม่ใน 15 นาที</p>
+                )}
                 <p className="mt-2 text-sm"><span className="font-semibold text-destructive">เหตุผล:</span> {r.error}</p>
                 <p className="mt-1 text-sm text-muted-foreground">ลองดึงล่าสุด: {t(r.ran_at)} · สำเร็จครั้งล่าสุด: {t(r.last_ok_at)}</p>
                 {r.url && <a href={r.url} target="_blank" rel="noreferrer" className="mt-1 block break-all text-xs underline">{r.url}</a>}
