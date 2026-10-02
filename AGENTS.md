@@ -25,4 +25,4 @@
 - No accounts: all preferences (sources, sensitivity, interval, update `times`, seen state) are per-device localStorage; `ScheduledRefresh` and `BriefAlert` in __root run in the browser.
 - Public reads via browser client under anon SELECT RLS; writes server-side with admin client. `is_demo`/`is_live` label real vs illustrative data.
 - Backfill (`backfill.server.ts`, `/api/public/ingest?mode=backfill`, cron-secret) only for sources that publish history (Open-Meteo); real rows replace demo rows, never real ones; then detect/rank/brief replayed oldest→newest, briefs left unpublished (archive editions).
-- Household impact per signal = `impactFor` ((new−prev) × BASKET qty, ×30) stored in `signal_versions.impact.calc` — recomputable from stored inputs.
+- Household impact per signal = `impactFor` in impact.ts: one fixed usage assumption per metric (`USAGE`: daily → ×qty/day and ×30, once → ×qty per purchase), stored as numbered `steps` in `signal_versions.impact.calc`; text summaries derive from the same calc — one formula, recomputable.
