@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as FailuresRouteImport } from './routes/failures'
+import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as MonitorRouteImport } from './routes/monitor'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -47,6 +48,11 @@ const EvidenceRoute = EvidenceRouteImport.update({
 const FailuresRoute = FailuresRouteImport.update({
   id: '/failures',
   path: '/failures',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpactRoute = ImpactRouteImport.update({
+  id: '/impact',
+  path: '/impact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodRoute = MethodRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/data': typeof DataRoute
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
+  '/impact': typeof ImpactRoute
   '/method': typeof MethodRoute
   '/monitor': typeof MonitorRoute
   '/settings': typeof SettingsRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByTo {
   '/data': typeof DataRoute
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
+  '/impact': typeof ImpactRoute
   '/method': typeof MethodRoute
   '/monitor': typeof MonitorRoute
   '/settings': typeof SettingsRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   '/data': typeof DataRoute
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
+  '/impact': typeof ImpactRoute
   '/method': typeof MethodRoute
   '/monitor': typeof MonitorRoute
   '/settings': typeof SettingsRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/data'
     | '/evidence'
     | '/failures'
+    | '/impact'
     | '/method'
     | '/monitor'
     | '/settings'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/data'
     | '/evidence'
     | '/failures'
+    | '/impact'
     | '/method'
     | '/monitor'
     | '/settings'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/data'
     | '/evidence'
     | '/failures'
+    | '/impact'
     | '/method'
     | '/monitor'
     | '/settings'
@@ -260,6 +272,7 @@ export interface RootRouteChildren {
   DataRoute: typeof DataRoute
   EvidenceRoute: typeof EvidenceRoute
   FailuresRoute: typeof FailuresRoute
+  ImpactRoute: typeof ImpactRoute
   MethodRoute: typeof MethodRoute
   MonitorRoute: typeof MonitorRoute
   SettingsRoute: typeof SettingsRoute
@@ -305,6 +318,13 @@ declare module '@tanstack/react-router' {
       path: '/failures'
       fullPath: '/failures'
       preLoaderRoute: typeof FailuresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impact': {
+      id: '/impact'
+      path: '/impact'
+      fullPath: '/impact'
+      preLoaderRoute: typeof ImpactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/method': {
@@ -420,6 +440,7 @@ const rootRouteChildren: RootRouteChildren = {
   DataRoute: DataRoute,
   EvidenceRoute: EvidenceRoute,
   FailuresRoute: FailuresRoute,
+  ImpactRoute: ImpactRoute,
   MethodRoute: MethodRoute,
   MonitorRoute: MonitorRoute,
   SettingsRoute: SettingsRoute,
