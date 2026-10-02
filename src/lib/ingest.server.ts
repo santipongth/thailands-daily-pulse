@@ -231,6 +231,7 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
         specs.push({ job_type: "checkraka", source: "CheckRaka (ราคาอาหาร)" });
         specs.push({ job_type: "rakakaset", source: "RakaKaset (ราคาเกษตร)" });
       }
+      if (opts.runKind === "daily" || opts.runKind === "manual") specs.push({ job_type: "holidays", source: "Kapook ปฏิทินวันหยุด" });
       if (opts.runKind === "daily" || opts.runKind === "manual") specs.push({ job_type: "rdtax", source: "กรมสรรพากร (ปฏิทินภาษี)" });
       else {
         const { count: tax } = await admin.from("tax_deadlines").select("id", { count: "exact", head: true }).gte("fetched_at", new Date(Date.now() - 86400e3).toISOString());
