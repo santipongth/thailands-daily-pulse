@@ -18,7 +18,21 @@ const briefQuery = (date: string) =>
         supabase.from("brief_updates").select("*").eq("brief_date", date).order("created_at"),
       ]);
       if (error) throw error;
-      return data ? { ...data, updates: updates ?? [] } : null;
+      if (!data) return null;
+      // Exact raw file behind each compared value (today's and the one it was compared with).
+      const items = (data.items ?? []) as BriefItem[];
+      const ids = [...new Set(items.map((i) => i.metric_id))];
+      const dates = [...new Set(items.flatMap((i) => [i.data_date, i.compared_with]).filter(Boolean))] as string[];
+      const valueEvidence: ValueEvidence = {};
+      if (ids.length && dates.length) {
+        const { data: obs, error: oe } = await supabase.from("observations").select("metric_id,observed_on,evidence_id").in("metric_id", ids).in("observed_on", dates);
+        if (oe) throw oe;
+        for (const i of items) {
+          const find = (d?: string | null) => obs?.find((o) => o.metric_id === i.metric_id && o.observed_on === d)?.evidence_id ?? null;
+          valueEvidence[i.metric_id] = { cur: find(i.data_date), prev: find(i.compared_with) };
+        }
+      }
+      return { ...data, updates: updates ?? [], valueEvidence };
     },
   });
 
@@ -63,7 +77,7 @@ function BriefPage() {
             {data.cutoff_at && <p className="mt-1 text-sm font-semibold">ข้อมูลถึง {hm(data.cutoff_at)} น. — ข้อมูลที่ได้รับหลังเวลานี้เข้าเป็นอัปเดตด้านล่างหรือฉบับถัดไป</p>}
             <p className="mt-6 font-display text-2xl leading-relaxed">{data.body}</p>
             <p className="mt-2 text-xs text-muted-foreground">ตัวเลขทั้งหมดคำนวณโดยระบบจากข้อมูลทางการ — AI ใช้เรียบเรียงภาษาบทนำเท่านั้น และถูกตรวจว่าไม่เพิ่มตัวเลขใหม่</p>
-            <div className="mt-10"><BriefItems items={(data.items ?? []) as BriefItem[]} /></div>
+            <div className="mt-10"><BriefItems items={(data.items ?? []) as BriefItem[]} valueEvidence={data.valueEvidence} /></div>
             {data.updates.length > 0 && (
               <section className="mt-10">
                 <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">อัปเดตหลังเผยแพร่</h2>
