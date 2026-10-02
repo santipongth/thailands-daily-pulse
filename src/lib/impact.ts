@@ -71,15 +71,15 @@ export const TRUST_FACTOR = { high: 1.0, medium: 0.7, low: 0.5 } as const;
 /** Mirrors rank_signals: raw source file changed that day vs previous fetch. */
 export const EVIDENCE_FACTOR = { changed: 1.0, unchanged: 0.8 } as const;
 
-/** Reference household daily basket (assumed quantities per day, family of 3–4). Cost is computed only from real observations. */
+/** Reference household daily basket — quantities come from USAGE (official per-household figures where available). */
 export const BASKET: { metric_id: string; label: string; qty: number; unit: string }[] = [
-  { metric_id: "pork", label: "หมูเนื้อแดง", qty: 0.3, unit: "กก." },
-  { metric_id: "chicken", label: "อกไก่", qty: 0.3, unit: "กก." },
-  { metric_id: "egg", label: "ไข่ไก่", qty: 4, unit: "ฟอง" },
-  { metric_id: "rice_jasmine", label: "ข้าวหอมมะลิ", qty: 0.5, unit: "กก." },
+  { metric_id: "pork", label: "หมูเนื้อแดง", qty: 0.13, unit: "กก." },
+  { metric_id: "chicken", label: "เนื้อไก่", qty: 0.16, unit: "กก." },
+  { metric_id: "egg", label: "ไข่ไก่", qty: 1.9, unit: "ฟอง" },
+  { metric_id: "rice_jasmine", label: "ข้าวสาร", qty: 0.82, unit: "กก." },
   { metric_id: "morning_glory", label: "ผักบุ้ง", qty: 0.25, unit: "กก." },
   { metric_id: "palm_oil", label: "น้ำมันปาล์ม", qty: 0.05, unit: "ขวด" },
-  { metric_id: "gsh95", label: "แก๊สโซฮอล์ 95 (เดินทาง)", qty: 3, unit: "ลิตร" },
+  { metric_id: "gsh95", label: "แก๊สโซฮอล์ 95", qty: 0.68, unit: "ลิตร" },
 ];
 
 export type BasketLine = { metric_id: string; label: string; qty: number; unit: string; prev: number | null; cur: number; prevDate: string | null; curDate: string; costPrev: number | null; costCur: number; delta: number };
@@ -101,47 +101,60 @@ export function basketLines(obs: { metric_id: string; observed_on: string; value
 }
 
 /**
- * Usage assumption per metric for household impact. "daily" items (BASKET + fuel) give baht/day and ×30 per month;
- * "once" items (gold, FX) give the cost difference of one typical purchase. Quantities are fixed, stated assumptions.
+ * Usage per metric for household impact. "daily" items give baht/day and ×30 per month;
+ * "once" items (gold, FX) give the cost difference of one purchase.
+ * Official figures: national/per-person consumption from government reports ÷ households or × household size (NSO avg 3.0 persons).
+ * `official: false` = example amount (no government per-household figure exists).
  */
-type Usage = { label: string; qty: number; unit: string; priceUnit: string; period: "daily" | "once"; scenario: string };
-const USAGE: Record<string, Usage> = {
-  ...Object.fromEntries(BASKET.map((b) => [b.metric_id, { label: b.label, qty: b.qty, unit: b.unit, priceUnit: `บาท/${b.unit.replace(/\.$/, "")}`, period: "daily" as const, scenario: `ใช้ ${b.qty} ${b.unit}/วัน (ตะกร้าครัวเรือนอ้างอิง)` }])),
-  e20: { label: "แก๊สโซฮอล์ E20 (เดินทาง)", qty: 3, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "รถเก๋งใช้ 3 ลิตร/วัน" },
-  diesel: { label: "ดีเซล B7 (เดินทาง)", qty: 3, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "กระบะใช้ 3 ลิตร/วัน" },
-  gold_bar: { label: "ทองคำแท่ง", qty: 1, unit: "บาททอง", priceUnit: "บาท/บาททอง", period: "once", scenario: "ซื้อทองคำแท่ง 1 บาททอง 1 ครั้ง" },
-  gold_orn: { label: "ทองรูปพรรณ", qty: 1, unit: "บาททอง", priceUnit: "บาท/บาททอง", period: "once", scenario: "ซื้อทองรูปพรรณ 1 บาททอง 1 ครั้ง" },
-  usdthb: { label: "เงินดอลลาร์", qty: 1000, unit: "ดอลลาร์", priceUnit: "บาท/ดอลลาร์", period: "once", scenario: "แลกเงินเที่ยวต่างประเทศ 1,000 ดอลลาร์" },
-  eurthb: { label: "เงินยูโร", qty: 1000, unit: "ยูโร", priceUnit: "บาท/ยูโร", period: "once", scenario: "แลกเงินเที่ยวยุโรป 1,000 ยูโร" },
+export type Usage = {
+  label: string; qty: number; unit: string; priceUnit: string; period: "daily" | "once"; scenario: string;
+  official: boolean; source: string; method: string; url?: string;
+};
+const HH = "ขนาดครัวเรือนเฉลี่ย 3.0 คน (สำนักงานสถิติแห่งชาติ)";
+export const USAGE: Record<string, Usage> = {
+  pork: { label: "หมูเนื้อแดง", qty: 0.13, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภค 0.13 กก./วัน", official: true, source: "สำนักงานเศรษฐกิจการเกษตร — การบริโภคเนื้อสุกรต่อคน ~16 กก./ปี", method: `16 กก. × 3 คน ÷ 365 วัน; ${HH}`, url: "https://www.oae.go.th" },
+  chicken: { label: "เนื้อไก่", qty: 0.16, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภค 0.16 กก./วัน", official: true, source: "สำนักงานเศรษฐกิจการเกษตร — การบริโภคเนื้อไก่ต่อคน ~20 กก./ปี", method: `20 กก. × 3 คน ÷ 365 วัน; ${HH}`, url: "https://www.oae.go.th" },
+  egg: { label: "ไข่ไก่", qty: 1.9, unit: "ฟอง", priceUnit: "บาท/ฟอง", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภค 1.9 ฟอง/วัน", official: true, source: "กรมปศุสัตว์/คณะกรรมการนโยบายพัฒนาไก่ไข่ — การบริโภคไข่ต่อคน ~230 ฟอง/ปี", method: `230 ฟอง × 3 คน ÷ 365 วัน; ${HH}`, url: "https://www.oae.go.th" },
+  rice_jasmine: { label: "ข้าวสาร", qty: 0.82, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ครัวเรือนเฉลี่ยบริโภคข้าว 0.82 กก./วัน", official: true, source: "สำนักงานเศรษฐกิจการเกษตร — การบริโภคข้าวต่อคน ~100 กก./ปี", method: `100 กก. × 3 คน ÷ 365 วัน; ${HH}`, url: "https://www.oae.go.th" },
+  morning_glory: { label: "ผักบุ้ง", qty: 0.25, unit: "กก.", priceUnit: "บาท/กก.", period: "daily", scenario: "ตัวอย่าง: ใช้ 0.25 กก./วัน", official: false, source: "ตัวเลขสมมติ — ยังไม่มีแหล่งรัฐ", method: "ตัวอย่างการทำกับข้าว 1 มื้อ" },
+  palm_oil: { label: "น้ำมันปาล์ม", qty: 0.05, unit: "ขวด", priceUnit: "บาท/ขวด", period: "daily", scenario: "ตัวอย่าง: ใช้ 0.05 ขวด/วัน", official: false, source: "ตัวเลขสมมติ — ยังไม่มีแหล่งรัฐ", method: "1 ขวด 1 ลิตร ใช้ราว 20 วัน" },
+  gsh95: { label: "แก๊สโซฮอล์ 95", qty: 0.68, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 0.68 ลิตร/วัน", official: true, source: "สำนักงานนโยบายและแผนพลังงาน (สนพ.) — ใช้แก๊สโซฮอล์ 95 ทั้งประเทศ ~18.5 ล้านลิตร/วัน", method: "18.5 ล้านลิตร ÷ 27 ล้านครัวเรือน (สสช.)", url: "https://www.eppo.go.th" },
+  e20: { label: "แก๊สโซฮอล์ E20", qty: 0.26, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 0.26 ลิตร/วัน", official: true, source: "สนพ. — ใช้ E20 ทั้งประเทศ ~7 ล้านลิตร/วัน", method: "7 ล้านลิตร ÷ 27 ล้านครัวเรือน (สสช.)", url: "https://www.eppo.go.th" },
+  diesel: { label: "ดีเซล", qty: 2.5, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 2.5 ลิตร/วัน (รวมรถขนส่งที่ส่งต่อมาในราคาสินค้า)", official: true, source: "สนพ. — ใช้ดีเซลทั้งประเทศ ~68 ล้านลิตร/วัน", method: "68 ล้านลิตร ÷ 27 ล้านครัวเรือน (สสช.)", url: "https://www.eppo.go.th" },
+  gold_bar: { label: "ทองคำแท่ง", qty: 1, unit: "บาททอง", priceUnit: "บาท/บาททอง", period: "once", scenario: "ตัวอย่าง: ซื้อ 1 บาททอง 1 ครั้ง", official: false, source: "ไม่มีตัวเลขรัฐต่อครัวเรือน — ตัวอย่างการซื้อ", method: "1 ครั้ง" },
+  gold_orn: { label: "ทองรูปพรรณ", qty: 1, unit: "บาททอง", priceUnit: "บาท/บาททอง", period: "once", scenario: "ตัวอย่าง: ซื้อ 1 บาททอง 1 ครั้ง", official: false, source: "ไม่มีตัวเลขรัฐต่อครัวเรือน — ตัวอย่างการซื้อ", method: "1 ครั้ง" },
+  usdthb: { label: "เงินดอลลาร์", qty: 1000, unit: "ดอลลาร์", priceUnit: "บาท/ดอลลาร์", period: "once", scenario: "ตัวอย่าง: แลก 1,000 ดอลลาร์", official: false, source: "ไม่มีตัวเลขรัฐต่อครัวเรือน — ตัวอย่างการแลกเงิน", method: "1 ทริป" },
+  eurthb: { label: "เงินยูโร", qty: 1000, unit: "ยูโร", priceUnit: "บาท/ยูโร", period: "once", scenario: "ตัวอย่าง: แลก 1,000 ยูโร", official: false, source: "ไม่มีตัวเลขรัฐต่อครัวเรือน — ตัวอย่างการแลกเงิน", method: "1 ทริป" },
 };
 
 export type ImpactCalc = {
   metric_id: string; label: string; qty: number; unit: string; prev: number; cur: number;
   change: number; period: "daily" | "once"; scenario: string;
   per_day: number | null; per_month: number | null; per_once: number | null;
-  steps: string[]; formula: string;
+  steps: string[]; formula: string; source?: string; official?: boolean;
 };
 
 const r2 = (n: number) => +n.toFixed(2);
 const sgn = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toLocaleString("th-TH", { maximumFractionDigits: 2 })}`;
 
-/** Structured, recomputable household cost of one real price change. Null if no usage assumption or no previous value. */
-export function impactFor(s: { metric_id: string; prev_value: number | null; new_value: number }): ImpactCalc | null {
-  const u = USAGE[s.metric_id];
-  if (!u || s.prev_value == null) return null;
+/** Structured, recomputable household cost of one real price change. `qtyOverride` = user's own usage (device only). */
+export function impactFor(s: { metric_id: string; prev_value: number | null; new_value: number }, qtyOverride?: number): ImpactCalc | null {
+  const base = USAGE[s.metric_id];
+  if (!base || s.prev_value == null) return null;
+  const u = qtyOverride != null && qtyOverride !== base.qty ? { ...base, qty: qtyOverride, scenario: `ตัวเลขของฉัน: ${qtyOverride} ${base.unit}${base.period === "daily" ? "/วัน" : " ต่อครั้ง"}` } : base;
   const prev = Number(s.prev_value), cur = Number(s.new_value);
   const change = r2(cur - prev);
   const total = r2(change * u.qty);
   const steps = [
     `1. ราคาเปลี่ยน: ${cur} − ${prev} = ${sgn(change)} ${u.priceUnit}`,
-    `2. สมมติการใช้: ${u.scenario}`,
+    `2. การใช้: ${u.scenario} (${u.official && u === base ? `ที่มา: ${u.source}` : u.source})`,
     `3. ${sgn(change)} × ${u.qty.toLocaleString("th-TH")} ${u.unit} = ${sgn(total)} บาท${u.period === "daily" ? "/วัน" : " ต่อครั้ง"}`,
   ];
   if (u.period === "daily") steps.push(`4. × 30 วัน = ${sgn(r2(total * 30))} บาท/เดือน`);
   return {
     metric_id: s.metric_id, label: u.label, qty: u.qty, unit: u.unit, prev, cur, change, period: u.period, scenario: u.scenario,
     per_day: u.period === "daily" ? total : null, per_month: u.period === "daily" ? r2(total * 30) : null, per_once: u.period === "once" ? total : null,
-    steps,
+    steps, source: base.source, official: base.official,
     formula: u.period === "daily"
       ? `(${cur} − ${prev}) × ${u.qty} ${u.unit}/วัน = ${sgn(total)} บาท/วัน; × 30 = ${sgn(r2(total * 30))} บาท/เดือน`
       : `(${cur} − ${prev}) × ${u.qty} ${u.unit} = ${sgn(total)} บาท ต่อครั้ง`,

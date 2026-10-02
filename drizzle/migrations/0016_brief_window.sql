@@ -1,0 +1,1 @@
+ALTER TABLE public.daily_briefs ADD COLUMN IF NOT EXISTS data_window jsonb;

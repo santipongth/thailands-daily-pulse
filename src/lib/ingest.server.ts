@@ -89,10 +89,25 @@ export async function refreshBrief(admin: any, date: string, publish = false, st
     .select("metric_id, family_id, signal_date, severity, title, prev_value, new_value, change_abs, change_pct, is_demo, checks, score, families(name_th, emoji, source_name, source_url)")
     .eq("signal_date", date)
     .eq("is_demo", false);
-  const list = (sigs ?? []).sort((x: any, y: any) => Number(y.score ?? 0) - Number(x.score ?? 0) || (SEV_ORDER[x.severity] ?? 3) - (SEV_ORDER[y.severity] ?? 3));
+  // Data window: previous day 05:45 → this day 05:45 Bangkok. Only values received inside it count for the edition.
+  const windowTo = `${date}T05:45:00+07:00`;
+  const prevDay = new Date(Date.parse(`${date}T00:00:00Z`) - 86400000).toISOString().slice(0, 10);
+  const windowFrom = `${prevDay}T05:45:00+07:00`;
+  const enforce = !!step || publish;
+  const { data: recv } = await admin.from("observations").select("metric_id, received_at").eq("observed_on", date).eq("is_demo", false);
+  const recvOf = new Map<string, string>((recv ?? []).map((o: any) => [o.metric_id as string, o.received_at as string]));
+  const excluded: { metric_id: string; title: string; received_at: string | null; reason: string }[] = [];
+  const all = (sigs ?? []).filter((s: any) => {
+    if (!enforce) return true;
+    const r = recvOf.get(s.metric_id) ?? null;
+    if (r && Date.parse(r) > Date.parse(windowTo)) { excluded.push({ metric_id: s.metric_id, title: s.title, received_at: r, reason: "ได้รับหลัง 05:45 — ไปอยู่ในอัปเดตหลังเผยแพร่" }); return false; }
+    return true;
+  });
+  const list = all.sort((x: any, y: any) => Number(y.score ?? 0) - Number(x.score ?? 0) || (SEV_ORDER[x.severity] ?? 3) - (SEV_ORDER[y.severity] ?? 3));
   const signature = list.map((s: any) => `${s.metric_id}:${s.title}`).sort().join("|");
   const completeness = await completenessNow(admin, date);
-  const cutoff = existing?.cutoff_at ?? (step ? new Date().toISOString() : null);
+  const cutoff = existing?.cutoff_at ?? (step ? windowTo : null);
+  const data_window = { from: windowFrom, to: windowTo, received_inside: (recv ?? []).filter((o: any) => Date.parse(o.received_at) <= Date.parse(windowTo)).length, included: list.length, excluded, unverifiable: completeness.filter((c) => c.status !== "ok").map((c: any) => c.source) };
   if (existing && existing.signature === signature && !step && !publish) return;
 
   const eventIds = list.map((s: any) => `${s.metric_id}:${s.signal_date}`);
@@ -153,7 +168,7 @@ ${facts}
     }
   }
   await admin.from("daily_briefs").upsert({
-    brief_date: date, body, signature, items, generated_at: new Date().toISOString(), completeness,
+    brief_date: date, body, signature, items, generated_at: new Date().toISOString(), completeness, ...(enforce ? { data_window } : {}),
     ...(cutoff ? { cutoff_at: cutoff } : {}),
     ...(publish ? { published_at: new Date().toISOString(), cutoff_at: cutoff ?? new Date().toISOString() } : {}),
   });
