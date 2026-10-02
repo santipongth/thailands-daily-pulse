@@ -48,7 +48,7 @@ function Tracking() {
   const cuts = data.window?.excluded ?? [];
   const rows = reg.registry.map((r) => {
     const metrics = SOURCES.filter((s) => s.source === r.source).flatMap((s) => s.metrics);
-    const runs = data.hist.filter((h) => h.source === r.source || (r.source.startsWith("ข้อมูลเปิดภาครัฐ") && h.source.startsWith("ข้อมูลเปิดภาครัฐ")));
+    const runs = data.hist.filter((h) => h.source === r.source);
     const missing = metrics.filter((m) => !got.has(m));
     return { r, c: comp.get(r.source), metrics, missing, runs, fails: runs.filter((x) => !x.ok), cut: cuts.filter((x) => metrics.includes(x.metric_id)) };
   });
