@@ -97,7 +97,7 @@ function CalendarPage() {
             <ul className="mt-4 divide-y divide-foreground/20 border-y border-foreground/20">
               {(data?.tax ?? []).map((t) => (
                 <li key={t.id} className="py-3 text-sm">
-                  <p><b className="tabular-nums">{thaiDate(t.due_date, { day: "numeric", month: "short", year: "numeric" })}</b> · {t.channel.includes("อินเทอร์เน็ต") ? "ยื่นออนไลน์ภายในวันนี้" : "ยื่นแบบกระดาษภายในวันนี้"}</p>
+                  <p><b className="tabular-nums">{thaiDate(t.due_date, { day: "numeric", month: "short", year: "numeric" })}</b> · {t.channel.includes("อินเทอร์เน็ต") ? "วันสุดท้ายยื่นทางอินเทอร์เน็ต" : "วันสุดท้ายยื่นแบบที่สำนักงาน"}</p>
                   <ul className="mt-1 list-disc pl-5 text-muted-foreground">{t.items.map((i) => <li key={i}>{i}</li>)}</ul>
                 </li>
               ))}
