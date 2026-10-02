@@ -13,9 +13,10 @@ const briefQuery = (date: string) =>
   queryOptions({
     queryKey: ["brief", date],
     queryFn: async () => {
-      const [{ data, error }, { data: updates }] = await Promise.all([
+      const [{ data, error }, { data: updates }, { data: prevB }] = await Promise.all([
         supabase.from("daily_briefs").select("brief_date,body,published_at,generated_at,items,cutoff_at,edition,completeness,data_window").eq("brief_date", date).maybeSingle(),
         supabase.from("brief_updates").select("*").eq("brief_date", date).order("created_at"),
+        supabase.from("daily_briefs").select("brief_date,items,data_window,completeness").lt("brief_date", date).order("brief_date", { ascending: false }).limit(1).maybeSingle(),
       ]);
       if (error) throw error;
       if (!data) return null;
@@ -32,7 +33,7 @@ const briefQuery = (date: string) =>
           valueEvidence[i.metric_id] = { cur: find(i.data_date), prev: find(i.compared_with) };
         }
       }
-      return { ...data, updates: updates ?? [], valueEvidence };
+      return { ...data, updates: updates ?? [], valueEvidence, prev: prevB ?? null };
     },
   });
 
@@ -77,11 +78,13 @@ function BriefPage() {
             {data.cutoff_at && <p className="mt-1 text-sm font-semibold">ข้อมูลถึง {hm(data.cutoff_at)} น. — ข้อมูลที่ได้รับหลังเวลานี้เข้าเป็นอัปเดตด้านล่างหรือฉบับถัดไป</p>}
             {(data as any).data_window && (() => { const w = (data as any).data_window; return (
               <div className="mt-2 border border-border p-3 text-sm">
-                <p className="font-semibold">ช่วงข้อมูลที่นับ: {hm(w.from)} น. เมื่อวาน → {hm(w.to)} น. วันนี้</p>
+                <p className="font-semibold">ช่วงข้อมูลที่นับ: {hm(w.from)} → {hm(w.to)} น. ของวันนี้ · ได้รับหลังจากนั้น = ตัดออก</p>
+                <p>เก็บจริง: ค่าแรก {w.first_received ? hm(w.first_received) : "—"} น. · ค่าสุดท้าย {w.last_received ? hm(w.last_received) : "—"} น.</p>
                 <p>ได้รับในช่วงนี้ {w.received_inside} ค่า · ใช้ในฉบับนี้ {w.included} เหตุการณ์ · ตัดออก {w.excluded?.length ?? 0} · ตรวจไม่ได้ {w.unverifiable?.length ?? 0} แหล่ง</p>
                 {w.excluded?.map((e: any) => <p key={e.metric_id} className="text-muted-foreground">ตัดออก: {e.title} ({e.reason})</p>)}
                 {w.unverifiable?.length > 0 && <p className="text-muted-foreground">ตรวจไม่ได้ (ไม่นับว่าไม่เปลี่ยน): {w.unverifiable.join(", ")}</p>}
               </div>); })()}
+            <CompareWithPrev cur={data} prev={data.prev} />
             <p className="mt-6 font-display text-2xl leading-relaxed">{data.body}</p>
             <p className="mt-2 text-xs text-muted-foreground">ตัวเลขทั้งหมดคำนวณโดยระบบจากข้อมูลทางการ — AI ใช้เรียบเรียงภาษาบทนำเท่านั้น และถูกตรวจว่าไม่เพิ่มตัวเลขใหม่</p>
             <div className="mt-10"><BriefItems items={(data.items ?? []) as BriefItem[]} valueEvidence={data.valueEvidence} /></div>
@@ -112,5 +115,36 @@ function BriefPage() {
         )}
       </main>
     </div>
+  );
+}
+
+function CompareWithPrev({ cur, prev }: { cur: any; prev: any }) {
+  if (!prev) return null;
+  const cw = cur.data_window ?? {}, pw = prev.data_window ?? {};
+  const ci = (cur.items ?? []) as any[], pi = (prev.items ?? []) as any[];
+  const perDay = (xs: any[]) => +xs.reduce((a, i) => a + Number(i.impact_calc?.per_day ?? 0), 0).toFixed(2);
+  const metrics = [...new Set([...ci, ...pi].map((i) => i.metric_id))];
+  const rows: [string, string | number, string | number][] = [
+    ["ค่าที่ได้รับก่อน 05:45", pw.received_inside ?? "—", cw.received_inside ?? "—"],
+    ["เหตุการณ์ในฉบับ", pi.length, ci.length],
+    ["ถูกตัด (มาหลัง 05:45)", pw.excluded?.length ?? "—", cw.excluded?.length ?? "—"],
+    ["แหล่งตรวจไม่ได้", pw.unverifiable?.length ?? "—", cw.unverifiable?.length ?? "—"],
+    ["ผลต่อครัวเรือนรวม (บาท/วัน)", perDay(pi), perDay(ci)],
+  ];
+  return (
+    <section className="mt-4 border border-border p-3 text-sm">
+      <h2 className="font-semibold">เทียบกับฉบับก่อนหน้า ({prev.brief_date})</h2>
+      <table className="mt-2 w-full">
+        <thead><tr className="text-left"><th></th><th>{prev.brief_date}</th><th>วันนี้</th></tr></thead>
+        <tbody>{rows.map(([k, a, b]) => <tr key={k} className="border-t border-border"><td className="py-1">{k}</td><td>{a}</td><td className={a !== b ? "font-semibold" : ""}>{b}</td></tr>)}</tbody>
+      </table>
+      <ul className="mt-2 space-y-0.5">
+        {metrics.map((m) => {
+          const a = pi.find((i) => i.metric_id === m), b = ci.find((i) => i.metric_id === m);
+          return <li key={m}>{(b ?? a).what}: {b && a ? (b.what === a.what ? "ไม่เปลี่ยน" : "ข้อมูลจริงเปลี่ยน") : b ? "ข้อมูลจริงเปลี่ยน (ใหม่วันนี้)" : "ไม่อยู่ในฉบับวันนี้"}</li>;
+        })}
+        {!metrics.length && <li className="text-muted-foreground">ทั้งสองฉบับไม่มีเหตุการณ์</li>}
+      </ul>
+    </section>
   );
 }

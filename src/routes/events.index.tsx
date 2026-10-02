@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { CutEventsList } from "@/components/cut-events";
 import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -83,6 +84,7 @@ function EventsPage() {
             </tbody>
           </table>
         </div>
+        <CutEventsList />
       </main>
     </div>
   );

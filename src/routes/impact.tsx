@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
 import { USAGE, impactFor } from "@/lib/impact";
+import { useCutEvents, CutEventsList } from "@/components/cut-events";
 
 export const Route = createFileRoute("/impact")({
   staticData: { sitemap: true },
@@ -29,6 +30,8 @@ function ImpactPage() {
   useEffect(() => { try { setOver(JSON.parse(localStorage.getItem(KEY) ?? "{}")); } catch { /* ignore */ } }, []);
   const save = (o: Record<string, number>) => { setOver(o); localStorage.setItem(KEY, JSON.stringify(o)); };
 
+  const { data: cuts } = useCutEvents();
+  const cutOf = (id: string) => (cuts ?? []).flatMap((c) => (c.w.excluded ?? []).filter((e) => e.metric_id === id).map((e) => ({ ...e, date: c.date })))[0];
   const { data: obs } = useQuery({
     queryKey: ["impact-obs"],
     queryFn: async () => {
@@ -58,6 +61,7 @@ function ImpactPage() {
                   <h2 className="text-lg font-semibold">{u.label}</h2>
                   <span className={`text-xs ${u.official ? "" : "text-muted-foreground"}`}>{u.official ? "ตัวเลขอ้างอิงหน่วยงานรัฐ" : "ตัวเลขตัวอย่าง"}</span>
                 </div>
+                {(() => { const c = cutOf(id); return c ? <p className="text-sm font-semibold">ไม่อยู่ใน Brief วันที่ {c.date} — {c.reason}</p> : null; })()}
                 <p className="text-sm text-muted-foreground">ที่มา: {u.url ? <a href={u.url} target="_blank" rel="noreferrer" className="underline">{u.source}</a> : u.source} · วิธีแปลง: {u.method}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                   <label htmlFor={`q-${id}`}>การใช้ ({u.unit}{u.period === "daily" ? "/วัน" : "/ครั้ง"}):</label>
@@ -82,6 +86,7 @@ function ImpactPage() {
             );
           })}
         </div>
+        <CutEventsList />
       </main>
     </div>
   );
