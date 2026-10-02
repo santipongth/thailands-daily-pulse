@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { upcomingQuery } from "@/lib/calendar";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
 import { z } from "zod";
