@@ -240,6 +240,36 @@ export type Database = {
           },
         ]
       }
+      holidays: {
+        Row: {
+          created_at: string
+          delete_hash: string
+          holiday_date: string
+          id: number
+          kind: string
+          name: string
+          note: string | null
+        }
+        Insert: {
+          created_at?: string
+          delete_hash: string
+          holiday_date: string
+          id?: number
+          kind: string
+          name: string
+          note?: string | null
+        }
+        Update: {
+          created_at?: string
+          delete_hash?: string
+          holiday_date?: string
+          id?: number
+          kind?: string
+          name?: string
+          note?: string | null
+        }
+        Relationships: []
+      }
       ingest_jobs: {
         Row: {
           attempts: number
@@ -874,6 +904,33 @@ export type Database = {
           sample?: string | null
           source?: string
           url?: string | null
+        }
+        Relationships: []
+      }
+      tax_deadlines: {
+        Row: {
+          channel: string
+          due_date: string
+          fetched_at: string
+          id: number
+          items: string[]
+          source_url: string
+        }
+        Insert: {
+          channel: string
+          due_date: string
+          fetched_at?: string
+          id?: number
+          items?: string[]
+          source_url: string
+        }
+        Update: {
+          channel?: string
+          due_date?: string
+          fetched_at?: string
+          id?: number
+          items?: string[]
+          source_url?: string
         }
         Relationships: []
       }
