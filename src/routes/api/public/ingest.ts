@@ -29,6 +29,8 @@ export const Route = createFileRoute("/api/public/ingest")({
           if (r.refreshed) await supabaseAdmin.from("job_locks").upsert({ name: "daily_run", locked_until: new Date(Date.now() + 7 * 3600e3).toISOString() });
           return Response.json(r);
         }
+        // mode=early (00:10/03:00/05:00 Bangkok): forced collection so overnight price changes land before the 05:45 cutoff.
+        if (new URL(request.url).searchParams.get("mode") === "early") return Response.json(await refreshIfStale(3, { force: true, runKind: "daily" }));
         return Response.json(await refreshIfStale());
       },
     },
