@@ -75,12 +75,12 @@ export async function completenessNow(admin: any, today: string) {
  * step "freeze" (05:45) records the data cutoff; "publish" (05:55) stamps the edition.
  * After publication the edition is frozen; new/changed/withdrawn events become timestamped updates.
  */
-export async function refreshBrief(admin: any, date: string, publish = false, step?: "freeze" | "publish") {
+export async function refreshBrief(admin: any, date: string, publish = false, step?: "freeze" | "publish", rerun = false) {
   if (step === "publish") publish = true;
   const { householdImpact, officialAdvice, impactFor } = await import("./impact");
-  const { data: existing } = await admin.from("daily_briefs").select("signature, published_at, cutoff_at, items").eq("brief_date", date).maybeSingle();
+  const { data: existing } = await admin.from("daily_briefs").select("signature, published_at, cutoff_at, items, edition").eq("brief_date", date).maybeSingle();
 
-  if (existing?.published_at && !publish) {
+  if (existing?.published_at && !publish && !rerun) {
     await recordBriefUpdates(admin, date, existing);
     return;
   }
@@ -106,7 +106,7 @@ export async function refreshBrief(admin: any, date: string, publish = false, st
   const list = all.sort((x: any, y: any) => Number(y.score ?? 0) - Number(x.score ?? 0) || (SEV_ORDER[x.severity] ?? 3) - (SEV_ORDER[y.severity] ?? 3));
   const signature = list.map((s: any) => `${s.metric_id}:${s.title}`).sort().join("|");
   const completeness = await completenessNow(admin, date);
-  const cutoff = existing?.cutoff_at ?? (step ? windowTo : null);
+  const cutoff = rerun ? windowTo : existing?.cutoff_at ?? (step ? windowTo : null);
   const data_window = { from: windowFrom, to: windowTo, received_inside: (recv ?? []).filter((o: any) => Date.parse(o.received_at) <= Date.parse(windowTo)).length, included: list.length, excluded, unverifiable: completeness.filter((c) => c.status !== "ok").map((c: any) => c.source) };
   if (existing && existing.signature === signature && !step && !publish) return;
 
@@ -168,8 +168,9 @@ ${facts}
     }
   }
   await admin.from("daily_briefs").upsert({
-    brief_date: date, body, signature, items, generated_at: new Date().toISOString(), completeness, ...(enforce ? { data_window } : {}),
+    brief_date: date, body, signature, items, generated_at: new Date().toISOString(), completeness, ...(enforce || rerun ? { data_window } : {}),
     ...(cutoff ? { cutoff_at: cutoff } : {}),
+    ...(rerun ? { edition: (existing?.edition ?? 0) + 1 } : {}),
     ...(publish ? { published_at: new Date().toISOString(), cutoff_at: cutoff ?? new Date().toISOString() } : {}),
   });
 }
