@@ -223,7 +223,6 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
     if (liveStale) {
       const { CONNECTORS } = await import("./connectors.server");
       for (const c of CONNECTORS) specs.push({ job_type: "connector", source: c.source });
-      specs.push({ job_type: "crawlers", source: "เว็บไซต์หน่วยงานรัฐ (crawler)" });
       // Food/farm prices change once a day: fetch on daily/manual runs or if today's prices are missing.
       const { count: foodToday } = await admin.from("observations").select("id", { count: "exact", head: true })
         .eq("observed_on", date).eq("is_demo", false).in("metric_id", ["pork", "egg"]);
@@ -237,7 +236,6 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
         const { count: tax } = await admin.from("tax_deadlines").select("id", { count: "exact", head: true }).gte("fetched_at", new Date(Date.now() - 86400e3).toISOString());
         if (!tax) specs.push({ job_type: "rdtax", source: "กรมสรรพากร (ปฏิทินภาษี)" });
       }
-      specs.push({ job_type: "catalog", source: "ข้อมูลเปิดภาครัฐ (gdcatalog)" });
       specs.push({ job_type: "lottery", source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)" });
     }
     if (newsStale) specs.push({ job_type: "news", source: "ข่าว RSS" });

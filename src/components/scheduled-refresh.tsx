@@ -59,7 +59,7 @@ export function ScheduledRefresh() {
         const failed = (runs ?? []).filter((r) => !r.ok && watched.has(r.source)).length;
         const text = `อัปเดตรอบ ${slot.time} เสร็จแล้ว — สัญญาณใหม่ 24 ชม. ${count ?? 0} รายการ${failed ? `, ล้มเหลว ${failed} แหล่ง` : ", ทุกแหล่งที่ติดตามดึงได้"}`;
         localStorage.setItem(RESULT, JSON.stringify({ key: slot.key, text }));
-        const href = failed ? "/failures?followed=1" : "/monitor";
+        const href = failed ? "/failures?followed=1" : "/events";
         toast(text, { action: { label: failed ? "ดูแหล่งที่ล้มเหลว" : "ดูการเปลี่ยนแปลง", onClick: () => { window.location.href = href; } }, duration: 15000 });
         if (typeof Notification !== "undefined" && Notification.permission === "granted") {
           const n = new Notification("Thailand Daily Signals", { body: text });

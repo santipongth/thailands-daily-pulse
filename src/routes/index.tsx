@@ -12,7 +12,6 @@ import { SENS_SEVERITIES } from "@/lib/signals";
 import { useSensitivity } from "@/hooks/use-sensitivity";
 import { useSourcePrefs, readIntervalHours } from "@/hooks/use-source-prefs";
 import { SOURCES } from "@/lib/sources";
-import { GovAlert } from "@/components/gov-alert";
 import { HouseholdBasket } from "@/components/household-basket";
 import { BriefItems, type BriefItem } from "@/components/brief-items";
 import { BkkForecast } from "@/components/bkk-forecast";
@@ -86,7 +85,6 @@ function Today() {
           )}
         </div>
 
-        {date === today && <GovAlert date={date} />}
         <div className="mt-3 text-right text-xs"><Link to="/day/$date" params={{ date }} className="underline">เทียบสัญญาณกับวันก่อน →</Link></div>
         <section className="grid gap-8 py-8 md:grid-cols-[2fr_1fr]">
           <div>

@@ -8,10 +8,7 @@ export type Completeness = { source: string; status: "ok" | "stale" | "unverifia
 
 export const STATUS_TH: Record<Completeness["status"], string> = { ok: "ครบ", stale: "เก่า", unverifiable: "ตรวจสอบไม่ได้" };
 
-const matches = (reg: string, run: string) =>
-  reg === run ||
-  (reg.startsWith("เว็บไซต์หน่วยงานรัฐ") && run.endsWith("(เว็บไซต์ทางการ)")) ||
-  (reg.startsWith("ข้อมูลเปิดภาครัฐ") && run.startsWith("ข้อมูลเปิดภาครัฐ"));
+const matches = (reg: string, run: string) => reg === run;
 
 const daysBetween = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 86400e3);
 const bkkDay = (iso: string) => new Date(Date.parse(iso) + 7 * 3600e3).toISOString().slice(0, 10);

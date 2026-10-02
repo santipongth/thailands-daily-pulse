@@ -19,7 +19,6 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
       return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: "api" }] };
     }
   },
-  crawlers: async ({ admin, date }) => runCrawlersSafe(admin, date),
   checkraka: async () => {
     const { runCheckRaka } = await import("./checkraka.server");
     const r = await runCheckRaka();
@@ -29,10 +28,6 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     const { runRakaKaset } = await import("./rakakaset.server");
     const r = await runRakaKaset(date);
     return { values: r.values, dates: r.dates, runs: [r.run] };
-  },
-  catalog: async ({ admin, date }) => {
-    const { runCatalog } = await import("./catalog.server");
-    return { values: {}, runs: await runCatalog(admin, date) };
   },
   lottery: async ({ admin }) => {
     const ran_at = new Date().toISOString();
@@ -87,11 +82,6 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
   },
 };
 
-async function runCrawlersSafe(admin: any, date: string): Promise<Result> {
-  const { runCrawlers } = await import("./crawlers.server");
-  const r = await runCrawlers(admin, date);
-  return { values: r.values, runs: r.runs };
-}
 
 export type JobSpec = { job_type: string; source: string };
 

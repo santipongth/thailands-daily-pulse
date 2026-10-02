@@ -1,15 +1,10 @@
 // Client-safe registry of every data source and the metrics it feeds.
 // `source` must match the name the server writes into source_runs.
 
-export type SourceInfo = { source: string; agency: string; kind: "api" | "crawler" | "catalog"; metrics: string[] };
+export type SourceInfo = { source: string; agency: string; kind: "api" | "crawler"; metrics: string[] };
 
-const cat = (agency: string, metric: string): SourceInfo => ({ source: `ข้อมูลเปิดภาครัฐ: ${agency}`, agency, kind: "catalog", metrics: [metric] });
 
 export const SOURCES: SourceInfo[] = [
-  cat("กรมเจ้าท่า", "cat_md"),
-  cat("กรุงเทพมหานคร", "cat_bma"),
-  cat("อบจ./ท้องถิ่น", "cat_pao"),
-  { source: "กรมที่ดิน (เว็บไซต์ทางการ)", agency: "กรมที่ดิน", kind: "crawler", metrics: ["gov_dol"] },
   { source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)", agency: "สำนักงานสลากกินแบ่งรัฐบาล", kind: "api", metrics: ["lotto"] },
   { source: "CheckRaka (ราคาอาหาร)", agency: "CheckRaka", kind: "crawler", metrics: ["pork", "egg", "chicken", "rice_jasmine", "morning_glory", "palm_oil", "chili", "lime"] },
   { source: "RakaKaset (ราคาเกษตร)", agency: "RakaKaset", kind: "crawler", metrics: ["palm", "rubber", "latex", "rice_farm", "cassava", "corn", "hog_farm"] },
@@ -30,22 +25,13 @@ export const SOURCES: SourceInfo[] = [
 
 export const isOfficial = (newsSource: string) => newsSource.includes("เว็บไซต์ทางการ");
 
-/** Metric id -> catalog agency name (for gov_changes lookups). */
-export const CATALOG_METRIC_AGENCY: Record<string, string> = Object.fromEntries(
-  SOURCES.filter((x) => x.kind === "catalog").map((x) => [x.metrics[0]!, x.agency]),
-);
-
-export type Agency = { key: string; label: string; sources: string[]; catalog?: string; newsAgency?: string };
+export type Agency = { key: string; label: string; sources: string[]; newsAgency?: string };
 
 /** Agencies shown on /agencies, each grouping its sources (by source name). */
 export const AGENCIES: Agency[] = [
   { key: "tmd", label: "กรมอุตุนิยมวิทยา", sources: ["กรมอุตุฯ เตือนภัย", "กรมอุตุฯ แผ่นดินไหว", "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล"], newsAgency: "กรมอุตุนิยมวิทยา" },
   { key: "water", label: "สสน. / กรมชลประทาน", sources: ["ThaiWater (สสน.)"], newsAgency: "กรมชลประทาน / สทนช." },
   { key: "gold", label: "สมาคมค้าทองคำ", sources: ["สมาคมค้าทองคำ"] },
-  { key: "md", label: "กรมเจ้าท่า", sources: ["ข้อมูลเปิดภาครัฐ: กรมเจ้าท่า"], catalog: "กรมเจ้าท่า" },
-  { key: "bma", label: "กรุงเทพมหานคร", sources: ["ข้อมูลเปิดภาครัฐ: กรุงเทพมหานคร"], catalog: "กรุงเทพมหานคร" },
-  { key: "pao", label: "อบจ. / ท้องถิ่น", sources: ["ข้อมูลเปิดภาครัฐ: อบจ./ท้องถิ่น"], catalog: "อบจ./ท้องถิ่น" },
-  { key: "dol", label: "กรมที่ดิน", sources: ["กรมที่ดิน (เว็บไซต์ทางการ)"], newsAgency: "กรมที่ดิน" },
   { key: "rd", label: "กรมสรรพากร", sources: ["กรมสรรพากร (ปฏิทินภาษี)"] },
   { key: "glo", label: "สำนักงานสลากกินแบ่งรัฐบาล", sources: ["สำนักงานสลากกินแบ่งรัฐบาล (GLO)"] },
   { key: "energy", label: "ปตท. / บางจาก (ราคาน้ำมัน)", sources: ["PTT (thai-oil-api)", "บางจาก (Bangchak API)"] },

@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import type { Family, Metric, News, Obs, Signal } from "@/lib/signals";
 import { fmt, thaiDate } from "@/lib/signals";
-import { isOfficial, CATALOG_METRIC_AGENCY } from "@/lib/sources";
-import { supabase } from "@/integrations/supabase/client";
+import { isOfficial } from "@/lib/sources";
 
-type GovChange = { id: number; kind: string; reason_th: string; before_text: string | null; after_text: string | null; gov_datasets: { url: string; title: string } | null };
 
 export function explainReason(s: Signal, m: Metric): string {
   const v = (x: number) => `${fmt(x, m.decimals)} ${m.unit}`.trim();
@@ -50,13 +48,6 @@ export function SignalExplain({ s, family, metric, history, news }: { s: Signal;
     window.addEventListener("keydown", k);
     return () => window.removeEventListener("keydown", k);
   }, [open]);
-  const catAgency = CATALOG_METRIC_AGENCY[metric.id];
-  const [gov, setGov] = useState<GovChange[]>([]);
-  useEffect(() => {
-    if (!open || !catAgency) return;
-    supabase.from("gov_changes").select("id,kind,reason_th,before_text,after_text,gov_datasets(url,title)").eq("agency", catAgency).eq("change_date", s.signal_date)
-      .then(({ data }) => setGov((data ?? []) as unknown as GovChange[]));
-  }, [open, catAgency, s.signal_date]);
   const prevObs = [...history].reverse().find((o) => o.observed_on < s.signal_date);
   const fam = news.filter((n) => n.family_id === family.id && (family.id !== "gov" || (n.agency != null && metric.name_th.includes(n.agency))));
   const official = fam.filter((n) => isOfficial(n.source) && n.published_at >= "2001").slice(0, 5);
@@ -79,18 +70,7 @@ export function SignalExplain({ s, family, metric, history, news }: { s: Signal;
               <div>
                 <dt className="font-semibold">เหตุผลที่ขึ้นเป็นสัญญาณ</dt>
                 <dd className="mt-1 text-muted-foreground">
-                  {catAgency ? `เทียบชุดข้อมูลทางการของ ${catAgency} กับสแนปช็อตวันก่อน พบการเปลี่ยนแปลงจริง ${gov.length || s.new_value} ชุด (ชุดที่ไม่เปลี่ยนจะไม่ถูกแจ้ง)` : explainReason(s, metric)}
-                  {gov.length > 0 && (
-                    <ul className="mt-3 space-y-3">
-                      {gov.map((g) => (
-                        <li key={g.id} className="border-l-2 border-up pl-3 text-foreground">
-                          <p>{g.reason_th}</p>
-                          {(g.before_text || g.after_text) && <p className="text-xs text-muted-foreground">ก่อน: {g.before_text ?? "—"} → หลัง: {g.after_text ?? "—"}</p>}
-                          {g.gov_datasets && <a href={g.gov_datasets.url} target="_blank" rel="noreferrer" className="text-xs underline">เปิดชุดข้อมูลต้นทาง</a>}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  {explainReason(s, metric)}
                 </dd>
               </div>
               {s.checks?.score && (

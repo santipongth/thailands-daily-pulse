@@ -1,11 +1,9 @@
 import { bkkToday } from "@/lib/signals";
 import { Link } from "@tanstack/react-router";
 import { FailureAlert } from "@/components/failure-alert";
-import { useUnseen } from "@/hooks/use-unseen";
 import { DailyTicker } from "@/components/daily-ticker";
 
 export function Masthead() {
-  const { count } = useUnseen();
   return (
     <header className="border-b-4 border-double border-foreground">
       <div className="mx-auto flex max-w-6xl items-end justify-between gap-4 px-4 pb-3 pt-6">
@@ -17,9 +15,6 @@ export function Masthead() {
           <Link to="/brief" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>Brief</Link>
           <Link to="/day/$date" params={{ date: bkkToday() }} className="hover:underline" activeProps={{ className: "font-semibold underline" }}>รายวัน</Link>
           <Link to="/agencies" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>หน่วยงาน</Link>
-          <Link to="/monitor" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>
-            ติดตาม{count > 0 && <span className="ml-1 rounded-full bg-up px-1.5 text-xs text-background">{count}</span>}
-          </Link>
           <Link to="/events" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>เหตุการณ์</Link>
           <Link to="/impact" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>สูตรผลกระทบ</Link>
           <Link to="/calendar" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>วันหยุด/ภาษี</Link>
