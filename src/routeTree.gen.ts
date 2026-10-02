@@ -16,7 +16,6 @@ import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as FailuresRouteImport } from './routes/failures'
 import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as MethodRouteImport } from './routes/method'
-import { Route as MonitorRouteImport } from './routes/monitor'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SourcesRouteImport } from './routes/sources'
@@ -65,11 +64,6 @@ const ImpactRoute = ImpactRouteImport.update({
 const MethodRoute = MethodRouteImport.update({
   id: '/method',
   path: '/method',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MonitorRoute = MonitorRouteImport.update({
-  id: '/monitor',
-  path: '/monitor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -151,7 +145,6 @@ export interface FileRoutesByFullPath {
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
   '/method': typeof MethodRoute
-  '/monitor': typeof MonitorRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
@@ -175,7 +168,6 @@ export interface FileRoutesByTo {
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
   '/method': typeof MethodRoute
-  '/monitor': typeof MonitorRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
@@ -200,7 +192,6 @@ export interface FileRoutesById {
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
   '/method': typeof MethodRoute
-  '/monitor': typeof MonitorRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
@@ -226,7 +217,6 @@ export interface FileRouteTypes {
     | '/failures'
     | '/impact'
     | '/method'
-    | '/monitor'
     | '/settings'
     | '/sitemap.xml'
     | '/sources'
@@ -250,7 +240,6 @@ export interface FileRouteTypes {
     | '/failures'
     | '/impact'
     | '/method'
-    | '/monitor'
     | '/settings'
     | '/sitemap.xml'
     | '/sources'
@@ -274,7 +263,6 @@ export interface FileRouteTypes {
     | '/failures'
     | '/impact'
     | '/method'
-    | '/monitor'
     | '/settings'
     | '/sitemap.xml'
     | '/sources'
@@ -299,7 +287,6 @@ export interface RootRouteChildren {
   FailuresRoute: typeof FailuresRoute
   ImpactRoute: typeof ImpactRoute
   MethodRoute: typeof MethodRoute
-  MonitorRoute: typeof MonitorRoute
   SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SourcesRoute: typeof SourcesRoute
@@ -365,13 +352,6 @@ declare module '@tanstack/react-router' {
       path: '/method'
       fullPath: '/method'
       preLoaderRoute: typeof MethodRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/monitor': {
-      id: '/monitor'
-      path: '/monitor'
-      fullPath: '/monitor'
-      preLoaderRoute: typeof MonitorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -483,7 +463,6 @@ const rootRouteChildren: RootRouteChildren = {
   FailuresRoute: FailuresRoute,
   ImpactRoute: ImpactRoute,
   MethodRoute: MethodRoute,
-  MonitorRoute: MonitorRoute,
   SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SourcesRoute: SourcesRoute,
