@@ -77,7 +77,7 @@ function BriefPage() {
             {data.cutoff_at && <p className="mt-1 text-sm font-semibold">ข้อมูลถึง {hm(data.cutoff_at)} น. — ข้อมูลที่ได้รับหลังเวลานี้เข้าเป็นอัปเดตด้านล่างหรือฉบับถัดไป</p>}
             <p className="mt-6 font-display text-2xl leading-relaxed">{data.body}</p>
             <p className="mt-2 text-xs text-muted-foreground">ตัวเลขทั้งหมดคำนวณโดยระบบจากข้อมูลทางการ — AI ใช้เรียบเรียงภาษาบทนำเท่านั้น และถูกตรวจว่าไม่เพิ่มตัวเลขใหม่</p>
-            <div className="mt-10"><BriefItems items={(data.items ?? []) as BriefItem[]} /></div>
+            <div className="mt-10"><BriefItems items={(data.items ?? []) as BriefItem[]} valueEvidence={data.valueEvidence} /></div>
             {data.updates.length > 0 && (
               <section className="mt-10">
                 <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">อัปเดตหลังเผยแพร่</h2>
