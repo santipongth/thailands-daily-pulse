@@ -14,7 +14,7 @@ export const Route = createFileRoute("/calendar")({
   head: () => ({
     meta: [
       { title: "วันหยุดและกำหนดยื่นภาษี — Thailand Daily Signals" },
-      { name: "description", content: "วันหยุดราชการ วันหยุดพิเศษ (ผู้ใช้เพิ่มเอง) และกำหนดยื่น/ชำระภาษีจากปฏิทินภาษีกรมสรรพากร" },
+      { name: "description", content: "วันหยุดราชการและวันหยุดธนาคาร (จาก Kapook) และกำหนดยื่น/ชำระภาษีจากปฏิทินภาษีกรมสรรพากร" },
       { property: "og:title", content: "วันหยุดและกำหนดยื่นภาษี — Thailand Daily Signals" },
       { property: "og:description", content: "ดูวันหยุดที่กำลังจะมา และวันสุดท้ายยื่นแบบภาษีจากกรมสรรพากร" },
       { property: "og:type", content: "article" },
