@@ -53,6 +53,7 @@ export type Database = {
           brief_date: string
           completeness: Json | null
           cutoff_at: string | null
+          data_window: Json | null
           edition: number
           generated_at: string
           items: Json | null
@@ -64,6 +65,7 @@ export type Database = {
           brief_date: string
           completeness?: Json | null
           cutoff_at?: string | null
+          data_window?: Json | null
           edition?: number
           generated_at?: string
           items?: Json | null
@@ -75,6 +77,7 @@ export type Database = {
           brief_date?: string
           completeness?: Json | null
           cutoff_at?: string | null
+          data_window?: Json | null
           edition?: number
           generated_at?: string
           items?: Json | null
