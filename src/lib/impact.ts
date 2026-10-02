@@ -46,7 +46,7 @@ export function officialAdvice(s: S): Advice | null {
   switch (s.family_id) {
     case "air": return pmAdvice(s.new_value);
     case "weather":
-      if (s.metric_id === "quake_max") return { text: "ตรวจสอบประกาศและคำแนะนำล่าสุดจากกรมอุตุนิยมวิทยา หากรู้สึกสั่นไหวให้ออกจากอาคารอย่างปลอดภัย", source: "กรมอุตุนิยมวิทยา", url: "https://earthquake.tmd.go.th" };
+      if (s.metric_id === "quake_th") return { text: "ตรวจสอบประกาศและคำแนะนำล่าสุดจากกรมอุตุนิยมวิทยา หากรู้สึกสั่นไหวให้ออกจากอาคารอย่างปลอดภัย", source: "กรมอุตุนิยมวิทยา", url: "https://earthquake.tmd.go.th" };
       return { text: "ติดตามประกาศเตือนภัยฉบับเต็มของกรมอุตุนิยมวิทยาก่อนเดินทาง", source: "กรมอุตุนิยมวิทยา", url: "https://www.tmd.go.th" };
     case "water": return { text: "ประชาชนในพื้นที่ลุ่มต่ำริมแม่น้ำติดตามประกาศระดับน้ำและการระบายน้ำจากกรมชลประทาน", source: "กรมชลประทาน / สสน.", url: "https://www.thaiwater.net" };
     case "oil": return { text: "ราคาขายปลีกประกาศโดยผู้ค้าน้ำมัน ตรวจสอบราคาหน้าปั๊มและโครงสร้างราคาที่ สนพ.", source: "สำนักงานนโยบายและแผนพลังงาน", url: "https://www.eppo.go.th" };
