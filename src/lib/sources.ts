@@ -23,7 +23,8 @@ export const SOURCES: SourceInfo[] = [
   { source: "กรมสรรพากร (ปฏิทินภาษี)", agency: "กรมสรรพากร", kind: "crawler", metrics: [] },
   { source: "PTT (thai-oil-api)", agency: "ปตท.", kind: "api", metrics: ["gsh95", "e20", "diesel"] },
   { source: "บางจาก (Bangchak API)", agency: "บางจาก", kind: "api", metrics: [] },
-  { source: "Open-Meteo (อากาศ/PM2.5)", agency: "Open-Meteo", kind: "api", metrics: ["pm25_bkk", "pm25_cnx", "rain_bkk", "tmax_bkk"] },
+  { source: "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["tmax_bkk", "rain_bkk"] },
+  { source: "GISTDA PM2.5 (กรุงเทพฯ)", agency: "GISTDA", kind: "api", metrics: ["pm25_bkk"] },
   { source: "ExchangeRate (อัตราแลกเปลี่ยน)", agency: "open.er-api.com", kind: "api", metrics: ["usdthb", "eurthb", "jpythb"] },
 ];
 

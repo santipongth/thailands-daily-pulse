@@ -18,10 +18,11 @@ function dailyMean(h: any): Record<string, number> {
   return Object.fromEntries(Object.entries(acc).filter(([, a]) => a.length >= 12).map(([d, a]) => [d, +(a.reduce((s, x) => s + x, 0) / a.length).toFixed(1)]));
 }
 
-export const BACKFILL_SOURCES = ["Open-Meteo (อากาศ/PM2.5)"];
+export const BACKFILL_SOURCES: string[] = []; // current sources (TMD 3h, GISTDA) publish no history
 export const NO_HISTORY_NOTE = "แหล่งอื่น (น้ำมัน ทอง ระดับน้ำ ราคาอาหาร เว็บหน่วยงานรัฐ ฯลฯ) ไม่เปิดข้อมูลย้อนหลัง — ไม่สร้างค่าย้อนหลังให้";
 
 export async function runBackfill(admin: any, days: number, today: string) {
+  if (!BACKFILL_SOURCES.length) return { ok: false, inserted: 0, error: "ไม่มีแหล่งที่เปิดข้อมูลย้อนหลัง" } as any;
   const source = BACKFILL_SOURCES[0]!;
   const { data: job } = await admin.from("ingest_jobs").insert({ batch_id: crypto.randomUUID(), source, job_type: "backfill", run_kind: "backfill", status: "running", attempts: 1, started_at: new Date().toISOString() }).select("id").single();
   const rows: { metric_id: string; observed_on: string; value: number }[] = [];
