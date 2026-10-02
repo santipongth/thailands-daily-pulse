@@ -17,8 +17,7 @@ const PER: Record<string, (ch: number, s: S) => string> = {
   eurthb: (ch) => `งบเที่ยวยุโรป 1,000 ยูโร ${pay(ch)} ${baht(1000 * ch).replace(/^[+−]/, "")}`,
   jpythb: (ch) => `งบเที่ยวญี่ปุ่น 100,000 เยน ${pay(ch)} ${baht(1000 * ch).replace(/^[+−]/, "")}`,
   pm25_bkk: (_c, s) => `ฝุ่น PM2.5 กรุงเทพฯ ${s.new_value.toFixed(0)} µg/m³ (มาตรฐานไทย 37.5)${s.new_value > 37.5 ? ` เกินมาตรฐาน ${(s.new_value / 37.5).toFixed(1)} เท่า` : " อยู่ในเกณฑ์"}`,
-  pm25_cnx: (_c, s) => `ฝุ่น PM2.5 เชียงใหม่ ${s.new_value.toFixed(0)} µg/m³ (มาตรฐานไทย 37.5)${s.new_value > 37.5 ? ` เกินมาตรฐาน ${(s.new_value / 37.5).toFixed(1)} เท่า` : " อยู่ในเกณฑ์"}`,
-  rain_bkk: (_c, s) => `ฝนพรุ่งนี้ กทม. ประมาณ ${s.new_value.toFixed(0)} มม. — ${s.new_value >= 35 ? "ฝนหนัก อาจมีน้ำรอระบาย เผื่อเวลาเดินทาง" : "ฝนปานกลาง"}`,
+  rain_bkk: (_c, s) => `ฝนสะสม 24 ชม. กทม. (สถานีกรุงเทพมหานคร) ${s.new_value.toFixed(0)} มม. — ${s.new_value >= 35 ? "ฝนหนัก อาจมีน้ำรอระบาย เผื่อเวลาเดินทาง" : "ฝนปานกลาง"}`,
   dam_total: (_c, s) => `น้ำในเขื่อนใหญ่ทั้งประเทศ ${s.new_value.toFixed(1)}% ของความจุ`,
 };
 

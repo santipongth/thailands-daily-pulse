@@ -118,17 +118,25 @@ export const CONNECTORS: Connector[] = [
     },
   },
   {
-    source: "Open-Meteo (อากาศ/PM2.5)",
+    source: "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)",
     run: async () => {
+      const { TMD3H_URL, parseTmd3h } = await import("./tmd3h");
+      const r = parseTmd3h(await text(TMD3H_URL));
+      if (!r.stationFound) throw new Error(r.stations ? "ไม่พบสถานี BANGKOK METROPOLIS ในไฟล์" : "กรมอุตุฯ ยังไม่มีรายการสถานีในรอบนี้ (ไฟล์ว่าง)");
       const o: Values = {};
-      // one multi-location request for both cities (2 requests per run instead of 3)
-      const aq = await json("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=13.75,18.79&longitude=100.5,98.98&current=pm2_5");
-      const w = await json("https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.5&daily=precipitation_sum,temperature_2m_max&timezone=Asia/Bangkok&forecast_days=2");
-      put(o, "pm25_bkk", pos(aq?.[0]?.current?.pm2_5));
-      put(o, "pm25_cnx", pos(aq?.[1]?.current?.pm2_5));
-      const rain = Number(w?.daily?.precipitation_sum?.[1]);
-      if (Number.isFinite(rain)) o["rain_bkk"] = rain;
-      put(o, "tmax_bkk", pos(w?.daily?.temperature_2m_max?.[0]));
+      put(o, "tmax_bkk", r.maxTemp ?? r.temp);
+      if (r.rain24 !== undefined && r.rain24 >= 0) o["rain_bkk"] = r.rain24;
+      return o;
+    },
+  },
+  {
+    source: "GISTDA PM2.5 (กรุงเทพฯ)",
+    run: async () => {
+      const d = await json("https://pm25.gistda.or.th/rest/getPm25byProvince");
+      const row = (d?.data ?? []).find((x: any) => x?.pv_tn === "กรุงเทพมหานคร");
+      if (!row) throw new Error("ไม่พบแถว กรุงเทพมหานคร");
+      const o: Values = {};
+      put(o, "pm25_bkk", pos(row.pm25Avg24hr ?? row.pm25));
       return o;
     },
   },
