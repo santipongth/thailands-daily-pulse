@@ -98,14 +98,58 @@ export function basketLines(obs: { metric_id: string; observed_on: string; value
   return out;
 }
 
-export type ImpactCalc = { metric_id: string; label: string; qty: number; unit: string; prev: number; cur: number; per_day: number; per_month: number; formula: string };
+/**
+ * Usage assumption per metric for household impact. "daily" items (BASKET + fuel) give baht/day and ×30 per month;
+ * "once" items (gold, FX) give the cost difference of one typical purchase. Quantities are fixed, stated assumptions.
+ */
+type Usage = { label: string; qty: number; unit: string; priceUnit: string; period: "daily" | "once"; scenario: string };
+const USAGE: Record<string, Usage> = {
+  ...Object.fromEntries(BASKET.map((b) => [b.metric_id, { label: b.label, qty: b.qty, unit: b.unit, priceUnit: `บาท/${b.unit.replace(/\.$/, "")}`, period: "daily" as const, scenario: `ใช้ ${b.qty} ${b.unit}/วัน (ตะกร้าครัวเรือนอ้างอิง)` }])),
+  e20: { label: "แก๊สโซฮอล์ E20 (เดินทาง)", qty: 3, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "รถเก๋งใช้ 3 ลิตร/วัน" },
+  diesel: { label: "ดีเซล B7 (เดินทาง)", qty: 3, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "กระบะใช้ 3 ลิตร/วัน" },
+  gold_bar: { label: "ทองคำแท่ง", qty: 1, unit: "บาททอง", priceUnit: "บาท/บาททอง", period: "once", scenario: "ซื้อทองคำแท่ง 1 บาททอง 1 ครั้ง" },
+  gold_orn: { label: "ทองรูปพรรณ", qty: 1, unit: "บาททอง", priceUnit: "บาท/บาททอง", period: "once", scenario: "ซื้อทองรูปพรรณ 1 บาททอง 1 ครั้ง" },
+  usdthb: { label: "เงินดอลลาร์", qty: 1000, unit: "ดอลลาร์", priceUnit: "บาท/ดอลลาร์", period: "once", scenario: "แลกเงินเที่ยวต่างประเทศ 1,000 ดอลลาร์" },
+  eurthb: { label: "เงินยูโร", qty: 1000, unit: "ยูโร", priceUnit: "บาท/ยูโร", period: "once", scenario: "แลกเงินเที่ยวยุโรป 1,000 ยูโร" },
+};
 
-/** Structured, recomputable household cost of one real price change: (new − prev) × daily qty; × 30 per month. Null if the metric is not in BASKET or has no previous value. */
+export type ImpactCalc = {
+  metric_id: string; label: string; qty: number; unit: string; prev: number; cur: number;
+  change: number; period: "daily" | "once"; scenario: string;
+  per_day: number | null; per_month: number | null; per_once: number | null;
+  steps: string[]; formula: string;
+};
+
+const r2 = (n: number) => +n.toFixed(2);
+const sgn = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toLocaleString("th-TH", { maximumFractionDigits: 2 })}`;
+
+/** Structured, recomputable household cost of one real price change. Null if no usage assumption or no previous value. */
 export function impactFor(s: { metric_id: string; prev_value: number | null; new_value: number }): ImpactCalc | null {
-  const b = BASKET.find((x) => x.metric_id === s.metric_id);
-  if (!b || s.prev_value == null) return null;
+  const u = USAGE[s.metric_id];
+  if (!u || s.prev_value == null) return null;
   const prev = Number(s.prev_value), cur = Number(s.new_value);
-  const per_day = +((cur - prev) * b.qty).toFixed(2);
-  return { metric_id: b.metric_id, label: b.label, qty: b.qty, unit: b.unit, prev, cur, per_day, per_month: +(per_day * 30).toFixed(2),
-    formula: `(${cur} − ${prev}) × ${b.qty} ${b.unit}/วัน = ${per_day} บาท/วัน; × 30 = ${+(per_day * 30).toFixed(2)} บาท/เดือน` };
+  const change = r2(cur - prev);
+  const total = r2(change * u.qty);
+  const steps = [
+    `1. ราคาเปลี่ยน: ${cur} − ${prev} = ${sgn(change)} ${u.priceUnit}`,
+    `2. สมมติการใช้: ${u.scenario}`,
+    `3. ${sgn(change)} × ${u.qty.toLocaleString("th-TH")} ${u.unit} = ${sgn(total)} บาท${u.period === "daily" ? "/วัน" : " ต่อครั้ง"}`,
+  ];
+  if (u.period === "daily") steps.push(`4. × 30 วัน = ${sgn(r2(total * 30))} บาท/เดือน`);
+  return {
+    metric_id: s.metric_id, label: u.label, qty: u.qty, unit: u.unit, prev, cur, change, period: u.period, scenario: u.scenario,
+    per_day: u.period === "daily" ? total : null, per_month: u.period === "daily" ? r2(total * 30) : null, per_once: u.period === "once" ? total : null,
+    steps,
+    formula: u.period === "daily"
+      ? `(${cur} − ${prev}) × ${u.qty} ${u.unit}/วัน = ${sgn(total)} บาท/วัน; × 30 = ${sgn(r2(total * 30))} บาท/เดือน`
+      : `(${cur} − ${prev}) × ${u.qty} ${u.unit} = ${sgn(total)} บาท ต่อครั้ง`,
+  };
+}
+
+/** One-line plain summary of an ImpactCalc (same numbers as the steps). */
+export function impactSummary(c: ImpactCalc): string {
+  const word = (n: number) => (n >= 0 ? "จ่ายเพิ่ม" : "ประหยัด");
+  return c.period === "daily"
+    ? `${c.scenario}: ${word(c.per_day!)} ${Math.abs(c.per_day!).toLocaleString("th-TH", { maximumFractionDigits: 2 })} บาท/วัน (≈ ${Math.abs(c.per_month!).toLocaleString("th-TH", { maximumFractionDigits: 2 })} บาท/เดือน)`
+    : `${c.scenario}: ${word(c.per_once!)} ${Math.abs(c.per_once!).toLocaleString("th-TH", { maximumFractionDigits: 2 })} บาท`;
 }
