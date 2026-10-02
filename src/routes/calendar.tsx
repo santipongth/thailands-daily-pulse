@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { addHoliday, deleteHoliday } from "@/lib/calendar.functions";
 import { bkkToday, thaiDate } from "@/lib/signals";
 import { RD_TAX_URL } from "@/lib/rdtax";
+import { upcomingQuery } from "@/lib/calendar";
 
 export const Route = createFileRoute("/calendar")({
   staticData: { sitemap: true },
@@ -25,17 +26,6 @@ export const Route = createFileRoute("/calendar")({
 
 const TOK = "tds-holiday-tokens";
 const readTokens = (): Record<string, string> => { try { return JSON.parse(localStorage.getItem(TOK) ?? "{}"); } catch { return {}; } };
-
-export const upcomingQuery = (from: string) => ({
-  queryKey: ["calendar", from],
-  queryFn: async () => {
-    const [h, t] = await Promise.all([
-      supabase.from("holidays").select("id,holiday_date,name,kind,note,created_at").gte("holiday_date", from).order("holiday_date").limit(100),
-      supabase.from("tax_deadlines").select("id,due_date,channel,items,fetched_at").gte("due_date", from).order("due_date").limit(50),
-    ]);
-    return { holidays: h.data ?? [], tax: t.data ?? [] };
-  },
-});
 
 function CalendarPage() {
   const today = bkkToday();
