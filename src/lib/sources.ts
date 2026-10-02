@@ -19,6 +19,7 @@ export const SOURCES: SourceInfo[] = [
   { source: "กรมอุตุฯ เตือนภัย", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["tmd_warn"] },
   { source: "กรมอุตุฯ แผ่นดินไหว", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["quake_th"] },
   { source: "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["fc_tmax_bkk", "fc_tmin_bkk"] },
+  { source: "Kapook ปฏิทินวันหยุด", agency: "Kapook", kind: "crawler", metrics: [] },
   { source: "กรมสรรพากร (ปฏิทินภาษี)", agency: "กรมสรรพากร", kind: "crawler", metrics: [] },
   { source: "PTT (thai-oil-api)", agency: "ปตท.", kind: "api", metrics: ["gsh95", "e20", "diesel"] },
   { source: "บางจาก (Bangchak API)", agency: "บางจาก", kind: "api", metrics: [] },
