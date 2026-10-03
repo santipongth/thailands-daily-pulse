@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 const POS: Record<string, [number, number]> = {
   "48455": [13.727, 100.56], "48454": [13.705, 100.567], "48453": [13.667, 100.606], "48456": [13.917, 100.6], "48429": [13.686, 100.767],
 };
-const BOX = { lat0: 13.6, lat1: 14.0, lon0: 100.4, lon1: 100.85 };
+const BOX = { lat0: 13.6, lat1: 14.0, lon0: 100.4, lon1: 101.0 };
 const xy = ([la, lo]: [number, number]): [number, number] => [((lo - BOX.lon0) / (BOX.lon1 - BOX.lon0)) * 600, ((BOX.lat1 - la) / (BOX.lat1 - BOX.lat0)) * 420];
 
 type W = { station_id: string; name: string; obs_date: string; obs_time: string | null; temp: number | null; rain24: number | null; dist_km: number | null; received_at: string };
