@@ -320,6 +320,8 @@ export async function runCustomDue(): Promise<{ queued: number }> {
   const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
   const { customDueSpecs } = await import("./source-config.server");
   const specs = await customDueSpecs(admin);
+  const tmd = await tmdCatchUp(admin);
+  if (tmd && !specs.some((x) => x.source === tmd.source)) specs.push(tmd);
   if (!specs.length) return { queued: 0 };
   const now = new Date();
   const { data: lock } = await admin.from("job_locks").select("locked_until").eq("name", LOCK).maybeSingle();
@@ -338,4 +340,20 @@ export async function runCustomDue(): Promise<{ queued: number }> {
   } finally {
     await admin.from("job_locks").upsert({ name: LOCK, locked_until: new Date(0).toISOString() });
   }
+}
+
+const TMD3H = "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)";
+/** TMD 3h catch-up: latest stored report older than 3.5h and no attempt in the last 25 min → fetch. Respects admin off + breaker. */
+async function tmdCatchUp(admin: any): Promise<{ job_type: string; source: string } | null> {
+  const { data: cfg } = await admin.from("source_config").select("enabled").eq("source", TMD3H).maybeSingle();
+  if (cfg && !cfg.enabled) return null;
+  const { pausedSources } = await import("./breaker.server");
+  if ((await pausedSources(admin)).has(TMD3H)) return null;
+  const { data: w } = await admin.from("weather_station_obs").select("obs_time").eq("kind", "3h").order("received_at", { ascending: false }).limit(1).maybeSingle();
+  const m = String(w?.obs_time ?? "").match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
+  const obsAt = m ? Date.parse(`${m[3]}-${m[1]}-${m[2]}T${m[4]}:${m[5]}:00+07:00`) : 0;
+  if (Date.now() - obsAt < 3.5 * 3600e3) return null;
+  const { data: run } = await admin.from("source_runs").select("ran_at").eq("source", TMD3H).maybeSingle();
+  if (run?.ran_at && Date.now() - Date.parse(run.ran_at) < 25 * 60e3) return null;
+  return { job_type: "connector", source: TMD3H };
 }

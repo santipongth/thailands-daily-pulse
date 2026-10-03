@@ -16,12 +16,14 @@ export function StationMap() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["station-map"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("weather_station_obs").select("station_id,name,obs_date,obs_time,temp,rain24,dist_km,received_at").eq("kind", "3h").order("obs_date", { ascending: false }).limit(50);
+      const { data, error } = await supabase.from("weather_station_obs").select("station_id,name,obs_date,obs_time,temp,rain24,dist_km,received_at").eq("kind", "3h").order("received_at", { ascending: false }).limit(60);
       if (error) throw new Error(error.message);
       return data as W[];
     },
   });
-  const latest = [...new Map((data ?? []).map((w) => [w.station_id, w])).values()]
+  const first = new Map<string, W>();
+  for (const w of data ?? []) if (!first.has(w.station_id)) first.set(w.station_id, w); // newest per station
+  const latest = [...first.values()]
     .filter((w) => POS[w.station_id])
     .sort((a, b) => (b.temp ?? -Infinity) - (a.temp ?? -Infinity));
   return (
@@ -32,6 +34,7 @@ export function StationMap() {
         : isError ? <TodayEmpty>อ่านข้อมูลไม่ได้</TodayEmpty>
         : !latest.length ? <TodayEmpty>ไม่มีข้อมูลล่าสุด — รอรอบดึงกรมอุตุฯ ราย 3 ชม.</TodayEmpty> : (
           <div>
+            <ReportStatus rows={latest} />
             <div className="hidden grid-cols-[1fr_auto_auto] gap-x-6 border-b border-editorial-rule pb-2 text-xs uppercase tracking-wider text-muted-foreground sm:grid">
               <span>สถานี</span>
               <span className="w-20 text-right">อุณหภูมิ</span>
@@ -63,5 +66,22 @@ export function StationMap() {
           </div>
         )}
     </TodaySection>
+  );
+}
+
+/** "รายงานรอบ 01:00 น. · รอบถัดไป ~04:00 น." + grey "ข้อมูลล่าช้า" when older than 4h. */
+function ReportStatus({ rows }: { rows: W[] }) {
+  const at = Math.max(...rows.map((w) => {
+    const m = String(w.obs_time ?? "").match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
+    return m ? Date.parse(`${m[3]}-${m[1]}-${m[2]}T${m[4]}:${m[5]}:00+07:00`) : 0;
+  }));
+  if (!at) return null;
+  const hm = (ms: number) => new Date(ms).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" });
+  const late = Date.now() - at > 4 * 3600e3;
+  return (
+    <p className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+      <span>รายงานรอบ <b className="text-foreground">{hm(at)} น.</b> · รอบถัดไปของกรมอุตุฯ ~{hm(at + 3 * 3600e3)} น. (ขึ้นเว็บช้ากว่าราว 1 ชม.)</span>
+      {late && <span className="border border-editorial-rule bg-muted px-1.5 py-0.5 font-semibold">ข้อมูลล่าช้า</span>}
+    </p>
   );
 }
