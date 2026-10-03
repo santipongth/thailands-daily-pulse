@@ -330,6 +330,13 @@
       "when": 1791055314696,
       "tag": "0046_daily_price_source_metadata",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1791055896611,
+      "tag": "0047_dated_energy_labour_arrivals",
+      "breakpoints": true
     }
   ]
 }
