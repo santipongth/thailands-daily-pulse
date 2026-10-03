@@ -33,7 +33,6 @@ function checkLines(c: any, m: Metric): string[] {
   }
   if (c.rule === "level") out.push(`ข้ามระดับเกณฑ์ ${(c.bands ?? []).join(", ")} ${m.unit}`);
   if (c.rule === "release") out.push("เป็นตัวเลขรอบใหม่ที่เพิ่งประกาศ");
-  if (c.rule === "catalog") out.push(`ชุดข้อมูลทางการเปลี่ยนจริง ${c.datasets} ชุด (ใหม่ หรือแถว/ผลรวมเปลี่ยน ≥ ${c.min_pct}%) — การอัปโหลดซ้ำโดยตัวเลขไม่เปลี่ยนไม่นับ`);
   if (c.compared_with) out.push(`เทียบกับข้อมูลวันที่ ${thaiDate(c.compared_with)}${c.gap_days != null ? ` (ห่าง ${c.gap_days} วัน, ไม่เกิน ${c.max_gap_days} วัน)` : ""}`);
   if (c.trust) out.push(`ความน่าเชื่อถือของแหล่ง: ${TRUST[c.trust] ?? c.trust}`);
   if (c.capped) out.push("เป็นข้อมูลตัวอย่าง จึงจำกัดความรุนแรงไม่เกินระดับกลาง");

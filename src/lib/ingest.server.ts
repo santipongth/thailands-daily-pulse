@@ -121,7 +121,7 @@ export async function refreshBrief(admin: any, date: string, publish = false, st
     const v = (vers ?? []).find((x: any) => x.event_id === event_id && x.version === version);
     const why = s.checks?.rule === "delta" && s.checks?.z != null
       ? `เปลี่ยนแรงกว่าความผันผวนปกติ ${Number(s.checks.z).toFixed(1)} เท่า`
-      : s.checks?.rule === "level" ? "ข้ามระดับเกณฑ์ที่กำหนด" : s.checks?.rule === "release" ? "ตัวเลขรอบใหม่ประกาศวันนี้" : s.checks?.rule === "catalog" ? "ชุดข้อมูลทางการเปลี่ยนจริง" : "เกินเกณฑ์ที่กำหนด";
+      : s.checks?.rule === "level" ? "ข้ามระดับเกณฑ์ที่กำหนด" : s.checks?.rule === "release" ? "ตัวเลขรอบใหม่ประกาศวันนี้" : "เกินเกณฑ์ที่กำหนด";
     const impact = householdImpact(s);
     const advice = officialAdvice(s);
     return {
