@@ -236,3 +236,9 @@
     color: var(--color-foreground);
   }
 }
+
+@utility tds-grid {
+  background-image: linear-gradient(color-mix(in oklab, var(--color-ink) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-ink) 7%, transparent) 1px, transparent 1px);
+  background-size: 12px 12px;
+}

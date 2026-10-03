@@ -10,6 +10,7 @@ import { AllMetricsCompare } from "@/components/all-metrics-compare";
 import { DamsBox, StationCompare } from "@/components/brief-dams-weather";
 import { SocialFeed } from "@/components/social-feed";
 import { DailyTrends, ForecastCompare } from "@/components/brief-trends";
+import { BriefFrontPage } from "@/components/brief-frontpage";
 
 const hm = (s: string) => new Date(s).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" });
 
@@ -76,7 +77,8 @@ function BriefPage() {
           <p className="mt-6 text-muted-foreground">ยังไม่มี Brief ของวันนี้ ฉบับถัดไปเผยแพร่เวลา 06:00 น.</p>
         ) : (
           <>
-            <p className="mt-2 text-xs text-muted-foreground">
+            <BriefFrontPage date={date} items={(data.items ?? []) as BriefItem[]} edition={data.edition} cutoff={data.cutoff_at} />
+            <p className="mt-6 text-xs text-muted-foreground">
               {data.published_at ? `เผยแพร่ ${new Date(data.published_at).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.` : "ฉบับระหว่างวัน (ฉบับทางการเผยแพร่ 06:00 น.)"} · บทนำเรียบเรียงโดย AI จากข้อเท็จจริงด้านล่างเท่านั้น
             </p>
             {data.cutoff_at && <p className="mt-1 text-sm font-semibold">ข้อมูลถึง {hm(data.cutoff_at)} น. — ข้อมูลที่ได้รับหลังเวลานี้เข้าเป็นอัปเดตด้านล่างหรือฉบับถัดไป</p>}
