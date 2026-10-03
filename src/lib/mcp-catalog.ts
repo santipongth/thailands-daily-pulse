@@ -6,7 +6,7 @@ export const MCP_TOOLS: McpToolMeta[] = [
   { group: "Brief", name: "get_brief_by_date", title: "Get Daily Brief by date", description: "Return Daily Briefs; date filters brief_date (Bangkok calendar date).", args: LIST + " (id ignored)" },
   { group: "Brief", name: "compare_briefs", title: "Compare Daily Briefs", description: "Return two Daily Brief editions for direct comparison.", args: "date, previous_date (YYYY-MM-DD)" },
   { group: "Signals", name: "list_signals", title: "List signals", description: "List detected meaningful changes. date filters signal_date, id filters metric_id. News and social posts are excluded.", args: LIST },
-  { group: "Signals", name: "get_signal", title: "Get signal", description: "Get one signal by event ID (metric_id:YYYY-MM-DD) with its event record and version history.", args: "id = event_id, e.g. lpg:2026-10-04" },
+  { group: "Signals", name: "get_signal", title: "Get signal", description: "Get one signal by event ID (metric_id:YYYY-MM-DD) with its event record and version history.", args: "id = event_id, e.g. dit_pork:2026-10-04" },
   { group: "Signals", name: "list_signal_events", title: "List signal events", description: "List correction and withdrawal-aware signal events. id filters event_id.", args: LIST },
   { group: "Signals", name: "get_household_impact", title: "Get household impact", description: "Return signal versions with their reproducible household-impact fields and advice. id filters event_id.", args: "limit, id?" },
   { group: "Sources", name: "list_sources", title: "List sources", description: "List the public source registry and collection cadence.", args: "limit, id? (source name)" },

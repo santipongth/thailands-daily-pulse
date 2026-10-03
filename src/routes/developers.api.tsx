@@ -51,7 +51,7 @@ function ApiDocs() {
     </section>
 
     <section className="mt-10"><h2 className="section-heading text-2xl">ตัวอย่าง</h2><div className="mt-3 grid gap-4 lg:grid-cols-3">
-      <Code title="curl" value={`curl '${API_BASE}/briefs?limit=1'\ncurl '${API_BASE}/events?id=lpg:2026-10-04'`} />
+      <Code title="curl" value={`curl '${API_BASE}/briefs?limit=1'\ncurl '${API_BASE}/events?id=dit_pork:2026-10-04'`} />
       <Code title="JavaScript" value={`const r = await fetch('${API_BASE}/signals?date=2026-10-04');\nif (r.status === 429) await new Promise(s => setTimeout(s, 60_000));\nconst { data, meta } = await r.json();`} />
       <Code title="Python" value={`import requests\nr = requests.get('${API_BASE}/observations',\n                 params={'id': 'lpg', 'limit': 20})\nr.raise_for_status()\nrows = r.json()['data']`} />
     </div></section>

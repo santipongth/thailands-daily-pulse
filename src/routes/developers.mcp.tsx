@@ -29,7 +29,7 @@ function McpDocs() {
       <Pre title="1. initialize">{curl(`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"demo","version":"1"}}}`)}</Pre>
       <Pre title="2. tools/list">{curl(`{"jsonrpc":"2.0","id":2,"method":"tools/list"}`)}</Pre>
       <Pre title="3. tools/call — Brief วันนี้">{curl(`{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"get_today_brief","arguments":{}}}`)}</Pre>
-      <Pre title="4. tools/call — สัญญาณรายตัว">{curl(`{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"get_signal","arguments":{"id":"lpg:2026-10-04"}}}`)}</Pre>
+      <Pre title="4. tools/call — สัญญาณรายตัว">{curl(`{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"get_signal","arguments":{"id":"dit_pork:2026-10-04"}}}`)}</Pre>
       <Pre title="ตั้งค่าใน AI client (mcp.json)">{JSON.stringify({ mcpServers: { "thailand-daily-signals": { type: "http", url: EP } } }, null, 2)}</Pre>
     </div></section>
   </main></div>;
