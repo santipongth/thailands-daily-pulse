@@ -131,9 +131,15 @@ export const CONNECTORS: Connector[] = [
     // www.tmd.go.th has an incomplete certificate chain (hosting returns 526), so figures come from
     // data.tmd.go.th WeatherForecast7Days — today's กรุงเทพมหานคร row.
     source: "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล",
-    run: async (date) => {
+    run: async (date, ctx) => {
       const { TMD7D_URL, parseTmd7d } = await import("./tmd7d");
       const rows = parseTmd7d(await text(TMD7D_URL), date);
+      if (ctx?.admin && rows.length) {
+        await ctx.admin.from("weather_station_obs").upsert(rows.map((r) => ({
+          station_id: `p:${r.province}`, name: r.province, kind: "7d", obs_date: date, temp: r.max ?? null, tmin: r.min ?? null,
+          rain_pct: r.rainPct ?? null, descr: r.descTh, source_url: TMD7D_URL, received_at: new Date().toISOString(),
+        })), { onConflict: "station_id,obs_date,kind" });
+      }
       const bkk = rows.find((r) => r.province === "กรุงเทพมหานคร");
       if (!bkk) throw new Error(`ไม่พบพยากรณ์ กรุงเทพมหานคร ของวันที่ ${date} ในไฟล์ 7 วัน`);
       const o: Values = {};
@@ -147,8 +153,22 @@ export const CONNECTORS: Connector[] = [
     // 3-hourly reading: a running max per day is kept in app_settings (key tmax3h:YYYY-MM-DD).
     source: "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)",
     run: async (date, ctx) => {
-      const { TMD3H_URL, parseTmd3h } = await import("./tmd3h");
-      const r = parseTmd3h(await text(TMD3H_URL));
+      const { TMD3H_URL, parseTmd3h, parseNearStations } = await import("./tmd3h");
+      const xml3 = await text(TMD3H_URL);
+      const r = parseTmd3h(xml3);
+      // Nearest stations: one row per station/day — temp = highest reading so far that day, rain = latest 24-h total.
+      if (ctx?.admin) {
+        const near = parseNearStations(xml3);
+        if (near.length) {
+          const { data: ex } = await ctx.admin.from("weather_station_obs").select("station_id,obs_date,temp").eq("kind", "3h").in("station_id", near.map((n) => n.id)).in("obs_date", [...new Set(near.map((n) => n.date))]);
+          await ctx.admin.from("weather_station_obs").upsert(near.map((n) => {
+            const old = (ex ?? []).find((e: any) => e.station_id === n.id && e.obs_date === n.date);
+            const t = [n.temp, old?.temp == null ? undefined : Number(old.temp)].filter((x): x is number => x !== undefined);
+            return { station_id: n.id, name: n.name, kind: "3h", obs_date: n.date, obs_time: n.time, temp: t.length ? Math.max(...t) : null,
+              rain24: n.rain24 ?? null, dist_km: n.km, source_url: TMD3H_URL, received_at: new Date().toISOString() };
+          }), { onConflict: "station_id,obs_date,kind" });
+        }
+      }
       if (!r.stationFound) throw new Error(r.stations ? "ไม่พบสถานี 48455 BANGKOK METROPOLIS ในไฟล์" : "กรมอุตุฯ ยังไม่มีรายการสถานีในรอบนี้ (ไฟล์ว่าง)");
       const day = r.date ?? date;
       const values: Values = {}, dates: Record<string, string> = {};
