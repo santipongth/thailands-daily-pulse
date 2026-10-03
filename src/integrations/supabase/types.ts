@@ -863,8 +863,11 @@ export type Database = {
         Row: {
           daily_hour: number | null
           enabled: boolean
+          extra_hours: number[]
           fetch_mode: string
           max_attempts: number
+          range_end: number | null
+          range_start: number | null
           retry_delay_min: number | null
           schedule: string
           source: string
@@ -873,8 +876,11 @@ export type Database = {
         Insert: {
           daily_hour?: number | null
           enabled?: boolean
+          extra_hours?: number[]
           fetch_mode?: string
           max_attempts?: number
+          range_end?: number | null
+          range_start?: number | null
           retry_delay_min?: number | null
           schedule?: string
           source: string
@@ -883,12 +889,45 @@ export type Database = {
         Update: {
           daily_hour?: number | null
           enabled?: boolean
+          extra_hours?: number[]
           fetch_mode?: string
           max_attempts?: number
+          range_end?: number | null
+          range_start?: number | null
           retry_delay_min?: number | null
           schedule?: string
           source?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      source_perf_daily: {
+        Row: {
+          causes: Json
+          day: string
+          files_changed: number
+          median_data_age_min: number | null
+          ok: number
+          runs: number
+          source: string
+        }
+        Insert: {
+          causes?: Json
+          day: string
+          files_changed?: number
+          median_data_age_min?: number | null
+          ok?: number
+          runs?: number
+          source: string
+        }
+        Update: {
+          causes?: Json
+          day?: string
+          files_changed?: number
+          median_data_age_min?: number | null
+          ok?: number
+          runs?: number
+          source?: string
         }
         Relationships: []
       }
@@ -999,6 +1038,56 @@ export type Database = {
           url?: string | null
         }
         Relationships: []
+      }
+      station_snapshots: {
+        Row: {
+          area: string | null
+          evidence_id: number | null
+          id: number
+          name: string
+          observed_at: string | null
+          pct: number | null
+          received_at: string
+          source: string
+          station_id: string
+          status: string | null
+          value: number | null
+        }
+        Insert: {
+          area?: string | null
+          evidence_id?: number | null
+          id?: never
+          name: string
+          observed_at?: string | null
+          pct?: number | null
+          received_at?: string
+          source: string
+          station_id: string
+          status?: string | null
+          value?: number | null
+        }
+        Update: {
+          area?: string | null
+          evidence_id?: number | null
+          id?: never
+          name?: string
+          observed_at?: string | null
+          pct?: number | null
+          received_at?: string
+          source?: string
+          station_id?: string
+          status?: string | null
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "station_snapshots_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "raw_evidence"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tax_deadlines: {
         Row: {
