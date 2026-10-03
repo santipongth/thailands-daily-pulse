@@ -33,7 +33,7 @@ export const dayQuery = (date: string) =>
   queryOptions({
     queryKey: ["day", date],
     queryFn: async () => {
-      const from = shiftDate(date, -14);
+      const from = shiftDate(date, -60);
       const [families, metrics, signals, obs, brief, calendar, news] = await Promise.all([
         throwing<Family[]>(supabase.from("families").select("*").order("sort")),
         throwing<Metric[]>(supabase.from("metrics").select("id,family_id,name_th,unit,kind,decimals,sort,threshold_abs,threshold_pct,bands").order("sort")),

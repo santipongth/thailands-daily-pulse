@@ -15,8 +15,8 @@ export function RailSignalChart({ s }: { s: Signal }) {
     queryKey: ["rail-signal", line, day],
     queryFn: async () => {
       const { data, error } = await supabase.from("social_posts").select("text,posted_at,received_at,url,rail_status,rail_reason,rail_day").eq("source", `${line} (X)`)
-      .gte("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") - 15 * 86400e3).toISOString())
-      .lt("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") + 86400e3).toISOString()).order("posted_at");
+      .gte("received_at", new Date(Date.parse(day + "T00:00:00+07:00") - 15 * 86400e3).toISOString())
+      .lt("received_at", new Date(Date.parse(day + "T00:00:00+07:00") + 86400e3).toISOString()).order("posted_at");
       if (error) throw error;
       return data ?? [];
     },
@@ -33,7 +33,7 @@ export function RailSignalChart({ s }: { s: Signal }) {
   const coveredDays = (from: string, to: string) => new Set(data.filter((p: any) => dayOf(p) >= from && dayOf(p) <= to).map(dayOf)).size;
   const prevDays = coveredDays(previousStart, shiftDate(latestStart, -1));
   const curDays = coveredDays(latestStart, day);
-  const skipped = data.filter((p: any) => bkkDate(p.posted_at) === day && p.rail_status && p.rail_status !== "counted");
+  const skipped = data.filter((p: any) => bkkDate(p.received_at) === day && p.rail_status && p.rail_status !== "counted");
   const rows = BLOCK_TH.map((k, b) => ({
     k, today: todays.filter((p) => bkkBlock(p.posted_at) === b).length,
     avg: +(past.filter((p) => bkkBlock(p.posted_at) === b).length / 7).toFixed(2),

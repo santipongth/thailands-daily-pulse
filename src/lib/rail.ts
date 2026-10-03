@@ -31,5 +31,5 @@ export function classifyRail(text: string, postedIso: string, receivedIso: strin
   const dayStart = Date.parse(rd + "T00:00:00+07:00");
   const lag = dayStart - Date.parse(postedIso);
   if (lag <= gapMs) return { status: "counted", day: rd, reason: `ประกาศก่อนเที่ยงคืน ${Math.round(lag / 60000)} นาที อยู่ในช่วงห่างของรอบตรวจ (${Math.round(gapMs / 60000)} นาที) — นับในวันที่ได้รับ` };
-  return { status: "late", day: pd, reason: `ได้รับช้ากว่าช่วงห่างของรอบตรวจ (${Math.round(gapMs / 60000)} นาที) — ไม่นับในสัญญาณวันนี้ แต่แสดงไว้` };
+  return { status: "counted", day: rd, reason: `ประกาศวันที่ ${pd} แต่ได้รับวันที่ ${rd} หลังช่วงห่างรอบตรวจ (${Math.round(gapMs / 60000)} นาที) — นับวันที่ได้รับ โดยคงวันประกาศจริง` };
 }
