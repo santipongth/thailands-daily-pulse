@@ -19,6 +19,7 @@ import { LatestLottery } from "@/components/latest-lottery";
 import { SocialFeed } from "@/components/social-feed";
 import { BkkMap } from "@/components/bkk-map";
 import { StationMap } from "@/components/station-map";
+import { RailStatus } from "@/components/rail-status";
 
 export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
@@ -159,6 +160,7 @@ function Today() {
           <div className="mt-12 space-y-8">
             <BkkMap initialLayers={layers} initialPoint={pt} />
             <StationMap />
+            <RailStatus />
           </div>
         )}
 
