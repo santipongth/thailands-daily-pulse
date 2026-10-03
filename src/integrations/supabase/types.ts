@@ -909,6 +909,7 @@ export type Database = {
       }
       source_config: {
         Row: {
+          custom_times: string[]
           daily_hour: number | null
           enabled: boolean
           extra_hours: number[]
@@ -922,6 +923,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          custom_times?: string[]
           daily_hour?: number | null
           enabled?: boolean
           extra_hours?: number[]
@@ -935,6 +937,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          custom_times?: string[]
           daily_hour?: number | null
           enabled?: boolean
           extra_hours?: number[]
