@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { TodaySection } from "@/components/today-section";
 
 export type SocialPost = { post_id: string; posted_at: string; received_at: string; text: string; url: string; area: string | null; summary: string | null };
 
@@ -23,14 +24,7 @@ export function SocialFeed({ from, to, limit = 8 }: { from?: string; to?: string
   const late = to ? posts.filter((p) => p.received_at > to) : [];
 
   return (
-    <section className="border-t border-editorial-ink pt-5 font-editorial-body" aria-labelledby="social-h">
-      <div className="flex items-baseline gap-3 border-b border-editorial-rule pb-3">
-        <h2 id="social-h" className="font-editorial text-2xl leading-snug text-editorial-red">ความเคลื่อนไหวจาก Social Media</h2>
-        <span aria-hidden="true" className="hidden h-px flex-1 bg-editorial-rule sm:block" />
-      </div>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-        โพสต์ FM91 Trafficpro จาก X ที่คัดว่าเกี่ยวกับกรุงเทพฯ และปริมณฑลด้วย AI · ยังไม่ยืนยันจากหน่วยงานรัฐ และไม่นับเป็นสัญญาณ
-      </p>
+    <TodaySection id="social-h" title="ความเคลื่อนไหวจาก Social Media" note="โพสต์ FM91 Trafficpro จาก X ที่คัดว่าเกี่ยวกับกรุงเทพฯ และปริมณฑลด้วย AI · ยังไม่ยืนยันจากหน่วยงานรัฐ และไม่นับเป็นสัญญาณ">
       {isLoading ? <p className="mt-4 text-sm text-muted-foreground">กำลังโหลด…</p>
         : isError ? <p className="mt-4 text-sm text-muted-foreground">อ่านโพสต์ไม่ได้</p>
         : inWin.length === 0 ? (
@@ -49,7 +43,7 @@ export function SocialFeed({ from, to, limit = 8 }: { from?: string; to?: string
           <ul className="grid gap-x-8 sm:grid-cols-2">{late.slice(0, 5).map((p) => <Item key={p.post_id} p={p} />)}</ul>
         </div>
       )}
-    </section>
+    </TodaySection>
   );
 }
 
