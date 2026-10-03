@@ -1,20 +1,21 @@
 // Server-only: Postgres-backed worker queue. One job per source; jobs are claimed with
 // FOR UPDATE SKIP LOCKED (claim_ingest_job), retried with backoff, and every fetch a job
 // makes is kept as raw evidence.
+import { politeFetch } from "./http.server";
 
 type Run = { source: string; ok: boolean; rows: number; error: string | null; ran_at: string; kind?: string; url?: string; sample?: string | null };
-type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> };
+type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> | undefined };
 type Ctx = { admin: any; date: string };
 
 const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = {
-  connector: async ({ date }, source) => {
-    const { CONNECTORS } = await import("./connectors.server");
+  connector: async ({ admin, date }, source) => {
+    const { CONNECTORS, normalizeOut } = await import("./connectors.server");
     const c = CONNECTORS.find((x) => x.source === source);
     if (!c) throw new Error(`unknown connector ${source}`);
     const ran_at = new Date().toISOString();
     try {
-      const values = await c.run(date);
-      return { values, runs: [{ source, ok: true, rows: Object.keys(values).length, error: null, ran_at, kind: "api" }] };
+      const { values, dates } = normalizeOut(await c.run(date, { admin }));
+      return { values, dates, runs: [{ source, ok: true, rows: Object.keys(values).length, error: null, ran_at, kind: "api" }] };
     } catch (e) {
       return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: "api" }] };
     }
@@ -46,7 +47,7 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     const base = { source: "Kapook ปฏิทินวันหยุด", kind: "crawler", url, ran_at: new Date().toISOString() };
     try {
       const { parseKapook } = await import("./kapook");
-      const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals" }, signal: AbortSignal.timeout(15000) });
+      const res = await politeFetch(url);
       if (!res.ok) throw new Error(`${res.status} ${url}`);
       const rows = parseKapook(await res.text());
       if (!rows.length) throw new Error("ไม่พบรายการวันหยุดในหน้า (รูปแบบหน้าอาจเปลี่ยน)");
@@ -61,7 +62,7 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     const { RD_TAX_URL, parseRdTax } = await import("./rdtax");
     const base = { source: "กรมสรรพากร (ปฏิทินภาษี)", kind: "crawler", url: RD_TAX_URL, ran_at: new Date().toISOString() };
     try {
-      const res = await fetch(RD_TAX_URL, { headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals" }, signal: AbortSignal.timeout(15000) });
+      const res = await politeFetch(RD_TAX_URL);
       if (!res.ok) throw new Error(`${res.status} ${RD_TAX_URL}`);
       const rows = parseRdTax(await res.text(), date);
       if (!rows.length) throw new Error("ไม่พบกำหนดยื่นภาษีในหน้า (รูปแบบหน้าอาจเปลี่ยน)");

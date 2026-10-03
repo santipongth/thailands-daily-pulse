@@ -1,5 +1,6 @@
 // Server-only: daily crawler for RakaKaset (rakakaset.com/prices) — farm-gate prices
 // republished from the Office of Agricultural Economics. Parses the price table rows.
+import { politeFetch } from "./http.server";
 
 export const RAKAKASET_SOURCE = "RakaKaset (ราคาเกษตร)";
 
@@ -30,10 +31,7 @@ export async function runRakaKaset(today: string): Promise<{ values: Record<stri
   const dates: Record<string, string> = {};
   const errors: string[] = [];
   try {
-    const res = await fetch("https://rakakaset.com/prices/", {
-      headers: { "User-Agent": "ThailandDailySignals/1.0 (daily price check, 1 request/day)" },
-      signal: AbortSignal.timeout(15000),
-    });
+    const res = await politeFetch("https://rakakaset.com/prices/");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const cells = (await res.text()).replace(/<[^>]+>/g, "|").split("|").map((x) => x.replace(/\s+/g, " ").trim()).filter(Boolean);
     for (const [metric, label] of Object.entries(MAP)) {

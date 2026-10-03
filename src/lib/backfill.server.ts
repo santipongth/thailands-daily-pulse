@@ -1,9 +1,10 @@
 // Server-only: honest backfill from sources that publish history. Others are never invented.
 // Rows keep their real data date; received_at = now; raw responses archived as evidence; run_kind "backfill".
+import { politeFetch } from "./http.server";
 import { withEvidence } from "./evidence.server";
 
 async function json(url: string) {
-  const r = await fetch(url, { headers: { "user-agent": "ThailandDailySignals/1.0" } });
+  const r = await politeFetch(url);
   if (!r.ok) throw new Error(`${r.status} ${url}`);
   return r.json();
 }

@@ -43,7 +43,9 @@ export function AllMetricsCompare({ date, cutoff, completeness }: { date: string
     const run = src ? data.runs.find((x) => x.source === src) : null;
     if (!src) return rel ? `ประกาศตามรอบ — รอบถัดไป ${thaiDate(rel.release_date, { day: "numeric", month: "short" })}` : "ไม่มีแหล่งข้อมูลผูกไว้";
     if (!run) return `${src}: ยังไม่เคยดึงสำเร็จ — รอรอบดึงถัดไป`;
+    if (!run.ok && run.error?.startsWith("429")) return `${src} ถูกจำกัดคำขอ (429) ล่าสุด ${hm(run.ran_at)} น. — ผู้ให้บริการบล็อกที่อยู่ของเซิร์ฟเวอร์ ไม่ใช่ "ไม่เปลี่ยน"`;
     if (!run.ok) return `${src}: ดึงล้มเหลวล่าสุด ${hm(run.ran_at)} น.${run.error ? ` — ${run.error}` : ""}`;
+    if (m.id === "tmax_bkk") return `${src}: ค่านี้คือสูงสุดของเมื่อวานจากรายงานราย 3 ชม. — ยังไม่มีรายงานของเมื่อวานครบ (ระบบเริ่มเก็บ 3 ต.ค.)`;
     if (c && c.status !== "ok") return `${src}: ${c.reason}`;
     return `${src}: ดึงสำเร็จล่าสุด ${hm(run.ran_at)} น. แต่ยังไม่มีค่าของวันนี้ก่อนเวลาตัด`;
   };

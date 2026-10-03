@@ -24,9 +24,10 @@ export function BkkForecast() {
       )}
       {data.advice.length > 0 && <p className="mt-3 text-sm">ควรทำ: {data.advice.join(" · ")}</p>}
       <p className="mt-3 text-xs text-muted-foreground">
-        ที่มา: <a href={TMD_BKK_URL} target="_blank" rel="noreferrer" className="underline">กรมอุตุนิยมวิทยา</a>
-        {data.validFrom ? ` · มีผลตั้งแต่ ${data.validFrom} น. 24 ชม.` : ""}
-        {data.from === "archive" ? " · แสดงจากไฟล์ดิบล่าสุดที่เก็บไว้" : ""} · ต้นฉบับ: “{data.conditionEn}”
+        ที่มา: <a href={data.sourceUrl ?? TMD_BKK_URL} target="_blank" rel="noreferrer" className="underline">กรมอุตุนิยมวิทยา</a>
+        {data.from === "7d" ? ` · พยากรณ์ 7 วันของกรมอุตุฯ แถวของวันนี้ (${data.validFrom})` : data.validFrom ? ` · มีผลตั้งแต่ ${data.validFrom} น. 24 ชม.` : ""}
+        {data.from === "archive" ? " · แสดงจากไฟล์ดิบล่าสุดที่เก็บไว้" : ""}
+        {data.conditionEn ? <> · ต้นฉบับ: “{data.conditionEn}”</> : null}
       </p>
     </section>
   );

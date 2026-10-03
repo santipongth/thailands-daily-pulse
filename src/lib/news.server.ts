@@ -1,4 +1,5 @@
 // Server-only: pulls Thai newspaper RSS feeds and tags items by government agency and signal family.
+import { politeFetch } from "./http.server";
 
 const FEEDS = [
   { source: "มติชน", url: "https://www.matichon.co.th/feed" },
@@ -46,7 +47,7 @@ export async function collectNews() {
   const rows: { source: string; title: string; link: string; published_at: string; agency: string | null; family_id: string | null }[] = [];
   const results = await Promise.allSettled(
     FEEDS.map(async (f) => {
-      const res = await fetch(f.url, { headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals" } });
+      const res = await politeFetch(f.url, { timeoutMs: 30000, tries: 2 });
       if (!res.ok) throw new Error(`${f.url} ${res.status}`);
       return { f, xml: await res.text() };
     }),

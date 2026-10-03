@@ -1,10 +1,11 @@
 // Server-only: official Government Lottery Office results, verified against a second GLO endpoint.
+import { politeFetch } from "./http.server";
 
-const H = { "Content-Type": "application/json", "user-agent": "Mozilla/5.0 ThailandDailySignals" };
+const H = { "Content-Type": "application/json", accept: "application/json, */*" };
 const nums = (tier: any): string[] => (tier?.number ?? []).map((n: any) => String(n.value));
 
 export async function syncLottery(admin: any) {
-  const res = await fetch("https://www.glo.or.th/api/lottery/getLatestLottery", { method: "POST", headers: H, body: "{}", signal: AbortSignal.timeout(15000) });
+  const res = await politeFetch("https://www.glo.or.th/api/lottery/getLatestLottery", { method: "POST", headers: H, body: "{}" });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const r = (await res.json())?.response;
   const date: string | undefined = r?.date;
@@ -15,7 +16,7 @@ export async function syncLottery(admin: any) {
   let verified = false;
   try {
     const [y, m, d] = date.split("-");
-    const v = await fetch("https://www.glo.or.th/api/checking/getLotteryResult", { method: "POST", headers: H, body: JSON.stringify({ date: d, month: m, year: y }), signal: AbortSignal.timeout(15000) });
+    const v = await politeFetch("https://www.glo.or.th/api/checking/getLotteryResult", { method: "POST", headers: H, body: JSON.stringify({ date: d, month: m, year: y }) });
     const vr = (await v.json())?.response?.result;
     verified = nums(vr?.data?.first)[0] === first;
   } catch { /* stays unverified */ }

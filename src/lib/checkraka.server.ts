@@ -1,6 +1,7 @@
 // Server-only: daily crawler for CheckRaka (checkraka.app/price) — an aggregator of
 // Thai food prices from ~9 sources, updated daily at 05:00. Reads the schema.org
 // ItemList JSON-LD on each category page (the listed price per product).
+import { politeFetch } from "./http.server";
 
 export const CHECKRAKA_SOURCE = "CheckRaka (ราคาอาหาร)";
 
@@ -41,10 +42,7 @@ export async function runCheckRaka(): Promise<{ values: Record<string, number>; 
   const pages = [...new Set(MAP.map((m) => m.page))];
   for (const page of pages) {
     try {
-      const res = await fetch(`https://checkraka.app/price/${page}-today/`, {
-        headers: { "User-Agent": "ThailandDailySignals/1.0 (daily price check, 1 request/page/day)" },
-        signal: AbortSignal.timeout(15000),
-      });
+      const res = await politeFetch(`https://checkraka.app/price/${page}-today/`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const items = parseItems(await res.text());
       if (!items.length) throw new Error("ไม่พบรายการราคาในหน้า");
