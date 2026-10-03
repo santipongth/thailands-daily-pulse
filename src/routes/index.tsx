@@ -76,28 +76,29 @@ function Today() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-6xl px-4 pb-16">
-        <div className="flex items-center justify-between border-b border-foreground py-2 text-sm">
+      <main className="mx-auto max-w-6xl px-4 pb-16 font-editorial-body">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-editorial-rule py-3 text-sm sm:grid-cols-[1fr_auto_1fr]">
           <Link to="/" search={{ date: shiftDate(date, -1) }} className="hover:underline">← วันก่อน</Link>
-          <span className="font-semibold">🇹🇭 Thailand Today — {thaiDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
+          <span className="col-span-2 row-start-2 text-center font-semibold sm:col-span-1 sm:row-start-auto">วันนี้ · {thaiDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
           {date < today ? (
-            <Link to="/" search={shiftDate(date, 1) === today ? {} : { date: shiftDate(date, 1) }} className="hover:underline">วันถัดไป →</Link>
+            <Link to="/" search={shiftDate(date, 1) === today ? {} : { date: shiftDate(date, 1) }} className="text-right hover:underline">วันถัดไป →</Link>
           ) : (
-            <span className="text-muted-foreground">ล่าสุด</span>
+            <span className="text-right text-muted-foreground">ล่าสุด</span>
           )}
         </div>
 
         <div className="mt-3 text-right text-xs"><Link to="/day/$date" params={{ date }} className="underline">เทียบสัญญาณกับวันก่อน →</Link></div>
-        <section className="grid gap-8 py-8 md:grid-cols-[2fr_1fr]">
-          <div>
-            <h1 className="font-display text-2xl leading-snug sm:text-3xl">Thailand Daily Signals — สรุปสัญญาณประจำวัน</h1>
-            <p className="mt-2 text-xs font-semibold uppercase tracking-widest text-up">สรุปวันนี้</p>
-            <p className="mt-3 font-display text-xl leading-relaxed sm:text-2xl">
-              {data.brief?.body ?? (data.signals.length ? fallback : "วันนี้ยังไม่มีอะไรเปลี่ยนแปลงอย่างมีนัยสำคัญ")}
+        <section className="grid gap-8 border-b border-editorial-rule py-8 md:grid-cols-[minmax(0,2fr)_minmax(15rem,1fr)]">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-editorial-red">สรุปประจำวัน</p>
+            <h1 className="mt-2 font-editorial text-4xl leading-tight text-editorial-ink sm:text-5xl">Thailand Daily Signals</h1>
+            <p className="mt-4 font-editorial-body text-xl font-medium leading-relaxed sm:text-2xl">
+              {data.brief?.body ?? (data.signals.length ? fallback : "ยังไม่มีข้อมูลที่ตรวจสอบได้เปลี่ยนเกินเกณฑ์ในวันนี้")}
             </p>
-            <p className="mt-3 text-xs text-muted-foreground">
-              {data.brief ? (data.brief.published_at ? "Daily Brief ฉบับ 06:00 · บทนำเรียบเรียงโดย AI จากข้อมูลจริงเท่านั้น" : "ฉบับระหว่างวัน · บทนำเรียบเรียงโดย AI จากข้อมูลจริงเท่านั้น") : "กำลังเตรียมสรุป…"} · ตรวจพบ {data.signals.length} สัญญาณ จาก {data.families.length} กลุ่มข้อมูล
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              {data.brief ? (data.brief.published_at ? "สรุปฉบับเช้า · บทนำเรียบเรียงโดย AI จากข้อมูลในฉบับ" : "สรุประหว่างวัน · บทนำเรียบเรียงโดย AI จากข้อมูลในฉบับ") : "กำลังเตรียมสรุป"} · ขณะนี้พบ {data.signals.length} สัญญาณ จาก {data.families.length} กลุ่มข้อมูล
             </p>
+            {data.brief?.published_at && data.signals.length !== (Array.isArray(data.brief.items) ? data.brief.items.length : 0) && <p className="mt-2 text-sm text-muted-foreground">สัญญาณปัจจุบันอาจต่างจากฉบับเช้าที่ปิดรับข้อมูลแล้ว ดูรายการล่าสุดด้านล่าง</p>}
             {Array.isArray(data.brief?.items) && data.brief!.items.length > 0 && (
               <div className="mt-6">
                 <BriefItems items={(data.brief!.items as BriefItem[]).slice(0, 4)} />
@@ -107,8 +108,8 @@ function Today() {
             {date === today && <div className="mt-6"><BkkForecast /></div>}
             <Link to="/day/$date" params={{ date }} className="mt-3 inline-block text-sm underline">อันดับสัญญาณวันนี้ เทียบเมื่อวาน →</Link>
           </div>
-          <aside className="border-l border-foreground/30 pl-6 max-md:border-l-0 max-md:border-t max-md:pl-0 max-md:pt-6">
-            <h2 className="font-display text-lg">กำลังจะมา</h2>
+          <aside className="border-l border-editorial-rule pl-6 max-md:border-l-0 max-md:border-t max-md:pl-0 max-md:pt-6">
+            <h2 className="font-editorial text-2xl text-editorial-red">กำลังจะมา</h2>
             <ul className="mt-3 space-y-3 text-sm">
               {data.calendar.map((c) => (
                 <li key={c.id} className="flex gap-3">
@@ -141,15 +142,15 @@ function Today() {
           </section>
         )}
 
-        <section>
+        <section className="mt-9 border-t border-editorial-ink pt-5">
           <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="font-display text-2xl">สัญญาณวันนี้</h2>
+            <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้</h2>
             <Link to="/settings" className="text-xs text-muted-foreground hover:underline">
               ความไว: {{ low: "ต่ำสุด", medium: "ปานกลาง", high: "สูง" }[sens]}{hidden > 0 ? ` · ซ่อน ${hidden} เรื่องเล็ก` : ""} — ปรับ
             </Link>
           </div>
           {moves.length === 0 ? (
-            <p className="text-muted-foreground">ไม่มีการเปลี่ยนแปลงที่เกินเกณฑ์ — No change, no signal.</p>
+            <p className="text-muted-foreground">ยังไม่มีการเปลี่ยนแปลงจากข้อมูลที่ตรวจสอบได้ที่เกินเกณฑ์ ส่วนแหล่งที่ตรวจไม่ได้ต้องดูสถานะแยกต่างหาก</p>
           ) : (
             <div className="grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
               {moves.map((s) => (
@@ -163,14 +164,18 @@ function Today() {
         {date === today && <div className="mt-12"><SocialFeed limit={6} /></div>}
 
         {agencyNews.length > 0 && (
-          <section className="mt-14 border-t border-foreground pt-4">
-            <h2 className="font-display text-lg">ความเคลื่อนไหวจากหน่วยงานราชการ <span className="text-sm font-normal text-muted-foreground">— จาก RSS หนังสือพิมพ์</span></h2>
-            <ul className="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+          <section className="mt-12 border-t border-editorial-ink pt-5">
+            <div className="flex items-baseline gap-3 border-b border-editorial-rule pb-3">
+              <h2 className="font-editorial text-2xl leading-snug text-editorial-red">ความเคลื่อนไหวจากหน่วยงานราชการ</h2>
+              <span aria-hidden="true" className="hidden h-px flex-1 bg-editorial-rule sm:block" />
+            </div>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">ข่าวจากหนังสือพิมพ์ที่กล่าวถึงหน่วยงานราชการ · ไม่ใช่ประกาศยืนยันจากหน่วยงานโดยตรง</p>
+            <ul className="mt-4 grid gap-x-8 sm:grid-cols-2">
               {agencyNews.map((n) => (
-                <li key={n.id} className="border-b border-border pb-3 text-sm">
-                  <span className="text-xs font-semibold text-up">{n.agency}</span>
-                  <a href={n.link} target="_blank" rel="noreferrer" className="mt-0.5 block hover:underline">{n.title}</a>
-                  <span className="text-xs text-muted-foreground">{n.source} · {new Date(n.published_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium", timeStyle: "short" })}</span>
+                <li key={n.id} className="border-b border-editorial-rule py-4 text-sm leading-relaxed">
+                  <span className="text-xs font-semibold text-editorial-red">{n.agency}</span>
+                  <a href={n.link} target="_blank" rel="noreferrer" className="mt-1 block hover:underline">{n.title}</a>
+                  <span className="mt-2 block text-xs text-muted-foreground">{n.source} · {new Date(n.published_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium", timeStyle: "short" })}</span>
                 </li>
               ))}
             </ul>
@@ -180,7 +185,7 @@ function Today() {
         {date === today && <div className="mt-12"><LatestLottery /></div>}
 
         <section className="mt-14 border-t border-foreground pt-4">
-          <h2 className="font-display text-lg">เงียบวันนี้ <span className="text-sm font-normal text-muted-foreground">— ไม่มีอะไรเปลี่ยนอย่างมีนัยสำคัญ</span></h2>
+           <h2 className="font-editorial text-2xl text-editorial-red">หมวดที่ยังไม่มีสัญญาณ <span className="font-editorial-body text-sm font-normal text-muted-foreground">— แหล่งที่ตรวจไม่ได้ไม่ถือว่าไม่มีการเปลี่ยนแปลง</span></h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {quiet.map((f) => {
               const m = data.metrics.find((x) => x.family_id === f.id);
@@ -191,7 +196,7 @@ function Today() {
                   <div className="min-w-0">
                     <div className="truncate">{f.emoji} {f.name_th}</div>
                     <div className="truncate text-xs text-muted-foreground tabular-nums">
-                      {m && last ? `${m.name_th} ${fmt(last.value, m.decimals)} ${m.unit}` : "ไม่มีข้อมูลใหม่"}
+                       {m && last ? `${m.name_th} ${fmt(last.value, m.decimals)} ${m.unit}` : "ยังไม่มีค่าที่แสดงได้"}
                     </div>
                   </div>
                   {m && m.kind !== "release" && <Sparkline values={h.map((o) => Number(o.value))} className="text-muted-foreground" />}

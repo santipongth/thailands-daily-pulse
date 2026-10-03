@@ -28,7 +28,7 @@ export type ValueEvidence = Record<string, { cur: number | null; prev: number | 
 
 /** Renders the 4 answers per item: what changed, importance, household impact, what to do. */
 export function BriefItems({ items, valueEvidence }: { items: BriefItem[]; valueEvidence?: ValueEvidence }) {
-  if (!items.length) return <p className="text-muted-foreground">วันนี้ไม่มีการเปลี่ยนแปลงอย่างมีนัยสำคัญจากข้อมูลจริง</p>;
+  if (!items.length) return <p className="text-muted-foreground">ยังไม่มีข้อมูลที่ตรวจสอบได้เปลี่ยนเกินเกณฑ์ในฉบับนี้ ดูสถานะแหล่งที่ตรวจไม่ได้ด้านล่าง</p>;
   return (
     <ol className="space-y-5">
       {items.map((i, n) => {
@@ -36,11 +36,11 @@ export function BriefItems({ items, valueEvidence }: { items: BriefItem[]; value
         const calc = i.impact_calc?.steps ? (i.impact_calc as ImpactCalc) : i.impact_inputs ? impactFor(i.impact_inputs) : null;
         const ev = valueEvidence?.[i.metric_id];
         return (
-          <li key={i.metric_id + n} className="border-l-4 border-up pl-4">
+           <li key={i.metric_id + n} className="border-l-4 border-editorial-red py-2 pl-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">{i.family}</p>
             <dl className="mt-1 grid gap-1 text-sm sm:grid-cols-[8rem_1fr]">
               <dt className="font-semibold">อะไรเปลี่ยน</dt>
-              <dd className="font-display text-lg leading-snug">{i.what}</dd>
+               <dd className="text-lg font-medium leading-relaxed">{i.what}</dd>
               <dt className="font-semibold">สำคัญแค่ไหน</dt>
               <dd><span className="font-semibold">{i.importance}</span> — {i.why}</dd>
               {(calc || i.impact) && (
@@ -79,7 +79,7 @@ export function BriefItems({ items, valueEvidence }: { items: BriefItem[]; value
                     {" · "}ค่าที่ใช้เทียบ: {ev.prev ? <Link to="/evidence" className="underline">ไฟล์ #{ev.prev}</Link> : <span className="text-destructive">ไม่มีไฟล์ดิบ (เก็บก่อนเริ่มระบบเก็บไฟล์)</span>}
                   </dd>
                 </>)}
-                <dt className="font-semibold">เลือกเพราะ</dt>
+                 <dt className="font-semibold">เหตุผลที่เป็นสัญญาณ</dt>
                 <dd className="text-xs">
                   กฎ {i.rule ?? "—"}{i.score ? ` · คะแนน ${i.score.total} = ความรุนแรง ${i.score.severity_weight} × ความแรง ${Number(i.score.z_factor ?? 1).toFixed(2)} × แหล่ง ${i.score.trust_factor} × ครัวเรือน ${i.score.reach} × ไฟล์ดิบ ${i.score.evidence_factor ?? "—"}` : ""}
                   {i.event_id && <> · <Link to="/events/$id" params={{ id: i.event_id }} className="underline">หลักฐานและกฎ (รุ่น {i.version})</Link></>}

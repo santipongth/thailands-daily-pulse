@@ -66,39 +66,39 @@ function BriefPage() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-5xl px-4 py-8">
+      <main className="mx-auto max-w-5xl px-4 py-8 font-editorial-body">
         <nav aria-label="ฉบับ Daily Brief" className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-b border-foreground pb-3 text-sm sm:flex sm:items-center sm:justify-between">
           <Link to="/brief/$date" params={{ date: shiftDate(date, -1) }} className="hover:underline">← วันก่อน</Link>
           <Link to="/brief" className="hover:underline">คลังทั้งหมด</Link>
           {date < bkkToday() && <Link to="/brief/$date" params={{ date: shiftDate(date, 1) }} className="col-span-2 text-right hover:underline sm:col-span-1">วันถัดไป →</Link>}
         </nav>
-        <header className="my-8 border-b-4 border-double border-foreground pb-5 text-center">
-          <p className="text-xs font-semibold uppercase text-headline-red">Daily Brief · Thailand Daily Signals</p>
-          <h1 className="mt-3 font-display text-3xl leading-tight sm:text-4xl">{thaiDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</h1>
+        <header className="my-8 border-b-4 border-editorial-red pb-5 text-center">
+           <p className="font-editorial text-3xl italic text-editorial-red">สรุปสัญญาณประจำวัน · Thailand Daily Signals</p>
+          <h1 className="mt-3 font-editorial-body text-2xl font-semibold leading-relaxed text-editorial-ink sm:text-3xl">{thaiDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</h1>
         </header>
-        {!data ? (
-          <p className="mt-6 text-muted-foreground">ยังไม่มี Brief ของวันนี้ ฉบับถัดไปเผยแพร่เวลา 06:00 น.</p>
+         {!data ? (
+           <p className="mt-6 text-muted-foreground">ยังไม่มีสรุปของวันนี้ ฉบับถัดไปมีกำหนดเผยแพร่เวลา 06:00 น.</p>
         ) : (
           <>
             <div className="mx-auto max-w-3xl"><BriefFrontPage date={date} items={(data.items ?? []) as BriefItem[]} edition={data.edition} cutoff={data.cutoff_at} /></div>
             <div className="mx-auto max-w-3xl">
             <p className="mt-6 text-xs text-muted-foreground">
-              {data.published_at ? `เผยแพร่ ${new Date(data.published_at).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.` : "ฉบับระหว่างวัน (ฉบับทางการเผยแพร่ 06:00 น.)"} · บทนำเรียบเรียงโดย AI จากข้อเท็จจริงด้านล่างเท่านั้น
+               {data.published_at ? `เผยแพร่ ${new Date(data.published_at).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.` : "ฉบับระหว่างวัน (ฉบับประจำเช้าเผยแพร่ 06:00 น.)"} · บทนำเรียบเรียงโดย AI จากข้อเท็จจริงด้านล่างเท่านั้น
             </p>
             {data.cutoff_at && <p className="mt-1 text-sm font-semibold">ข้อมูลถึง {hm(data.cutoff_at)} น. — ข้อมูลที่ได้รับหลังเวลานี้เข้าเป็นอัปเดตด้านล่างหรือฉบับถัดไป</p>}
-            <section id="summary" className="mt-10 border-t-4 border-double border-foreground pt-5">
-              <h2 className="font-display text-2xl">สรุปประจำวัน</h2>
-              <p className="mt-4 font-display text-2xl leading-relaxed">{data.body}</p>
+             <section id="summary" className="mt-10 border-t border-editorial-ink pt-5">
+               <h2 className="font-editorial text-3xl text-editorial-red">สรุปประจำวัน</h2>
+               <p className="mt-4 font-editorial-body text-xl font-medium leading-relaxed">{data.body}</p>
               <p className="mt-2 text-xs text-muted-foreground">ตัวเลขทั้งหมดคำนวณโดยระบบจากข้อมูลทางการ — AI ใช้เรียบเรียงภาษาบทนำเท่านั้น และถูกตรวจว่าไม่เพิ่มตัวเลขใหม่</p>
               <div className="mt-6"><BriefItems items={(data.items ?? []) as BriefItem[]} valueEvidence={data.valueEvidence} /></div>
             </section>
-            <section id="comparison" className="mt-12 border-t-4 border-double border-foreground pt-5">
-              <h2 className="font-display text-2xl">เทียบกับวันก่อนหน้า</h2>
+             <section id="comparison" className="mt-12 border-t border-editorial-ink pt-5">
+               <h2 className="font-editorial text-3xl text-editorial-red">เทียบกับวันก่อนหน้า</h2>
               <CompareWithPrev cur={data} prev={data.prev} />
             </section>
             {data.updates.length > 0 && (
-              <section id="updates" className="mt-12 border-t-4 border-double border-foreground pt-5">
-                <h2 className="font-display text-2xl">อัปเดตหลังเผยแพร่</h2>
+               <section id="updates" className="mt-12 border-t border-editorial-ink pt-5">
+                 <h2 className="font-editorial text-3xl text-editorial-red">อัปเดตหลังเผยแพร่</h2>
                 <ul className="mt-4 divide-y divide-border text-sm">
                   {data.updates.map((u: any) => (
                     <li key={u.id} className="py-2"><span className="font-semibold">{hm(u.created_at)} น. · {({ update: "เหตุใหม่", correction: "แก้ไข", withdrawal: "ถอน" } as Record<string, string>)[u.kind] ?? u.kind}</span> — {u.title}{u.body ? ` (${u.body})` : ""} {u.event_id && <Link to="/events/$id" params={{ id: u.event_id }} className="text-xs underline">รุ่น {u.version}</Link>}</li>
@@ -106,8 +106,8 @@ function BriefPage() {
                 </ul>
               </section>
             )}
-            <section id="daily-data" className="mt-12 border-t-4 border-double border-foreground pt-5">
-              <h2 className="font-display text-2xl">ข้อมูลและกราฟรายวัน</h2>
+             <section id="daily-data" className="mt-12 border-t border-editorial-ink pt-5">
+               <h2 className="font-editorial text-3xl text-editorial-red">ข้อมูลและกราฟรายวัน</h2>
               <SocialFeed from={(data as any).data_window?.from ?? `${date}T00:00:00+07:00`} to={data.cutoff_at ?? (data as any).data_window?.to ?? null} />
               <DamsBox date={date} cutoff={data.cutoff_at ?? (data as any).data_window?.to ?? null} />
               <ForecastCompare date={date} />
@@ -115,8 +115,8 @@ function BriefPage() {
               <DailyTrends date={date} />
               <AllMetricsCompare date={date} cutoff={data.cutoff_at ?? (data as any).data_window?.to ?? null} completeness={Array.isArray(data.completeness) ? (data.completeness as Completeness[]) : null} />
             </section>
-            <section id="sources" className="mt-12 border-t-4 border-double border-foreground pt-5">
-              <h2 className="font-display text-2xl">ช่วงข้อมูลและความครบถ้วน</h2>
+             <section id="sources" className="mt-12 border-t border-editorial-ink pt-5">
+               <h2 className="font-editorial text-3xl text-editorial-red">ข้อมูลที่ใช้และแหล่งที่ตรวจสอบไม่ได้</h2>
             {(data as any).data_window && (() => { const w = (data as any).data_window; return (
               <div className="mt-4 border-y border-border py-3 text-sm">
                 <p className="font-semibold">ช่วงข้อมูลที่นับ: {hm(w.from)} → {hm(w.to)} น. ของวันนี้ · ได้รับหลังจากนั้น = ตัดออก</p>
@@ -137,7 +137,7 @@ function BriefPage() {
               </div>
             )}
             </section>
-            <section id="household" className="mt-12 border-t-4 border-double border-foreground pt-5">
+             <section id="household" className="mt-12 border-t border-editorial-ink pt-5">
               <HouseholdBasket date={date} />
             </section>
             <Link to="/day/$date" params={{ date }} className="mt-4 inline-block text-sm underline">ดูอันดับสัญญาณทั้งหมดของวันนี้ เทียบเมื่อวาน →</Link>
@@ -164,15 +164,15 @@ function CompareWithPrev({ cur, prev }: { cur: any; prev: any }) {
   ];
   return (
     <div className="mt-4 overflow-x-auto border-y border-border py-3 text-sm">
-      <h2 className="font-semibold">เทียบกับฉบับก่อนหน้า ({prev.brief_date})</h2>
+       <h3 className="font-semibold">เทียบกับฉบับก่อนหน้า ({thaiDate(prev.brief_date, { day: "numeric", month: "long", year: "numeric" })})</h3>
       <table className="mt-2 w-full">
-        <thead><tr className="text-left"><th></th><th>{prev.brief_date}</th><th>วันนี้</th></tr></thead>
+         <thead><tr className="text-left"><th>รายการ</th><th>{thaiDate(prev.brief_date, { day: "numeric", month: "short" })}</th><th>วันนี้</th></tr></thead>
         <tbody>{rows.map(([k, a, b]) => <tr key={k} className="border-t border-border"><td className="py-1">{k}</td><td>{a}</td><td className={a !== b ? "font-semibold" : ""}>{b}</td></tr>)}</tbody>
       </table>
       <ul className="mt-2 space-y-0.5">
         {metrics.map((m) => {
           const a = pi.find((i) => i.metric_id === m), b = ci.find((i) => i.metric_id === m);
-          return <li key={m}>{(b ?? a).what}: {b && a ? (b.what === a.what ? "ไม่เปลี่ยน" : "ข้อมูลจริงเปลี่ยน") : b ? "ข้อมูลจริงเปลี่ยน (ใหม่วันนี้)" : "ไม่อยู่ในฉบับวันนี้"}</li>;
+           return <li key={m}>{(b ?? a).what}: {b && a ? (b.what === a.what ? "คำอธิบายเหตุการณ์เหมือนฉบับก่อน" : "คำอธิบายเหตุการณ์เปลี่ยน") : b ? "มีเหตุการณ์ใหม่ในฉบับวันนี้" : "ไม่อยู่ในฉบับวันนี้ — อาจไม่เกินเกณฑ์หรือไม่มีข้อมูลที่ยืนยันได้"}</li>;
         })}
         {!metrics.length && <li className="text-muted-foreground">ทั้งสองฉบับไม่มีเหตุการณ์</li>}
       </ul>
