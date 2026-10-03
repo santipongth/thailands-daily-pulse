@@ -21,7 +21,7 @@ export const Route = createFileRoute("/api/public/v1/$")({ staticData: { sitemap
     if (date && !validDate(date)) return json({ error: { code: "invalid_query", message: "date must use YYYY-MM-DD" } }, 400);
     if (id && id.length > 160) return json({ error: { code: "invalid_query", message: "id is too long" } }, 400);
     const spec = map[resource]; if (!PUBLIC_TABLES.has(spec.table)) return json({ error: { code: "forbidden_resource", message: "Resource is not public" } }, 403);
-    const filters: Record<string, string> = {}; if (date && spec.date) filters[spec.date] = date; if (id && spec.id) filters[spec.id] = id;
+    const filters: Record<string, string> = {}; if (date && spec.date) filters[spec.date] = date; if (id && spec.id) { const ev = resource === "signals" ? /^([a-z0-9_]+):(\d{4}-\d{2}-\d{2})$/.exec(id) : null; if (ev) { filters["metric_id"] = ev[1]!; filters["signal_date"] = ev[2]!; } else filters[spec.id] = id; }
     try { const data = await readPublicRows(spec.table, { limit, order: spec.order, filters }); return json({ data, meta: { resource, count: data.length, limit, timezone: "Asia/Bangkok", read_only: true, note: spec.note ?? null } }); }
     catch { return json({ error: { code: "read_failed", message: "Public data could not be read" } }, 500); }
   },
