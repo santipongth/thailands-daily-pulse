@@ -11,12 +11,24 @@ export const listSourceConfig = createServerFn({ method: "POST" })
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { allSources, loadConfigs } = await import("./source-config.server");
-    const [list, cfg, { data: runs }] = await Promise.all([
+    const [list, cfg, { data: runs }, { data: br }] = await Promise.all([
       allSources(), loadConfigs(supabaseAdmin),
       supabaseAdmin.from("source_runs").select("source,ok,ran_at,rows,error,sample"),
+      supabaseAdmin.from("source_breaker").select("source,fail_streak,open_until"),
     ]);
     const byRun = new Map((runs ?? []).map((r) => [r.source, r]));
-    return list.map((s) => ({ source: s.source, config: cfg.get(s.source) ?? null, run: byRun.get(s.source) ?? null }));
+    const byBr = new Map((br ?? []).map((r) => [r.source, r]));
+    return list.map((s) => ({ source: s.source, config: cfg.get(s.source) ?? null, run: byRun.get(s.source) ?? null, breaker: byBr.get(s.source) ?? null }));
+  });
+
+/** Admin: lift a circuit-breaker pause now. */
+export const resetBreaker = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((d) => z.object({ source: z.string().min(1).max(200) }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("source_breaker").upsert({ source: data.source, fail_streak: 0, open_until: null, probe: false, updated_at: new Date().toISOString() }, { onConflict: "source" });
+    return error ? { ok: false as const, error: error.message } : { ok: true as const };
   });
 
 export const saveSourceConfig = createServerFn({ method: "POST" })

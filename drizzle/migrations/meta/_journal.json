@@ -260,6 +260,13 @@
       "when": 1791045009617,
       "tag": "0036_news_items_kind",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1791047808438,
+      "tag": "0037_source_breaker",
+      "breakpoints": true
     }
   ]
 }

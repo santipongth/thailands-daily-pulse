@@ -862,6 +862,30 @@ export type Database = {
           },
         ]
       }
+      source_breaker: {
+        Row: {
+          fail_streak: number
+          open_until: string | null
+          probe: boolean
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          fail_streak?: number
+          open_until?: string | null
+          probe?: boolean
+          source: string
+          updated_at?: string
+        }
+        Update: {
+          fail_streak?: number
+          open_until?: string | null
+          probe?: boolean
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       source_config: {
         Row: {
           daily_hour: number | null

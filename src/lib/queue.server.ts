@@ -201,6 +201,9 @@ export async function drain(admin: any, date: string, budgetMs = 240e3, maxJobs 
       await admin.from("source_run_history").insert(runs.map((r) => ({ source: r.source, ran_at: r.ran_at, ok: r.ok, rows: r.rows, error: r.error, run_kind: job.run_kind })));
     }
     const retry = allFailed && job.attempts < job.max_attempts;
+    // Circuit breaker counts finished rounds (not each retry); TMD mid-write files don't count as failures.
+    const midWriteOnly = runs.length > 0 && runs.every((r) => r.ok || r.error?.includes("ใช้ค่ารอบก่อน"));
+    if (!retry) await import("./breaker.server").then((b) => b.recordBreaker(admin, job.source, allFailed && !midWriteOnly)).catch((e) => console.error("breaker", e));
     // provider rate-limit (429): retry sooner (15 min) so a pre-05:45 run still has a chance
     const limited = runs.some((r) => r.error?.startsWith("429"));
     // TMD mid-write file (empty/partial): the next complete file is usually ready within minutes

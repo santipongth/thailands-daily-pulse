@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteRouteImport } from './routes/_admin/route'
+import { Route as CostTrendRouteImport } from './routes/cost-trend'
 import { Route as DataAllRouteImport } from './routes/data-all'
 import { Route as DataMapRouteImport } from './routes/data-map'
 import { Route as DevelopersRouteImport } from './routes/developers'
@@ -45,6 +46,7 @@ import { Route as AdminAgenciesAgencyRouteImport } from './routes/_admin/agencie
 import { Route as AdminEventsIndexRouteImport } from './routes/_admin/events.index'
 import { Route as AdminEventsIdRouteImport } from './routes/_admin/events.$id'
 import { Route as ApiPublicBriefRouteImport } from './routes/api/public/brief'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
 import { Route as ApiPublicOpenapiDotjsonRouteImport } from './routes/api/public/openapi[.]json'
 import { Route as StationKindIdRouteImport } from './routes/station.$kind.$id'
@@ -58,6 +60,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AdminRouteRoute = AdminRouteRouteImport.update({
   id: '/_admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CostTrendRoute = CostTrendRouteImport.update({
+  id: '/cost-trend',
+  path: '/cost-trend',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DataAllRoute = DataAllRouteImport.update({
@@ -230,6 +237,11 @@ const ApiPublicBriefRoute = ApiPublicBriefRouteImport.update({
   path: '/api/public/brief',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicIngestRoute = ApiPublicIngestRouteImport.update({
   id: '/api/public/ingest',
   path: '/api/public/ingest',
@@ -258,6 +270,7 @@ const ApiPublicOgBriefDateRoute = ApiPublicOgBriefDateRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cost-trend': typeof CostTrendRoute
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
@@ -290,6 +303,7 @@ export interface FileRoutesByFullPath {
   '/agencies/$agency': typeof AdminAgenciesAgencyRoute
   '/events/$id': typeof AdminEventsIdRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
   '/station/$kind/$id': typeof StationKindIdRoute
@@ -300,6 +314,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cost-trend': typeof CostTrendRoute
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/failures': typeof FailuresRoute
@@ -331,6 +346,7 @@ export interface FileRoutesByTo {
   '/agencies/$agency': typeof AdminAgenciesAgencyRoute
   '/events/$id': typeof AdminEventsIdRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
   '/station/$kind/$id': typeof StationKindIdRoute
@@ -343,6 +359,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteRouteWithChildren
+  '/cost-trend': typeof CostTrendRoute
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
@@ -375,6 +392,7 @@ export interface FileRoutesById {
   '/_admin/agencies/$agency': typeof AdminAgenciesAgencyRoute
   '/_admin/events/$id': typeof AdminEventsIdRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
   '/station/$kind/$id': typeof StationKindIdRoute
@@ -387,6 +405,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/cost-trend'
     | '/data-all'
     | '/data-map'
     | '/developers'
@@ -419,6 +438,7 @@ export interface FileRouteTypes {
     | '/agencies/$agency'
     | '/events/$id'
     | '/api/public/brief'
+    | '/api/public/health'
     | '/api/public/ingest'
     | '/api/public/openapi.json'
     | '/station/$kind/$id'
@@ -429,6 +449,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/cost-trend'
     | '/data-all'
     | '/data-map'
     | '/failures'
@@ -460,6 +481,7 @@ export interface FileRouteTypes {
     | '/agencies/$agency'
     | '/events/$id'
     | '/api/public/brief'
+    | '/api/public/health'
     | '/api/public/ingest'
     | '/api/public/openapi.json'
     | '/station/$kind/$id'
@@ -471,6 +493,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_admin'
+    | '/cost-trend'
     | '/data-all'
     | '/data-map'
     | '/developers'
@@ -503,6 +526,7 @@ export interface FileRouteTypes {
     | '/_admin/agencies/$agency'
     | '/_admin/events/$id'
     | '/api/public/brief'
+    | '/api/public/health'
     | '/api/public/ingest'
     | '/api/public/openapi.json'
     | '/station/$kind/$id'
@@ -515,6 +539,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
+  CostTrendRoute: typeof CostTrendRoute
   DataAllRoute: typeof DataAllRoute
   DataMapRoute: typeof DataMapRoute
   DevelopersRoute: typeof DevelopersRouteWithChildren
@@ -532,6 +557,7 @@ export interface RootRouteChildren {
   SignalsFamilyRoute: typeof SignalsFamilyRoute
   BriefIndexRoute: typeof BriefIndexRoute
   ApiPublicBriefRoute: typeof ApiPublicBriefRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
   ApiPublicOpenapiDotjsonRoute: typeof ApiPublicOpenapiDotjsonRoute
   StationKindIdRoute: typeof StationKindIdRoute
@@ -553,6 +579,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cost-trend': {
+      id: '/cost-trend'
+      path: '/cost-trend'
+      fullPath: '/cost-trend'
+      preLoaderRoute: typeof CostTrendRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/data-all': {
@@ -793,6 +826,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBriefRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/ingest': {
       id: '/api/public/ingest'
       path: '/api/public/ingest'
@@ -888,6 +928,7 @@ const DevelopersRouteWithChildren = DevelopersRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
+  CostTrendRoute: CostTrendRoute,
   DataAllRoute: DataAllRoute,
   DataMapRoute: DataMapRoute,
   DevelopersRoute: DevelopersRouteWithChildren,
@@ -905,6 +946,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignalsFamilyRoute: SignalsFamilyRoute,
   BriefIndexRoute: BriefIndexRoute,
   ApiPublicBriefRoute: ApiPublicBriefRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
   ApiPublicOpenapiDotjsonRoute: ApiPublicOpenapiDotjsonRoute,
   StationKindIdRoute: StationKindIdRoute,

@@ -30,4 +30,3 @@
 - Retention: `pruneOldJobs` (daily run + admin button) deletes done/failed jobs and run history older than 30 days; evidence never deleted. Public API v1 rate-limited 120/min/IP via `hit_rate_limit`; detection/rank/claim SQL functions executable by service role only.
 - Brief share image = `/api/public/og/brief/$date` streaming the day's AI hero (no text); `/search` queries real signals and brief_updates only.
 - Admin source control: `source_config` (admin-read RLS, service-role writes via `requireAdmin` fns) overrides per source on/off, schedule (default/hourly/3h/daily@hour/hourly_range start–end else 3h/manual) + `extra_hours` rounds, request mode, attempts, retry delay; applied in `applySourceConfig` + `drain` (`setRequestMode`); no row/default = built-in cadence — brief cutoff/publish untouched.
-- `/raw-log` (admin) lists raw_evidence fetches with values read via `observations.evidence_id`; TMD 3h run `sample` names the station actually used.
