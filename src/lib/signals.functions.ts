@@ -26,6 +26,7 @@ export const retrySources = createServerFn({ method: "POST" }).middleware([requi
 
 /** Short-lived link to an archived raw evidence file (public data; bucket stays private). */
 export const evidenceUrl = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
   .inputValidator((d: { id: number }) => ({ id: Number(d.id) }))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -38,6 +39,7 @@ export const evidenceUrl = createServerFn({ method: "POST" })
 
 /** Line diff of a raw evidence file vs the previous file fetched from the same URL (text files only). */
 export const evidenceDiff = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
   .inputValidator((d: { id: number }) => ({ id: Number(d.id) }))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
