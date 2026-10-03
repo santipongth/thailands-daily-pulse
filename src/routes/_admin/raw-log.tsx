@@ -25,7 +25,8 @@ const CATS: { v: string; label: string; re: RegExp }[] = [
   { v: "weather", label: "อากาศ / แผ่นดินไหว", re: /กรมอุตุ|TMD/ },
   { v: "water", label: "น้ำ / เขื่อน", re: /ThaiWater \(|RID|ชลประทาน/ },
   { v: "flood", label: "น้ำท่วม / น้ำท้องถิ่น", re: /ThaiWater สถานี|กทม\.|ปภ\./ },
-  { v: "air", label: "ฝุ่น PM2.5", re: /GISTDA/ },
+  { v: "air", label: "ฝุ่น PM2.5", re: /GISTDA|Air4Thai/ },
+  { v: "rail", label: "รถไฟฟ้า", re: /รถไฟฟ้า|BTS|MRT/ },
   { v: "price", label: "ราคา", re: /PTT|ทองคำ|Exchange|CheckRaka|RakaKaset|น้ำมัน/ },
   { v: "traffic", label: "จราจร", re: /Longdo|FM91/ },
 ];
