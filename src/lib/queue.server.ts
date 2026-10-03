@@ -4,7 +4,7 @@
 import { politeFetch } from "./http.server";
 
 type Run = { source: string; ok: boolean; rows: number; error: string | null; ran_at: string; kind?: string; url?: string; sample?: string | null };
-type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> };
+type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> | undefined };
 type Ctx = { admin: any; date: string };
 
 const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = {
