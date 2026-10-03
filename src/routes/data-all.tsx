@@ -6,6 +6,7 @@ import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
 import { makeReasonOf, srcOf, type Run, type Release } from "@/lib/missing-reason";
 import { StationMap } from "@/components/station-map";
+import { DamsMonitor } from "@/components/dams-monitor";
 
 // Every metric the site really collected (is_demo = false): latest vs previous value, change, daily chart.
 const allQuery = queryOptions({
@@ -55,6 +56,7 @@ function DataAll() {
         <h1 className="font-display text-3xl">ข้อมูลทั้งหมดที่เก็บได้จริง</h1>
         <p className="mt-1 text-sm text-muted-foreground">ข้อมูลจริงเท่านั้น (ไม่รวมข้อมูลตัวอย่าง) · มีค่า {withData.size} จาก {data.metrics.length} ตัวชี้วัด · กดแถวเพื่อดูกราฟรายวันขนาดใหญ่</p>
         <StationMap />
+        <DamsMonitor />
         {data.families.map((f) => {
           const ms = data.metrics.filter((m) => m.family_id === f.id);
           if (!ms.length) return null;
