@@ -21,3 +21,20 @@ describe("dated price sources", () => {
     expect(() => thaiPriceDate("no date")).toThrow();
   });
 });
+import { readFileSync } from "node:fs";
+import { parseLpgAiResult } from "./daily-prices";
+describe("AI-read EPPO LPG page", () => {
+  const page = readFileSync(new URL("./__fixtures__/eppo-lpg.md", import.meta.url), "utf8");
+  const ok = { price_15kg: 423, effective_date: "2023-03-01", as_of_date: "2026-10-04", price_quote: "- 15 กก. (kg.) | 423", date_quote: "1 Mar 2023" };
+  it("accepts quotes that are on the page", () => {
+    expect(parseLpgAiResult(ok, page, "2026-10-04")).toEqual({ price: 423, effective: "2023-03-01", asOf: "2026-10-04" });
+  });
+  it("rejects invented quotes, wrong dates and out-of-range prices", () => {
+    expect(() => parseLpgAiResult({ ...ok, price_15kg: 410, price_quote: "- 15 กก. (kg.) | 410" }, page, "2026-10-04")).toThrow(/ไม่พบ/);
+    expect(() => parseLpgAiResult({ ...ok, effective_date: "2026-09-17", date_quote: "1 Mar 2023" }, page, "2026-10-04")).toThrow(/วันที่มีผล/);
+    expect(() => parseLpgAiResult({ ...ok, price_15kg: 42 }, page, "2026-10-04")).toThrow(/นอกช่วง/);
+  });
+  it("falls back to today when the page date is missing", () => {
+    expect(parseLpgAiResult({ ...ok, effective_date: null, as_of_date: null }, page, "2026-10-04").asOf).toBe("2026-10-04");
+  });
+});
