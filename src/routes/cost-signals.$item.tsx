@@ -95,6 +95,7 @@ function Chart({ title, rows, th, unit }: { title: string; rows: Block[]; th: nu
   return (
     <section className="mt-8">
       <h2 className="font-editorial text-2xl text-editorial-red">{title}</h2>
+      <p className="text-xs text-muted-foreground">แท่งสีแดง = เปลี่ยนจากช่วงก่อนเกิน ±{th ?? "—"}% (เกณฑ์ที่เลือก ก่อนคูณความน่าเชื่อถือและความครบของข้อมูล)</p>
       <div className="mt-2 h-60"><ResponsiveContainer><BarChart data={data}>
         <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" /><XAxis dataKey="k" fontSize={11} /><YAxis fontSize={11} unit="%" />
         <Tooltip formatter={(v: number) => `${v?.toFixed?.(1)}%`} labelFormatter={(_l, p) => (p?.[0]?.payload?.range ?? "")} />
