@@ -65,10 +65,12 @@ async function firecrawlJson(url: string): Promise<any> {
 export const CONNECTORS: Connector[] = [
   {
     source: "สนพ. (ราคา LPG ถัง 15 กก.)",
-    run: async (date) => {
-      const { LPG_URL, parseLpg } = await import("./daily-prices");
-      const { price, date: observed } = parseLpg(await json(LPG_URL), date);
-      return { values: { lpg: price }, dates: { lpg: observed }, sample: `ปตท. ถัง 15 กก. ${price} บาท · วันที่ประกาศราคา ${observed}` };
+    // AI reads the rendered EPPO page; the reading is dated by EPPO's "ณ วันที่" (price confirmed that day),
+    // and the page's own effective date is kept in the sample — an unchanged old price is not a new signal.
+    run: async (date, ctx) => {
+      const { readLpgWithAi } = await import("./lpg-ai.server");
+      const r = await readLpgWithAi(date, ctx?.admin);
+      return { values: { lpg: r.price }, dates: { lpg: r.asOf }, sample: `ปตท. ถัง 15 กก. ${r.price} บาท · มีผลตั้งแต่ ${r.effective ?? "หน้าไม่ระบุ"} · ยืนยันจากหน้า สนพ. วันที่ ${r.asOf}` };
     },
   },
   {

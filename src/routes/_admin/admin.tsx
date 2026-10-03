@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ADMIN_LINKS } from "./route";
+import { StaleSourcesAlert } from "@/components/stale-sources-alert";
 
 export const Route = createFileRoute("/_admin/admin")({
   staticData: { sitemap: false },
@@ -39,6 +40,7 @@ function AdminHome() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 font-editorial-body">
       <h1 className="font-editorial text-4xl">ภาพรวมระบบ</h1>
+      <StaleSourcesAlert />
       <div className="mt-4 flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => act("ดึงข้อมูลใหม่ทุกแหล่ง", () => retry())}>ดึงข้อมูลใหม่ทุกแหล่ง</Button>
         <Button variant="outline" onClick={() => act("ส่งงานที่ล้ม (24 ชม.) เข้าคิวใหม่", () => requeue())}>ส่งงานที่ล้มเข้าคิวใหม่</Button>
