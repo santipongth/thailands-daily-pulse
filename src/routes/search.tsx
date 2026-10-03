@@ -61,7 +61,7 @@ function SearchPage() {
   const items: Item[] = [];
   if (data) {
     if (tab !== "updates") for (const s of data.signals) {
-      const [label, cls] = SEV[s.severity] ?? SEV.low!;
+      const [label, cls] = SEV[s.severity] ?? SEV["low"]!;
       const pct = s.change_pct === null ? null : Number(s.change_pct);
       items.push({ key: `s${s.id}`, date: s.signal_date, kind: "signal", node: (
         <article className="grid gap-1 py-4 sm:grid-cols-[6rem_1fr_auto] sm:gap-5">
