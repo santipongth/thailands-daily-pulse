@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BASKET, basketLines } from "@/lib/impact";
@@ -43,7 +44,7 @@ export function HouseholdBasket({ date }: { date: string }) {
         </table>
       </div>
       <p className="mt-4 text-sm">เทียบครั้งก่อน <b>{sign(delta)} บาท/วัน</b> · ประมาณ <b>{sign(delta * 30)} บาท/เดือน</b></p>
-      <p className="mt-5 border-t border-editorial-rule pt-3 text-xs leading-relaxed text-muted-foreground">สูตร: (ราคาล่าสุด − ราคาก่อน) × ปริมาณต่อวัน; ต่อเดือน = × 30 · ปริมาณตะกร้าเป็นค่าสมมติของครอบครัว 3–4 คน</p>
+      <p className="mt-5 border-t border-editorial-rule pt-3 text-xs leading-relaxed text-muted-foreground">สูตร: (ราคาล่าสุด − ราคาก่อน) × ปริมาณต่อวัน; ต่อเดือน = × 30 · ปริมาณตะกร้าเป็นค่าสมมติของครอบครัว 3–4 คน · <Link to="/cost-trend" className="underline">ดูแนวโน้ม 30 วัน →</Link></p>
       </>}
     </section>
   );
