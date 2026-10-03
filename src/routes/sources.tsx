@@ -30,13 +30,13 @@ function Sources() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="font-display text-4xl">ทะเบียนแหล่งข้อมูล</h1>
+      <main className="page-shell">
+        <h1 className="font-editorial text-4xl sm:text-5xl">ทะเบียนแหล่งข้อมูล</h1>
         <p className="mt-2 text-muted-foreground">ทุกแหล่งมีเจ้าของ ช่องทาง สิทธิ์ใช้ รอบอัปเดต หน่วย พื้นที่ และเกณฑ์ "ข้อมูลเก่า" — แหล่งที่เก่าหรือตรวจสอบไม่ได้จะถูกแสดงตามนั้น ไม่ถูกนับว่า "ไม่เปลี่ยน"</p>
         <div className="mt-6 overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[940px] text-sm">
             <thead>
-              <tr className="border-b-2 border-foreground text-left align-bottom">
+              <tr className="border-b-2 border-editorial-ink text-left align-bottom">
                 <th className="py-2 pr-2">แหล่ง / เจ้าของ</th><th className="pr-2">ช่องทาง</th><th className="pr-2">สิทธิ์ใช้</th><th className="pr-2">รอบอัปเดต</th><th className="pr-2">หน่วย</th><th className="pr-2">พื้นที่</th><th className="pr-2">ถือว่าเก่าเมื่อ</th><th>สถานะวันนี้</th>
               </tr>
             </thead>

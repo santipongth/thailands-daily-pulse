@@ -99,7 +99,7 @@ svg, canvas { max-width: 100%; }
   --color-editorial-rule: var(--editorial-rule);
   --color-editorial-surface: var(--editorial-surface);
   --font-editorial: "Instrument Serif", "Noto Serif Thai", serif;
-  --font-editorial-body: "Work Sans", "Noto Sans Thai", sans-serif;
+  --font-editorial-body: "IBM Plex Sans Thai", "Noto Sans Thai", sans-serif;
   --font-sans: "IBM Plex Sans Thai", system-ui, sans-serif;
   --font-display: "Noto Serif Thai", Georgia, serif;
 }

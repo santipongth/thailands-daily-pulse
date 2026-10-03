@@ -58,21 +58,21 @@ function EvidencePage() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="font-display text-4xl">ไฟล์ดิบจากแต่ละหน่วยงาน</h1>
+      <main className="page-shell">
+        <h1 className="font-editorial text-4xl sm:text-5xl">ไฟล์ดิบจากแต่ละหน่วยงาน</h1>
         <p className="mt-2 text-muted-foreground">ไฟล์ต้นฉบับทุกครั้งที่ระบบดึง พร้อมวันที่ และเทียบกับไฟล์ก่อนหน้าจากที่อยู่เดียวกัน (รหัส SHA-256 เหมือนกัน = เนื้อหาเหมือนเดิมทุกไบต์)</p>
         <div className="mt-4 flex flex-wrap gap-3 text-sm">
-          <select value={src} onChange={(e) => setSrc(e.target.value)} className="border-2 border-foreground bg-background px-2 py-1" aria-label="เลือกแหล่ง">
+          <select value={src} onChange={(e) => setSrc(e.target.value)} className="border border-editorial-rule bg-background px-3 py-2" aria-label="เลือกแหล่ง">
             <option value="">ทุกแหล่ง</option>
             {sources.map((s) => <option key={s}>{s}</option>)}
           </select>
-          <input type="date" value={day} onChange={(e) => setDay(e.target.value)} className="border-2 border-foreground bg-background px-2 py-1" aria-label="เลือกวันที่" />
+          <input type="date" value={day} onChange={(e) => setDay(e.target.value)} className="border border-editorial-rule bg-background px-3 py-2" aria-label="เลือกวันที่" />
           {(src || day) && <button className="underline" onClick={() => { setSrc(""); setDay(""); }}>ล้างตัวกรอง</button>}
         </div>
         {groups.size === 0 && <p className="mt-6 text-muted-foreground">ไม่มีไฟล์ตามตัวกรองนี้</p>}
         {[...groups].map(([source, list]) => (
           <section key={source} className="mt-8">
-            <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">{source} <span className="text-sm font-normal text-muted-foreground">({list.length} ไฟล์)</span></h2>
+            <h2 className="section-heading text-2xl">{source} <span className="font-editorial-body text-sm font-normal text-muted-foreground">({list.length} ไฟล์)</span></h2>
             <ul className="mt-2 divide-y divide-border text-sm">
               {list.map((e) => <EvRow key={e.id} e={e} prev={prevOf.get(e.id)} />)}
             </ul>

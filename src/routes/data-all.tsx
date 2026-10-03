@@ -54,8 +54,8 @@ function DataAll() {
   return (
     <div className="min-h-screen bg-background">
       <Masthead />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="font-display text-3xl">ข้อมูลทั้งหมดที่เก็บได้จริง</h1>
+      <main className="page-shell">
+        <h1 className="font-editorial text-4xl sm:text-5xl">ข้อมูลทั้งหมดที่เก็บได้จริง</h1>
         <p className="mt-1 text-sm text-muted-foreground">ข้อมูลจริงเท่านั้น (ไม่รวมข้อมูลตัวอย่าง) · มีค่า {withData.size} จาก {data.metrics.length} ตัวชี้วัด · กดแถวเพื่อดูกราฟรายวันขนาดใหญ่</p>
         <StationMap />
         <DamsMonitor />
@@ -65,10 +65,10 @@ function DataAll() {
           if (!ms.length) return null;
           return (
             <section key={f.id} className="mt-8">
-              <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">{f.emoji} {f.name_th}</h2>
+              <h2 className="section-heading text-2xl">{f.emoji} {f.name_th}</h2>
               {f.id === "lottery" ? <div className="mt-2"><LatestLottery /></div> : null}
               <div className={f.id === "lottery" && !data.obs.some((o) => o.metric_id === "lotto") ? "hidden" : "overflow-x-auto"}>
-                <table className="mt-2 w-full text-sm">
+                <table className="mt-2 w-full min-w-[720px] text-sm">
                   <thead><tr className="text-left"><th>ตัวชี้วัด</th><th>ล่าสุด</th><th>ค่าเดิม</th><th>เปลี่ยน</th><th className="w-40">30 วัน</th></tr></thead>
                   <tbody>
                     {ms.map((m) => {

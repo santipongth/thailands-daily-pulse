@@ -66,12 +66,12 @@ function KeyData() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="font-display text-4xl">ข้อมูลสำคัญรายเดือน</h1>
+      <main className="page-shell">
+        <h1 className="font-editorial text-4xl sm:text-5xl">ข้อมูลสำคัญรายเดือน</h1>
         <p className="mt-2 text-muted-foreground">ตัวเลขจริงทุกตัวที่ใช้ใน Daily Brief · กราฟ = ค่าเฉลี่ยรายเดือนจากข้อมูลจริงรายวัน (ไม่รวมข้อมูลตัวอย่าง) · % = เดือนล่าสุดเทียบเดือนก่อน</p>
 
-        <section className="mt-6 border-2 border-foreground p-4">
-          <h2 className="font-display text-xl">Daily Brief ต่อเดือน</h2>
+        <section className="mt-6 border-t-2 border-editorial-ink bg-editorial-surface p-4 shadow-[var(--shadow-editorial)]">
+          <h2 className="font-editorial text-2xl text-editorial-red">Daily Brief ต่อเดือน</h2>
           <div className="mt-2 h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={[...briefMonths].map(([ym, v]) => ({ label: monthLabel(ym), ฉบับ: v.n, รายการ: v.items }))}>
@@ -91,12 +91,12 @@ function KeyData() {
           if (!ss.length) return null;
           return (
             <section key={f.id} className="mt-10">
-              <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">
+              <h2 className="section-heading text-2xl">
                 <Link to="/signals/$family" params={{ family: f.id }} className="hover:underline">{f.emoji} {f.name_th}</Link>
               </h2>
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 {ss.map(({ m, rows, last, pct, cur, prev }) => (
-                  <article key={m.id} className="border border-border p-3">
+                  <article key={m.id} className="border-t-2 border-editorial-ink bg-editorial-surface p-4 shadow-[var(--shadow-editorial)]">
                     <div className="flex items-baseline justify-between gap-2">
                       <h3 className="font-semibold">{m.name_th}</h3>
                       {pct != null && (

@@ -73,23 +73,23 @@ function AgencyPage() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-5xl px-4 py-8">
+      <main className="page-shell">
         <Link to="/agencies" className="text-sm hover:underline">← ทุกหน่วยงาน</Link>
-        <h1 className="mt-3 font-display text-4xl">{data.a.label}</h1>
+        <h1 className="mt-3 font-editorial text-4xl sm:text-5xl">{data.a.label}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{data.a.category === "government" ? "หน่วยงานรัฐ" : "แหล่งข้อมูลอื่น"}</p>
         <section className="mt-6">
-          <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">สถานะแหล่งข้อมูล</h2>
+          <h2 className="section-heading text-2xl">สถานะแหล่งข้อมูล</h2>
           <ul className="mt-2 text-sm">{data.a.sources.map((source) => {
             const run = data.runs.find((r) => r.source === source);
             return <li key={source} className="border-b border-border py-2"><strong>{source}</strong><span className="block text-muted-foreground">{!run ? "ยังไม่เคยดึงข้อมูล" : `${run.ok ? `ดึงสำเร็จ ${run.rows} รายการ` : `ดึงไม่สำเร็จ: ${run.error ?? "ไม่ทราบสาเหตุ"}`} · ${new Date(run.ran_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium", timeStyle: "short" })}`}</span></li>;
           })}</ul>
         </section>
         <section className="mt-6">
-          <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">ไทม์ไลน์สิ่งที่เปลี่ยนจริง (14 วัน)</h2>
+          <h2 className="section-heading text-2xl">ไทม์ไลน์สิ่งที่เปลี่ยนจริง (14 วัน)</h2>
           {days.map((d) => {
             const items = byDay.get(d)!;
             return (
-              <div key={d} className="grid grid-cols-[7rem_1fr] gap-4 border-b border-border py-3 text-sm">
+              <div key={d} className="grid gap-1 border-b border-editorial-rule py-3 text-sm sm:grid-cols-[7rem_minmax(0,1fr)] sm:gap-4">
                 <div className="text-muted-foreground">{thaiDate(d, { day: "numeric", month: "short", weekday: "short" })}</div>
                 {items.length === 0 ? <div className="text-muted-foreground">ไม่เปลี่ยน</div> : (
                   <ul className="space-y-2">
@@ -107,7 +107,7 @@ function AgencyPage() {
         </section>
         {data.metrics.length > 0 && (
           <section className="mt-10">
-            <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">ค่าล่าสุด</h2>
+            <h2 className="section-heading text-2xl">ค่าล่าสุด</h2>
             <ul className="mt-2 text-sm">
               {data.metrics.map((m) => {
                 const o = data.obs.filter((x) => x.metric_id === m.id).at(-1);
@@ -117,7 +117,7 @@ function AgencyPage() {
           </section>
         )}
         <section className="mt-10">
-          <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">การดึงข้อมูลล่าสุด</h2>
+          <h2 className="section-heading text-2xl">การดึงข้อมูลล่าสุด</h2>
           <ul className="mt-2 text-sm">
             {data.history.length === 0 && <li className="py-2 text-muted-foreground">ยังไม่มีประวัติ (เริ่มบันทึกตั้งแต่รอบถัดไป)</li>}
             {data.history.map((h: any, i: number) => (
