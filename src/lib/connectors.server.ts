@@ -64,6 +64,25 @@ async function firecrawlJson(url: string): Promise<any> {
 
 export const CONNECTORS: Connector[] = [
   {
+    // ค่า Ft (PEA page, same nationwide incl. MEA Bangkok) × official residential tariff → ฿/unit for a 200-unit home.
+    source: "การไฟฟ้า (ค่า Ft / อัตราค่าไฟ)",
+    run: async () => {
+      const { FT_URL, TARIFF_PAGE, TARIFF, HOUSE_UNITS_MONTH, billFor, parseFt, latestTariffDoc } = await import("./electricity");
+      const res = await politeFetch(FT_URL);
+      if (!res.ok) throw new Error(`${res.status} หน้า Ft`);
+      const ft = parseFt(await res.text());
+      if (!ft) throw new Error("ไม่พบข้อความ 'ค่า Ft ประจำเดือน … หน่วยละ … บาท' (หน้าเว็บอาจเปลี่ยน)");
+      let note: string | undefined;
+      try {
+        const doc = latestTariffDoc(await (await politeFetch(TARIFF_PAGE)).text());
+        if (doc && doc !== TARIFF.doc) note = `มีเอกสารอัตราค่าไฟใหม่ ${doc} — ยังใช้อัตราฐานจาก ${TARIFF.doc} ต้องตรวจสอบ`;
+      } catch { /* base tariff check is advisory */ }
+      const b = billFor(HOUSE_UNITS_MONTH, ft.ft);
+      return { values: { elec_ft: ft.ft, elec_unit: +b.perUnit.toFixed(4) }, dates: {}, ...(note ? { note } : {}),
+        sample: `Ft ${ft.label} ${ft.ft} บาท/หน่วย · บ้าน ${HOUSE_UNITS_MONTH} หน่วย/เดือน ≈ ${b.total.toFixed(2)} บาท (${b.perUnit.toFixed(4)} บาท/หน่วย รวม VAT)` };
+    },
+  },
+  {
     // กรมการค้าภายใน: official Bangkok retail prices (weekdays). Comparison-only metrics dit_* (no thresholds).
     source: "กรมการค้าภายใน (ราคาขายปลีก กทม.)",
     run: async (date) => {

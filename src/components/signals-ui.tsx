@@ -3,6 +3,7 @@ import type { Family, Metric, News, Obs, Signal } from "@/lib/signals";
 import { SignalExplain } from "@/components/signal-explain";
 import { fmt } from "@/lib/signals";
 import { CostSignalChart } from "@/components/cost-signal-chart";
+import { RailSignalChart } from "@/components/rail-signal-chart";
 
 export function Sparkline({ values, className = "" }: { values: number[]; className?: string }) {
   if (values.length < 2) return null;
@@ -31,7 +32,7 @@ const sevLabel: Record<string, string> = { high: "สำคัญมาก", med
 
 export function SignalCard({ s, family, metric, history, news }: { s: Signal; family: Family; metric: Metric; history: Obs[]; news: News[] }) {
   const up = (s.change_abs ?? 0) > 0;
-  const tone = metric.kind === "release" ? "text-foreground" : up ? "text-up" : "text-down";
+  const tone = metric.kind === "release" || metric.kind === "events" ? "text-foreground" : up ? "text-up" : "text-down";
   return (
     <div className={`border-t-2 pt-3 ${s.severity === "high" ? "border-up" : "border-foreground"}`}>
     <Link to="/signals/$family" params={{ family: family.id }} className="group block transition-colors hover:bg-card">
@@ -43,10 +44,10 @@ export function SignalCard({ s, family, metric, history, news }: { s: Signal; fa
       <div className="mt-3 flex items-end justify-between">
         <div>
           <div className={`font-display text-3xl tabular-nums ${tone}`}>
-            {metric.kind === "release" ? fmt(s.new_value, metric.decimals) : `${up ? "▲" : "▼"} ${fmt(Math.abs(s.change_abs ?? 0), metric.decimals)}`}
+            {metric.kind === "release" || metric.kind === "events" ? fmt(s.new_value, metric.decimals) : `${up ? "▲" : "▼"} ${fmt(Math.abs(s.change_abs ?? 0), metric.decimals)}`}
           </div>
           <div className="text-xs text-muted-foreground">
-            {s.change_pct != null && metric.kind !== "release" ? `${s.change_pct > 0 ? "+" : ""}${s.change_pct.toFixed(1)}% · ` : ""}
+            {s.change_pct != null && metric.kind !== "release" && metric.kind !== "events" ? `${s.change_pct > 0 ? "+" : ""}${s.change_pct.toFixed(1)}% · ` : ""}
             {metric.unit}
           </div>
         </div>
@@ -58,6 +59,7 @@ export function SignalCard({ s, family, metric, history, news }: { s: Signal; fa
         <DataBadge demo={s.is_demo} />
       </div>
       {family.id === "food" && <CostSignalChart s={s} metric={metric} />}
+      {family.id === "rail" && <RailSignalChart s={s} />}
       <div className="mt-2"><SignalExplain s={s} family={family} metric={metric} history={history} news={news} /></div>
     </div>
   );

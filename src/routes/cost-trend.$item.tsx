@@ -44,7 +44,7 @@ function Item() {
     { label: "สัปดาห์นี้ vs สัปดาห์ก่อน", cur: [shiftDays(end, -6), end], prev: [shiftDays(end, -13), shiftDays(end, -7)] },
     { label: "30 วันนี้ vs 30 วันก่อน", cur: [shiftDays(end, -29), end], prev: [shiftDays(end, -59), shiftDays(end, -30)] },
   ] as const;
-  const srcName = (id: string) => (id.startsWith("dit_") ? "กรมการค้าภายใน (ราคาขายปลีก กทม.)" : "CheckRaka (รวบรวมหลายแหล่ง)");
+  const srcName = (id: string) => (id.startsWith("dit_") ? "กรมการค้าภายใน (ราคาขายปลีก กทม.)" : id.startsWith("elec_") ? "การไฟฟ้า (ค่า Ft × อัตราบ้านอยู่อาศัย)" : "CheckRaka (รวบรวมหลายแหล่ง)");
   const first = (data?.obs ?? []).map((o) => o.observed_on).sort()[0];
   const dates: string[] = [];
   if (first) for (let d = first; d <= end; d = shiftDays(d, 1)) dates.push(d); // every calendar day so missing days show as gaps
@@ -61,6 +61,7 @@ function Item() {
         return (
           <section key={id} className="mt-8 border-t-2 border-editorial-ink pt-4">
             <h2 className="font-editorial text-2xl text-editorial-red">{srcName(id)}</h2>
+            {!id.startsWith("elec_") && <Link to="/cost-signals/$item" params={{ item: id }} className="text-xs underline">วิเคราะห์สัญญาณ / ตั้งเกณฑ์เอง →</Link>}
             <p className="mt-1 text-sm">{m?.name_th} · ล่าสุด <b className="tabular-nums">{b2(last ? Number(last.value) : null)}</b> {m?.unit} {last && <span className="text-muted-foreground">(ราคาวันที่ {last.observed_on})</span>}</p>
             {!rows.length && <p className="mt-2 text-sm text-muted-foreground">ยังไม่มีข้อมูลจริงในช่วงนี้</p>}
             <div className="overflow-x-auto"><table className="mt-3 w-full min-w-[640px] text-sm">

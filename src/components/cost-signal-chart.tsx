@@ -36,6 +36,7 @@ export function CostSignalChart({ s, metric }: { s: Signal; metric: Metric }) {
         เฉลี่ย {fmt(prev.avg ?? 0, metric.decimals)} → {fmt(cur.avg ?? 0, metric.decimals)} {metric.unit} (ต่ำ–สูง {fmt(cur.min ?? 0, metric.decimals)}–{fmt(cur.max ?? 0, metric.decimals)}; มีราคา {prev.days}/{cur.days} วัน)
         {impact != null && ` · ผลต่อครัวเรือน ${impact > 0 ? "+" : ""}${impact.toFixed(2)} ฿/วัน`}
         {" · "}<Link to="/cost-trend/$item" params={{ item: s.metric_id }} className="underline">ดูรายละเอียดสินค้า →</Link>
+        {" · "}<Link to="/cost-signals/$item" params={{ item: s.metric_id }} className="underline">วิเคราะห์สัญญาณ / ตั้งเกณฑ์เอง →</Link>
       </p>
     </div>
   );

@@ -5,6 +5,7 @@ import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
 import { evidenceUrl } from "@/lib/signals.functions";
 import { SourcePerformance } from "@/components/source-performance";
+import { CostSignalCalc } from "@/components/cost-signal-calc";
 
 export const Route = createFileRoute("/_admin/raw-log")({
   staticData: { sitemap: false },
@@ -27,7 +28,7 @@ const CATS: { v: string; label: string; re: RegExp }[] = [
   { v: "flood", label: "น้ำท่วม / น้ำท้องถิ่น", re: /ThaiWater สถานี|กทม\.|ปภ\./ },
   { v: "air", label: "ฝุ่น PM2.5", re: /GISTDA|Air4Thai/ },
   { v: "rail", label: "รถไฟฟ้า", re: /รถไฟฟ้า|BTS|MRT/ },
-  { v: "price", label: "ราคา", re: /PTT|ทองคำ|Exchange|CheckRaka|RakaKaset|น้ำมัน/ },
+  { v: "price", label: "ราคา", re: /PTT|ทองคำ|Exchange|CheckRaka|RakaKaset|น้ำมัน|กรมการค้า|การไฟฟ้า/ },
   { v: "traffic", label: "จราจร", re: /Longdo|FM91/ },
 ];
 const PAGE = 50;
@@ -71,7 +72,9 @@ function RawLog() {
       <main className="page-shell">
         <h1 className="font-editorial text-4xl sm:text-5xl">บันทึกข้อมูลดิบ</h1>
         <p className="mt-2 text-muted-foreground">ทุกครั้งที่ระบบดึงข้อมูลจากแหล่งภายนอก: มาจากที่อยู่ไหน ดึงเมื่อไร เห็นไฟล์เดิมซ้ำกี่ครั้ง และอ่านค่าอะไรได้จากไฟล์นั้น ไฟล์ต้นฉบับเก็บไว้ถาวร</p>
-                <SourcePerformance />
+        <SourcePerformance />
+        <h2 className="section-heading mt-10 text-2xl">การคำนวณสัญญาณค่าครองชีพ (วันนี้)</h2>
+        <div className="mt-4"><CostSignalCalc /></div>
         <h2 className="section-heading mt-10 text-2xl">รายการไฟล์ที่ดึง</h2>
         <div className="mt-4 flex flex-wrap gap-3 text-sm">
           <select aria-label="หมวด" value={cat} onChange={(e) => reset(() => { setCat(e.target.value); setSrc(""); })} className="border border-editorial-rule bg-background px-3 py-2">

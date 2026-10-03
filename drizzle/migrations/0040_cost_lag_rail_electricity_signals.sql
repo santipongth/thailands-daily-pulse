@@ -1,0 +1,3 @@
+ALTER TABLE public.metrics ADD COLUMN IF NOT EXISTS lag_days integer NOT NULL DEFAULT 0;
+ALTER TABLE public.metrics ADD COLUMN IF NOT EXISTS expected_days integer NOT NULL DEFAULT 7;
+SELECT 1;
