@@ -20,7 +20,7 @@ export function parseLpg(data: any, today: string) {
 }
 
 export function parseBangkokWage(page: string, today: string) {
-  if (/Incapsula|incident_id|Access Denied/i.test(page)) throw new Error("เว็บไซต์กระทรวงแรงงานปิดกั้นการเข้าถึง");
+  if (/Incapsula|incident_id|Request unsuccessful|Access Denied/i.test(page)) throw new Error("เว็บไซต์กระทรวงแรงงานปิดกั้นการเข้าถึง");
   const plain = page.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
   const match = plain.match(/(?:กรุงเทพมหานคร|กรุงเทพฯ|Bangkok).{0,120}?(?:วันละ|อัตรา(?:ค่าจ้าง)?(?:ขั้นต่ำ)?|baht\s*per\s*day).{0,40}?(\d{3,4})\s*(?:บาท|baht)?/i)
     ?? plain.match(/(?:วันละ|อัตราค่าจ้างขั้นต่ำ|minimum\s*wage\s*(?:of|to)?|per\s*day)\s*(\d{3,4})\s*(?:บาท|baht).{0,240}?(?:กรุงเทพมหานคร|กรุงเทพฯ|Bangkok)/i);
