@@ -2380,7 +2380,6 @@ GRANT USAGE ON SCHEMA public TO postgres;
 GRANT USAGE ON SCHEMA public TO anon;
 GRANT USAGE ON SCHEMA public TO authenticated;
 GRANT USAGE ON SCHEMA public TO service_role;
-GRANT USAGE ON SCHEMA public TO sandbox_exec;
 
 
 --
@@ -2390,7 +2389,6 @@ GRANT USAGE ON SCHEMA public TO sandbox_exec;
 GRANT ALL ON TABLE public.ingest_jobs TO anon;
 GRANT ALL ON TABLE public.ingest_jobs TO authenticated;
 GRANT ALL ON TABLE public.ingest_jobs TO service_role;
-GRANT SELECT,INSERT ON TABLE public.ingest_jobs TO sandbox_exec;
 
 
 --
@@ -2500,7 +2498,6 @@ GRANT ALL ON FUNCTION public.replay_signals(_d date) TO service_role;
 GRANT ALL ON TABLE public.api_rate_limits TO anon;
 GRANT ALL ON TABLE public.api_rate_limits TO authenticated;
 GRANT ALL ON TABLE public.api_rate_limits TO service_role;
-GRANT SELECT,INSERT ON TABLE public.api_rate_limits TO sandbox_exec;
 
 
 --
@@ -2510,7 +2507,6 @@ GRANT SELECT,INSERT ON TABLE public.api_rate_limits TO sandbox_exec;
 GRANT ALL ON TABLE public.app_settings TO anon;
 GRANT ALL ON TABLE public.app_settings TO authenticated;
 GRANT ALL ON TABLE public.app_settings TO service_role;
-GRANT SELECT,INSERT ON TABLE public.app_settings TO sandbox_exec;
 
 
 --
@@ -2520,7 +2516,6 @@ GRANT SELECT,INSERT ON TABLE public.app_settings TO sandbox_exec;
 GRANT ALL ON TABLE public.brief_images TO anon;
 GRANT ALL ON TABLE public.brief_images TO authenticated;
 GRANT ALL ON TABLE public.brief_images TO service_role;
-GRANT SELECT,INSERT ON TABLE public.brief_images TO sandbox_exec;
 
 
 --
@@ -2530,7 +2525,6 @@ GRANT SELECT,INSERT ON TABLE public.brief_images TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.brief_images_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.brief_images_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.brief_images_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.brief_images_id_seq TO sandbox_exec;
 
 
 --
@@ -2540,7 +2534,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.brief_images_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.brief_updates TO anon;
 GRANT ALL ON TABLE public.brief_updates TO authenticated;
 GRANT ALL ON TABLE public.brief_updates TO service_role;
-GRANT SELECT,INSERT ON TABLE public.brief_updates TO sandbox_exec;
 
 
 --
@@ -2550,7 +2543,6 @@ GRANT SELECT,INSERT ON TABLE public.brief_updates TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.brief_updates_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.brief_updates_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.brief_updates_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.brief_updates_id_seq TO sandbox_exec;
 
 
 --
@@ -2560,7 +2552,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.brief_updates_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.daily_briefs TO anon;
 GRANT ALL ON TABLE public.daily_briefs TO authenticated;
 GRANT ALL ON TABLE public.daily_briefs TO service_role;
-GRANT SELECT,INSERT ON TABLE public.daily_briefs TO sandbox_exec;
 
 
 --
@@ -2570,7 +2561,6 @@ GRANT SELECT,INSERT ON TABLE public.daily_briefs TO sandbox_exec;
 GRANT ALL ON TABLE public.dam_readings TO anon;
 GRANT ALL ON TABLE public.dam_readings TO authenticated;
 GRANT ALL ON TABLE public.dam_readings TO service_role;
-GRANT SELECT,INSERT ON TABLE public.dam_readings TO sandbox_exec;
 
 
 --
@@ -2580,7 +2570,6 @@ GRANT SELECT,INSERT ON TABLE public.dam_readings TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.dam_readings_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.dam_readings_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.dam_readings_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.dam_readings_id_seq TO sandbox_exec;
 
 
 --
@@ -2590,7 +2579,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.dam_readings_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.families TO anon;
 GRANT ALL ON TABLE public.families TO authenticated;
 GRANT ALL ON TABLE public.families TO service_role;
-GRANT SELECT,INSERT ON TABLE public.families TO sandbox_exec;
 
 
 --
@@ -2600,7 +2588,6 @@ GRANT SELECT,INSERT ON TABLE public.families TO sandbox_exec;
 GRANT ALL ON TABLE public.holidays TO anon;
 GRANT ALL ON TABLE public.holidays TO authenticated;
 GRANT ALL ON TABLE public.holidays TO service_role;
-GRANT SELECT,INSERT ON TABLE public.holidays TO sandbox_exec;
 
 
 --
@@ -2658,7 +2645,6 @@ GRANT SELECT(created_at) ON TABLE public.holidays TO authenticated;
 GRANT ALL ON SEQUENCE public.holidays_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.holidays_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.holidays_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.holidays_id_seq TO sandbox_exec;
 
 
 --
@@ -2668,7 +2654,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.holidays_id_seq TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.ingest_jobs_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.ingest_jobs_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.ingest_jobs_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.ingest_jobs_id_seq TO sandbox_exec;
 
 
 --
@@ -2678,7 +2663,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.ingest_jobs_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.job_locks TO anon;
 GRANT ALL ON TABLE public.job_locks TO authenticated;
 GRANT ALL ON TABLE public.job_locks TO service_role;
-GRANT SELECT,INSERT ON TABLE public.job_locks TO sandbox_exec;
 
 
 --
@@ -2688,7 +2672,6 @@ GRANT SELECT,INSERT ON TABLE public.job_locks TO sandbox_exec;
 GRANT ALL ON TABLE public.lottery_draws TO anon;
 GRANT ALL ON TABLE public.lottery_draws TO authenticated;
 GRANT ALL ON TABLE public.lottery_draws TO service_role;
-GRANT SELECT,INSERT ON TABLE public.lottery_draws TO sandbox_exec;
 
 
 --
@@ -2698,7 +2681,6 @@ GRANT SELECT,INSERT ON TABLE public.lottery_draws TO sandbox_exec;
 GRANT ALL ON TABLE public.metrics TO anon;
 GRANT ALL ON TABLE public.metrics TO authenticated;
 GRANT ALL ON TABLE public.metrics TO service_role;
-GRANT SELECT,INSERT ON TABLE public.metrics TO sandbox_exec;
 
 
 --
@@ -2708,7 +2690,6 @@ GRANT SELECT,INSERT ON TABLE public.metrics TO sandbox_exec;
 GRANT ALL ON TABLE public.news_items TO anon;
 GRANT ALL ON TABLE public.news_items TO authenticated;
 GRANT ALL ON TABLE public.news_items TO service_role;
-GRANT SELECT,INSERT ON TABLE public.news_items TO sandbox_exec;
 
 
 --
@@ -2718,7 +2699,6 @@ GRANT SELECT,INSERT ON TABLE public.news_items TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.news_items_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.news_items_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.news_items_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.news_items_id_seq TO sandbox_exec;
 
 
 --
@@ -2728,7 +2708,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.news_items_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.observations TO anon;
 GRANT ALL ON TABLE public.observations TO authenticated;
 GRANT ALL ON TABLE public.observations TO service_role;
-GRANT SELECT,INSERT ON TABLE public.observations TO sandbox_exec;
 
 
 --
@@ -2738,7 +2717,6 @@ GRANT SELECT,INSERT ON TABLE public.observations TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.observations_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.observations_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.observations_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.observations_id_seq TO sandbox_exec;
 
 
 --
@@ -2748,7 +2726,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.observations_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.raw_evidence TO anon;
 GRANT ALL ON TABLE public.raw_evidence TO authenticated;
 GRANT ALL ON TABLE public.raw_evidence TO service_role;
-GRANT SELECT,INSERT ON TABLE public.raw_evidence TO sandbox_exec;
 
 
 --
@@ -2758,7 +2735,6 @@ GRANT SELECT,INSERT ON TABLE public.raw_evidence TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.raw_evidence_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.raw_evidence_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.raw_evidence_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.raw_evidence_id_seq TO sandbox_exec;
 
 
 --
@@ -2768,7 +2744,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.raw_evidence_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.release_calendar TO anon;
 GRANT ALL ON TABLE public.release_calendar TO authenticated;
 GRANT ALL ON TABLE public.release_calendar TO service_role;
-GRANT SELECT,INSERT ON TABLE public.release_calendar TO sandbox_exec;
 
 
 --
@@ -2778,7 +2753,6 @@ GRANT SELECT,INSERT ON TABLE public.release_calendar TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.release_calendar_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.release_calendar_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.release_calendar_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.release_calendar_id_seq TO sandbox_exec;
 
 
 --
@@ -2788,7 +2762,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.release_calendar_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.signal_events TO anon;
 GRANT ALL ON TABLE public.signal_events TO authenticated;
 GRANT ALL ON TABLE public.signal_events TO service_role;
-GRANT SELECT,INSERT ON TABLE public.signal_events TO sandbox_exec;
 
 
 --
@@ -2798,7 +2771,6 @@ GRANT SELECT,INSERT ON TABLE public.signal_events TO sandbox_exec;
 GRANT ALL ON TABLE public.signal_versions TO anon;
 GRANT ALL ON TABLE public.signal_versions TO authenticated;
 GRANT ALL ON TABLE public.signal_versions TO service_role;
-GRANT SELECT,INSERT ON TABLE public.signal_versions TO sandbox_exec;
 
 
 --
@@ -2808,7 +2780,6 @@ GRANT SELECT,INSERT ON TABLE public.signal_versions TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.signal_versions_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.signal_versions_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.signal_versions_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.signal_versions_id_seq TO sandbox_exec;
 
 
 --
@@ -2818,7 +2789,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.signal_versions_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.signals TO anon;
 GRANT ALL ON TABLE public.signals TO authenticated;
 GRANT ALL ON TABLE public.signals TO service_role;
-GRANT SELECT,INSERT ON TABLE public.signals TO sandbox_exec;
 
 
 --
@@ -2828,7 +2798,6 @@ GRANT SELECT,INSERT ON TABLE public.signals TO sandbox_exec;
 GRANT ALL ON TABLE public.social_posts TO anon;
 GRANT ALL ON TABLE public.social_posts TO authenticated;
 GRANT ALL ON TABLE public.social_posts TO service_role;
-GRANT SELECT,INSERT ON TABLE public.social_posts TO sandbox_exec;
 
 
 --
@@ -2838,7 +2807,6 @@ GRANT SELECT,INSERT ON TABLE public.social_posts TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.social_posts_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.social_posts_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.social_posts_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.social_posts_id_seq TO sandbox_exec;
 
 
 --
@@ -2848,7 +2816,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.social_posts_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.source_breaker TO anon;
 GRANT ALL ON TABLE public.source_breaker TO authenticated;
 GRANT ALL ON TABLE public.source_breaker TO service_role;
-GRANT SELECT,INSERT ON TABLE public.source_breaker TO sandbox_exec;
 
 
 --
@@ -2858,7 +2825,6 @@ GRANT SELECT,INSERT ON TABLE public.source_breaker TO sandbox_exec;
 GRANT ALL ON TABLE public.source_config TO anon;
 GRANT ALL ON TABLE public.source_config TO authenticated;
 GRANT ALL ON TABLE public.source_config TO service_role;
-GRANT SELECT,INSERT ON TABLE public.source_config TO sandbox_exec;
 
 
 --
@@ -2868,7 +2834,6 @@ GRANT SELECT,INSERT ON TABLE public.source_config TO sandbox_exec;
 GRANT ALL ON TABLE public.source_perf_daily TO anon;
 GRANT ALL ON TABLE public.source_perf_daily TO authenticated;
 GRANT ALL ON TABLE public.source_perf_daily TO service_role;
-GRANT SELECT,INSERT ON TABLE public.source_perf_daily TO sandbox_exec;
 
 
 --
@@ -2878,7 +2843,6 @@ GRANT SELECT,INSERT ON TABLE public.source_perf_daily TO sandbox_exec;
 GRANT ALL ON TABLE public.source_registry TO anon;
 GRANT ALL ON TABLE public.source_registry TO authenticated;
 GRANT ALL ON TABLE public.source_registry TO service_role;
-GRANT SELECT,INSERT ON TABLE public.source_registry TO sandbox_exec;
 
 
 --
@@ -2888,7 +2852,6 @@ GRANT SELECT,INSERT ON TABLE public.source_registry TO sandbox_exec;
 GRANT ALL ON TABLE public.source_run_history TO anon;
 GRANT ALL ON TABLE public.source_run_history TO authenticated;
 GRANT ALL ON TABLE public.source_run_history TO service_role;
-GRANT SELECT,INSERT ON TABLE public.source_run_history TO sandbox_exec;
 
 
 --
@@ -2898,7 +2861,6 @@ GRANT SELECT,INSERT ON TABLE public.source_run_history TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.source_run_history_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.source_run_history_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.source_run_history_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.source_run_history_id_seq TO sandbox_exec;
 
 
 --
@@ -2908,7 +2870,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.source_run_history_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.source_runs TO anon;
 GRANT ALL ON TABLE public.source_runs TO authenticated;
 GRANT ALL ON TABLE public.source_runs TO service_role;
-GRANT SELECT,INSERT ON TABLE public.source_runs TO sandbox_exec;
 
 
 --
@@ -2918,7 +2879,6 @@ GRANT SELECT,INSERT ON TABLE public.source_runs TO sandbox_exec;
 GRANT ALL ON TABLE public.station_locations TO anon;
 GRANT ALL ON TABLE public.station_locations TO authenticated;
 GRANT ALL ON TABLE public.station_locations TO service_role;
-GRANT SELECT,INSERT ON TABLE public.station_locations TO sandbox_exec;
 
 
 --
@@ -2928,7 +2888,6 @@ GRANT SELECT,INSERT ON TABLE public.station_locations TO sandbox_exec;
 GRANT ALL ON TABLE public.station_snapshots TO anon;
 GRANT ALL ON TABLE public.station_snapshots TO authenticated;
 GRANT ALL ON TABLE public.station_snapshots TO service_role;
-GRANT SELECT,INSERT ON TABLE public.station_snapshots TO sandbox_exec;
 
 
 --
@@ -2938,7 +2897,6 @@ GRANT SELECT,INSERT ON TABLE public.station_snapshots TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.station_snapshots_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.station_snapshots_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.station_snapshots_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.station_snapshots_id_seq TO sandbox_exec;
 
 
 --
@@ -2948,7 +2906,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.station_snapshots_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.tax_deadlines TO anon;
 GRANT ALL ON TABLE public.tax_deadlines TO authenticated;
 GRANT ALL ON TABLE public.tax_deadlines TO service_role;
-GRANT SELECT,INSERT ON TABLE public.tax_deadlines TO sandbox_exec;
 
 
 --
@@ -2958,7 +2915,6 @@ GRANT SELECT,INSERT ON TABLE public.tax_deadlines TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.tax_deadlines_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.tax_deadlines_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.tax_deadlines_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.tax_deadlines_id_seq TO sandbox_exec;
 
 
 --
@@ -2968,7 +2924,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.tax_deadlines_id_seq TO sandbox_exec;
 GRANT ALL ON TABLE public.user_roles TO anon;
 GRANT ALL ON TABLE public.user_roles TO authenticated;
 GRANT ALL ON TABLE public.user_roles TO service_role;
-GRANT SELECT,INSERT ON TABLE public.user_roles TO sandbox_exec;
 
 
 --
@@ -2978,7 +2933,6 @@ GRANT SELECT,INSERT ON TABLE public.user_roles TO sandbox_exec;
 GRANT ALL ON TABLE public.weather_station_obs TO anon;
 GRANT ALL ON TABLE public.weather_station_obs TO authenticated;
 GRANT ALL ON TABLE public.weather_station_obs TO service_role;
-GRANT SELECT,INSERT ON TABLE public.weather_station_obs TO sandbox_exec;
 
 
 --
@@ -2988,69 +2942,42 @@ GRANT SELECT,INSERT ON TABLE public.weather_station_obs TO sandbox_exec;
 GRANT ALL ON SEQUENCE public.weather_station_obs_id_seq TO anon;
 GRANT ALL ON SEQUENCE public.weather_station_obs_id_seq TO authenticated;
 GRANT ALL ON SEQUENCE public.weather_station_obs_id_seq TO service_role;
-GRANT SELECT,USAGE ON SEQUENCE public.weather_station_obs_id_seq TO sandbox_exec;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO anon;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO authenticated;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO service_role;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT,USAGE ON SEQUENCES TO sandbox_exec;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES TO postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES TO anon;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES TO authenticated;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON SEQUENCES TO service_role;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON FUNCTIONS TO postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON FUNCTIONS TO anon;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON FUNCTIONS TO authenticated;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON FUNCTIONS TO service_role;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR FUNCTIONS; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS TO postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS TO anon;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS TO authenticated;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON FUNCTIONS TO service_role;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO anon;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO authenticated;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO service_role;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT SELECT,INSERT ON TABLES TO sandbox_exec;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO postgres;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO anon;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO authenticated;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON TABLES TO service_role;
 
 
 --

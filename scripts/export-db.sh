@@ -16,7 +16,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;
 H
-  pg_dump "$DATABASE_URL" --schema-only --no-owner --schema=public | strip \
+  pg_dump "$DATABASE_URL" --schema-only --no-owner --schema=public | strip | sed -e '/sandbox_exec/d' -e '/^ALTER DEFAULT PRIVILEGES/d' \
     | sed -e 's/^CREATE SCHEMA public;/CREATE SCHEMA IF NOT EXISTS public;/' -e '/^COMMENT ON SCHEMA public/d'
   cat <<'H'
 
