@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { evidenceUrl } from "@/lib/signals.functions";
 import { SourcePerformance } from "@/components/source-performance";
 import { CostSignalCalc } from "@/components/cost-signal-calc";
+import { RailSignalCalc } from "@/components/rail-signal-calc";
 
 export const Route = createFileRoute("/_admin/raw-log")({
   staticData: { sitemap: false },
@@ -75,6 +76,7 @@ function RawLog() {
         <SourcePerformance />
         <h2 className="section-heading mt-10 text-2xl">การคำนวณสัญญาณค่าครองชีพ (วันนี้)</h2>
         <div className="mt-4"><CostSignalCalc /></div>
+        <div className="mt-4"><RailSignalCalc /></div>
         <h2 className="section-heading mt-10 text-2xl">รายการไฟล์ที่ดึง</h2>
         <div className="mt-4 flex flex-wrap gap-3 text-sm">
           <select aria-label="หมวด" value={cat} onChange={(e) => reset(() => { setCat(e.target.value); setSrc(""); })} className="border border-editorial-rule bg-background px-3 py-2">

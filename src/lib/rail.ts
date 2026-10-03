@@ -17,3 +17,19 @@ export const isServiceAlert = (text: string) => SERVICE_ALERT_RE.test(text);
 export const bkkDate = (iso: string) => new Date(Date.parse(iso) + 7 * 3600e3).toISOString().slice(0, 10);
 export const bkkBlock = (iso: string) => Math.floor(new Date(Date.parse(iso) + 7 * 3600e3).getUTCHours() / 3);
 export const BLOCK_TH = ["00–03", "03–06", "06–09", "09–12", "12–15", "15–18", "18–21", "21–24"];
+
+export type RailStatus = "counted" | "context" | "late";
+/**
+ * Arrival-window rule: a service alert counts for the Bangkok day it was posted, or — when it was posted shortly
+ * before midnight and first seen after it — for the day it arrived, if posted within `gapMs` (real gap between
+ * checks) before that day began. Older ones are kept as "late" with a reason, never dropped.
+ */
+export function classifyRail(text: string, postedIso: string, receivedIso: string, gapMs: number): { status: RailStatus; day: string; reason: string } {
+  const pd = bkkDate(postedIso), rd = bkkDate(receivedIso);
+  if (!isServiceAlert(text)) return { status: "context", day: pd, reason: "ไม่ใช่ประกาศล่าช้า/ขัดข้อง/หยุดให้บริการ (เช่น ปิดทางเข้า) — แสดงเป็นบริบท" };
+  if (pd === rd) return { status: "counted", day: pd, reason: "ประกาศและได้รับในวันเดียวกัน" };
+  const dayStart = Date.parse(rd + "T00:00:00+07:00");
+  const lag = dayStart - Date.parse(postedIso);
+  if (lag <= gapMs) return { status: "counted", day: rd, reason: `ประกาศก่อนเที่ยงคืน ${Math.round(lag / 60000)} นาที อยู่ในช่วงห่างของรอบตรวจ (${Math.round(gapMs / 60000)} นาที) — นับในวันที่ได้รับ` };
+  return { status: "late", day: pd, reason: `ได้รับช้ากว่าช่วงห่างของรอบตรวจ (${Math.round(gapMs / 60000)} นาที) — ไม่นับในสัญญาณวันนี้ แต่แสดงไว้` };
+}

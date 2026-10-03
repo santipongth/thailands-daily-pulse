@@ -3,7 +3,7 @@
 // metrics rail_bts / rail_mrt (kind 'events') — the only way rail notices become signals.
 import { firecrawlMarkdown } from "./http.server";
 import { parseXPosts } from "./fm91.server";
-import { RAIL_ACCOUNTS, isDisruption, isServiceAlert, bkkDate } from "./rail";
+import { RAIL_ACCOUNTS, isDisruption, bkkDate, classifyRail } from "./rail";
 
 export const RAIL_SOURCE = "รถไฟฟ้า BTS/MRT (X)";
 
@@ -14,18 +14,21 @@ export async function refreshRail(admin: any) {
   let read = 0, kept = 0;
   const notes: string[] = [];
   const okLines: string[] = [];
+  // Allowed lag = real gap since the previous successful check (min 1h, max 6h).
+  const { data: prev } = await admin.from("source_run_history").select("ran_at").eq("source", RAIL_SOURCE).eq("ok", true).order("ran_at", { ascending: false }).limit(1);
+  const gapMs = Math.min(6 * 3600e3, Math.max(3600e3, prev?.[0] ? Date.parse(ran_at) - Date.parse(prev[0].ran_at) : 3 * 3600e3));
   for (const a of RAIL_ACCOUNTS) {
     try {
       const posts = parseXPosts(await firecrawlMarkdown(a.url, 3000));
       if (!posts.length) throw new Error("ไม่พบโพสต์ที่อ่านได้");
       read += posts.length;
       okLines.push(a.line);
-      const hits = posts.filter((p) => isDisruption(p.text) && Date.now() - Date.parse(p.posted_at) < 3 * 86400e3);
+      const hits = posts.filter((p) => isDisruption(p.text));
       if (hits.length) {
-        const { error } = await admin.from("social_posts").upsert(hits.map((p) => ({
-          post_id: p.post_id, source: `${a.line} (X)`, posted_at: p.posted_at, text: p.text, url: p.url,
+        const { error } = await admin.from("social_posts").upsert(hits.map((p) => { const c = classifyRail(p.text, p.posted_at, ran_at, gapMs); return {
+          rail_status: c.status, rail_reason: c.reason, rail_day: c.day, post_id: p.post_id, source: `${a.line} (X)`, posted_at: p.posted_at, text: p.text, url: p.url,
           received_at: ran_at, is_bkk: true, area: `รถไฟฟ้า ${a.line}`, summary: null, ai_reason: "กฎคำสำคัญ: ประกาศเหตุขัดข้อง/ล่าช้า",
-        })), { onConflict: "post_id", ignoreDuplicates: true });
+        }; }), { onConflict: "post_id", ignoreDuplicates: true });
         if (error) throw new Error(error.message);
         kept += hits.length;
         notes.push(`${a.line}: ${hits[0]!.text.slice(0, 60)}`);
@@ -38,11 +41,11 @@ export async function refreshRail(admin: any) {
   const today = bkkDate(ran_at);
   const values: Record<string, number> = {}; const dates: Record<string, string> = {};
   if (okLines.length) {
-    const { data } = await admin.from("social_posts").select("source,text,posted_at").in("source", okLines.map((l) => `${l} (X)`))
-      .gte("posted_at", new Date(Date.parse(today + "T00:00:00+07:00")).toISOString());
+    const { data } = await admin.from("social_posts").select("source").in("source", okLines.map((l) => `${l} (X)`))
+      .eq("rail_day", today).eq("rail_status", "counted");
     for (const l of okLines) {
       const id = `rail_${l.toLowerCase()}`;
-      values[id] = (data ?? []).filter((p: any) => p.source === `${l} (X)` && bkkDate(p.posted_at) === today && isServiceAlert(p.text)).length;
+      values[id] = (data ?? []).filter((p: any) => p.source === `${l} (X)`).length;
       dates[id] = today;
     }
   }
@@ -50,6 +53,6 @@ export async function refreshRail(admin: any) {
   const counts = Object.entries(values).map(([k, v]) => `${k.slice(5).toUpperCase()} ${v}`).join(" · ");
   return {
     values, dates,
-    run: { ...base, ok, rows: kept, error: errs.length ? errs.join(" · ").slice(0, 300) : null, sample: ok ? `อ่าน ${read} โพสต์ · ประกาศเหตุขัดข้อง ${kept}${notes.length ? ` — ${notes.join(" | ")}` : " (ไม่มีเหตุขัดข้อง)"} · ล่าช้า/หยุดวันนี้: ${counts}` : null },
+    run: { ...base, ok, rows: kept, error: errs.length ? errs.join(" · ").slice(0, 300) : null, sample: ok ? `อ่าน ${read} โพสต์ · ประกาศเหตุขัดข้อง ${kept}${notes.length ? ` — ${notes.join(" | ")}` : " (ไม่มีเหตุขัดข้อง)"} · ล่าช้า/หยุดวันนี้: ${counts} · ช่วงห่างรอบตรวจ ${Math.round(gapMs / 60000)} นาที` : null },
   };
 }
