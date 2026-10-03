@@ -11,6 +11,7 @@ export function WeeklyComparison({ weeks, unit, decimals, note, children }: {
     <div className="mt-5 border-t border-editorial-rule pt-4 text-sm">
       <h4 className="font-semibold text-foreground">เปรียบเทียบรายสัปดาห์</h4>
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{note} · เป็นข้อมูลประกอบ ไม่ใช่เกณฑ์ตัดสินสัญญาณทุกหมวด</p>
+      <p className="mt-2 text-xs text-muted-foreground">{weeks[0].label} <span className="inline-block h-2 w-2 bg-muted-foreground/50" /> · {weeks[1].label} <span className="inline-block h-2 w-2 bg-chart-1" /></p>
       {comparable ? (
         <div className="mt-4 flex h-28 items-end justify-center gap-8 border-b border-editorial-rule" role="img" aria-label={`${weeks[0].label} ${fmt(weeks[0].value ?? 0, decimals)} ${unit} เทียบ ${weeks[1].label} ${fmt(weeks[1].value ?? 0, decimals)} ${unit}`}>
           {weeks.map((w, i) => <div key={w.label} className="flex h-full w-20 items-end justify-center">
