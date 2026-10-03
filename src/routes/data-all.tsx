@@ -8,6 +8,7 @@ import { makeReasonOf, srcOf, type Run, type Release } from "@/lib/missing-reaso
 import { StationMap } from "@/components/station-map";
 import { DamsMonitor } from "@/components/dams-monitor";
 import { LatestLottery } from "@/components/latest-lottery";
+import { SocialDaily } from "@/components/social-daily";
 
 // Every metric the site really collected (is_demo = false): latest vs previous value, change, daily chart.
 const allQuery = queryOptions({
@@ -58,6 +59,7 @@ function DataAll() {
         <p className="mt-1 text-sm text-muted-foreground">ข้อมูลจริงเท่านั้น (ไม่รวมข้อมูลตัวอย่าง) · มีค่า {withData.size} จาก {data.metrics.length} ตัวชี้วัด · กดแถวเพื่อดูกราฟรายวันขนาดใหญ่</p>
         <StationMap />
         <DamsMonitor />
+        <SocialDaily />
         {data.families.map((f) => {
           const ms = data.metrics.filter((m) => m.family_id === f.id);
           if (!ms.length) return null;

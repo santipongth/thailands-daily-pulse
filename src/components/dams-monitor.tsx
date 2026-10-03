@@ -11,12 +11,13 @@ export function DamsMonitor() {
   const { data } = useQuery({
     queryKey: ["dams-monitor"],
     queryFn: async () => {
-      const [m, o, h] = await Promise.all([
+      const [m, o, h, r] = await Promise.all([
         supabase.from("metrics").select("id,name_th,unit,decimals").in("id", DAMS),
         supabase.from("observations").select("metric_id,observed_on,value,received_at").in("metric_id", DAMS).eq("is_demo", false).order("observed_on"),
         supabase.from("source_run_history").select("source,ran_at,ok,rows,error,run_kind").like("source", "ThaiWater%").order("ran_at", { ascending: false }).limit(10),
+        supabase.from("dam_readings").select("metric_id,value,read_at").gte("read_at", new Date(Date.now() - 48 * 3600e3).toISOString()).order("read_at"),
       ]);
-      return { m: m.data ?? [], o: o.data ?? [], h: h.data ?? [] };
+      return { m: m.data ?? [], o: o.data ?? [], h: h.data ?? [], r: r.data ?? [] };
     },
     refetchInterval: 5 * 60e3,
   });
@@ -50,6 +51,26 @@ export function DamsMonitor() {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
+                {(() => {
+                  const hp = data.r.filter((x) => x.metric_id === id).map((x) => ({ t: hm(x.read_at), v: Number(x.value) }));
+                  return (
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      รายชั่วโมง 48 ชม.: {hp.length ? `${hp.length} รอบ` : "ยังไม่มีรอบที่ได้ค่า"}
+                      {hp.length > 0 && (
+                        <div className="h-20">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={hp}>
+                              <XAxis dataKey="t" hide />
+                              <YAxis domain={["auto", "auto"]} hide />
+                              <Tooltip formatter={(v) => `${fmt(Number(v), m.decimals)} ${m.unit}`} />
+                              <Line type="stepAfter" dataKey="v" stroke="var(--color-muted-foreground)" dot={{ r: 2 }} isAnimationActive={false} />
+                            </LineChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             );
           })}

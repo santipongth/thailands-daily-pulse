@@ -32,3 +32,4 @@
 
 - Source-specific fetch rules live in `src/lib/AGENTS.md`.
 - Social: FM91 Trafficpro from X via Firecrawl (Facebook refused by Firecrawl), `fm91.server.ts`, cron every 30 min `?mode=social`, AI (Responses, streamed) tags is_bkk/area/summary in `social_posts`; summaries with new numbers dropped; 402/403 pauses via app_settings `social_ai_paused`; never creates signals; shown on home, brief (data window) and ticker as labelled FM91 items.
+- `dam_readings`: each dams run snapshots today's dam values (even if unchanged) for the 48h hourly chart on /data-all; observations stay one row/day.
