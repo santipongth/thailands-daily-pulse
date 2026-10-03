@@ -28,7 +28,7 @@
       {
         "name": "get_brief_by_date",
         "title": "Get Daily Brief by date",
-        "description": "Return one Daily Brief for a Bangkok calendar date.",
+        "description": "Return Daily Briefs; date filters brief_date (Bangkok calendar date).",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -90,7 +90,7 @@
       {
         "name": "list_signals",
         "title": "List signals",
-        "description": "List detected meaningful changes. News and social posts are excluded.",
+        "description": "List detected meaningful changes. date filters signal_date, id filters metric_id. News and social posts are excluded.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -123,7 +123,7 @@
       {
         "name": "get_signal",
         "title": "Get signal",
-        "description": "Get a signal by event ID.",
+        "description": "Get one signal by event ID (metric_id:YYYY-MM-DD) with its event record and version history.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -133,21 +133,14 @@
         "inputSchema": {
           "type": "object",
           "properties": {
-            "limit": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100,
-              "default": 25
-            },
-            "date": {
-              "type": "string",
-              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-            },
             "id": {
               "type": "string",
-              "maxLength": 160
+              "pattern": "^[a-z0-9_]+:\\d{4}-\\d{2}-\\d{2}$"
             }
           },
+          "required": [
+            "id"
+          ],
           "additionalProperties": false,
           "$schema": "http://json-schema.org/draft-07/schema#"
         },
@@ -156,7 +149,7 @@
       {
         "name": "list_signal_events",
         "title": "List signal events",
-        "description": "List correction and withdrawal-aware signal events.",
+        "description": "List correction and withdrawal-aware signal events. id filters event_id.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -189,7 +182,7 @@
       {
         "name": "get_household_impact",
         "title": "Get household impact",
-        "description": "Return signal records with their reproducible household-impact fields.",
+        "description": "Return signal versions with their reproducible household-impact fields and advice. id filters event_id.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -205,13 +198,9 @@
               "maximum": 100,
               "default": 25
             },
-            "date": {
-              "type": "string",
-              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-            },
             "id": {
               "type": "string",
-              "maxLength": 160
+              "pattern": "^[a-z0-9_]+:\\d{4}-\\d{2}-\\d{2}$"
             }
           },
           "additionalProperties": false,
@@ -255,7 +244,7 @@
       {
         "name": "get_source_health",
         "title": "Get source health",
-        "description": "List recent public source collection outcomes and failure reasons.",
+        "description": "List recent public source collection outcomes and failure reasons. id filters source.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -288,7 +277,7 @@
       {
         "name": "get_observations",
         "title": "Get observations",
-        "description": "List real and illustrative observations with source timestamps.",
+        "description": "List real and illustrative observations with source timestamps. date filters observed_on, id filters metric_id.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -321,7 +310,7 @@
       {
         "name": "get_dam_levels",
         "title": "Get dam levels",
-        "description": "List hourly readings for dams affecting Bangkok.",
+        "description": "List hourly readings for dams affecting Bangkok. id filters metric_id.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -354,7 +343,7 @@
       {
         "name": "get_weather_observations",
         "title": "Get weather observations",
-        "description": "List Bangkok-area TMD station observations.",
+        "description": "List Bangkok-area TMD station observations. date filters obs_date, id filters station_id.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -420,7 +409,7 @@
       {
         "name": "list_social_updates",
         "title": "List social updates",
-        "description": "List FM91 Bangkok-relevant context; these records are not signals.",
+        "description": "List FM91 and BTS/MRT posts; context only, these records are not signals.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -453,7 +442,7 @@
       {
         "name": "list_news_mentions",
         "title": "List news mentions",
-        "description": "List tagged news context; news never creates or ranks signals.",
+        "description": "List tagged and general news context; news never creates or ranks signals.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -486,7 +475,7 @@
       {
         "name": "get_calendar",
         "title": "Get public calendar",
-        "description": "Return holidays, tax deadlines, and scheduled official releases.",
+        "description": "Return holidays, tax deadlines, and scheduled official releases (soonest first).",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
@@ -511,7 +500,7 @@
       {
         "name": "get_evidence_metadata",
         "title": "Get evidence metadata",
-        "description": "List public evidence metadata only; raw files and storage paths are never returned.",
+        "description": "List public evidence metadata only; raw files and storage paths are never returned. id filters source.",
         "annotations": {
           "readOnlyHint": true,
           "destructiveHint": false,
