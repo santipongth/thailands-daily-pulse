@@ -11,13 +11,20 @@ export const decodeXml = (s: string) =>
 const tag = (b: string, t: string) => decodeXml(b.match(new RegExp(`<${t}[^>]*>([^<]*)</${t}>`))?.[1]?.trim() ?? "");
 const num = (s: string) => { const n = Number(s); return s !== "" && Number.isFinite(n) ? n : undefined; };
 
-export type Bkk3h = { time: string | null; date: string | null; temp?: number | undefined; rain24?: number | undefined; stationFound: boolean; stations: number };
+export type Bkk3h = { time: string | null; date: string | null; temp?: number | undefined; rain24?: number | undefined; stationFound: boolean; stations: number; complete: boolean; stationId: string | null; stationName: string | null };
+
+/** A full TMD file lists ~126 stations; fewer means TMD is still writing the file (seen right after 01/04/…/22 h). */
+export const MIN_COMPLETE_STATIONS = 100;
+/** Bangkok station first, then nearest substitutes (used only if 48455 is absent, never averaged). */
+export const BKK_ORDER = ["48455", "48454", "48453", "48456", "48429"];
 
 export function parseTmd3h(xml: string): Bkk3h {
   const blocks = xml.split(/<Station>/).slice(1).map((b) => b.split("</Station>")[0] ?? "");
-  const b = blocks.find((x) => tag(x, "WmoStationNumber") === "48455")
-    ?? blocks.find((x) => tag(x, "StationNameEnglish").toUpperCase() === "BANGKOK METROPOLIS");
-  if (!b) return { time: null, date: null, stationFound: false, stations: blocks.length };
+  const complete = blocks.length >= MIN_COMPLETE_STATIONS;
+  let b: string | undefined;
+  for (const id of BKK_ORDER) { b = blocks.find((x) => tag(x, "WmoStationNumber") === id); if (b) break; }
+  b ??= blocks.find((x) => tag(x, "StationNameEnglish").toUpperCase() === "BANGKOK METROPOLIS");
+  if (!b) return { time: null, date: null, stationFound: false, stations: blocks.length, complete, stationId: null, stationName: null };
   const time = tag(b, "DateTime") || null; // "MM/DD/YYYY HH:mm:ss", Bangkok local time
   const m = time?.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
   return {
@@ -27,6 +34,9 @@ export function parseTmd3h(xml: string): Bkk3h {
     rain24: num(tag(b, "Rainfall24Hr")) ?? num(tag(b, "Rainfall")),
     stationFound: true,
     stations: blocks.length,
+    complete,
+    stationId: tag(b, "WmoStationNumber") || null,
+    stationName: tag(b, "StationNameThai") || tag(b, "StationNameEnglish") || null,
   };
 }
 
