@@ -4,7 +4,7 @@ import { politeFetch } from "./http.server";
 
 type Values = Record<string, number>;
 /** Per-station/road detail kept in station_snapshots for the public flood/air tables. */
-export type Snap = { station_id: string; name: string; area?: string | null; value?: number | null; pct?: number | null; status?: string | null; observed_at?: string | null };
+export type Snap = { station_id: string; name: string; area?: string | null; value?: number | null; pct?: number | null; status?: string | null; observed_at?: string | null; lat?: number | null; lng?: number | null };
 export type ConnectorOut = Values | { values: Values; dates: Record<string, string>; note?: string; sample?: string; rows?: Snap[] };
 export type Connector = { source: string; run: (date: string, ctx?: { admin?: any }) => Promise<ConnectorOut> };
 
@@ -71,7 +71,7 @@ export const CONNECTORS: Connector[] = [
       const r = parseThaiWaterBkk(await jsonWith(TW_WL_URL, { referer: "https://www.thaiwater.net/", origin: "https://www.thaiwater.net" }), date);
       if (!r.stations.length) throw new Error("ไม่มีสถานีใน กทม./ปริมณฑล ที่รายงานวันนี้");
       const { twDateTime } = await import("./flood");
-      const rows = r.stations.map((x) => ({ station_id: x.id || x.name, name: x.name, area: x.province, value: Number.isFinite(x.msl) ? x.msl : null, pct: x.pct, status: x.pct >= 100 ? "ล้นตลิ่ง" : x.pct >= 80 ? "เฝ้าระวัง" : "ปกติ", observed_at: twDateTime(x.at) }));
+      const rows = r.stations.map((x) => ({ station_id: x.id || x.name, name: x.name, area: x.province, value: Number.isFinite(x.msl) ? x.msl : null, pct: x.pct, status: x.pct >= 100 ? "ล้นตลิ่ง" : x.pct >= 80 ? "เฝ้าระวัง" : "ปกติ", observed_at: twDateTime(x.at), lat: x.lat, lng: x.lng }));
       return { rows, values: { flood_bank_max: r.maxPct!, flood_over_bank: r.overBank }, dates: {}, sample: `${r.stations.length} สถานี · สูงสุด ${r.top!.name} (${r.top!.province}) ${r.maxPct}% ของตลิ่ง ${r.top!.at}` };
     },
   },
@@ -291,7 +291,7 @@ export const CONNECTORS: Connector[] = [
       if (mode !== "direct") ways.push(["Firecrawl", () => firecrawlJson(A4T_URL)]);
       const r = parseAir4Thai(await tryWays("Air4Thai", ways), date);
       if (!r.stations.length) throw new Error("ไม่มีสถานีใน กทม. ที่รายงานวันนี้");
-      const rows = r.stations.map((x) => ({ station_id: x.id, name: x.name, area: x.area, value: x.pm25, status: x.aqi != null ? `AQI ${x.aqi}` : null, observed_at: x.at }));
+      const rows = r.stations.map((x) => ({ station_id: x.id, name: x.name, area: x.area, value: x.pm25, status: x.aqi != null ? `AQI ${x.aqi}` : null, observed_at: x.at, lat: x.lat, lng: x.lng }));
       return { rows, values: { pm25_bkk_a4t: r.avg!, pm25_bkk_a4t_max: r.max! }, dates: {}, sample: `${r.stations.length} สถานี · เฉลี่ย ${r.avg} · สูงสุด ${r.top!.name} ${r.max} µg/m³ (${r.latest!.slice(11, 16)} น.)` };
     },
   },

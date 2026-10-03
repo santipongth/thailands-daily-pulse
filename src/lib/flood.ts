@@ -5,13 +5,14 @@ export const BMA_FLOOD_URL = "https://weather.bangkok.go.th/flood/";
 export const BMA_WATER_URL = "https://weather.bangkok.go.th/water/";
 export const DDPM_ALERT_URL = "https://www.disaster.go.th/contents/disaster_alert_report";
 
+const num = (v: unknown) => { const n = Number(v); return v != null && v !== "" && Number.isFinite(n) && n !== 0 ? n : null; };
 const BKK_AREA = ["กรุงเทพมหานคร", "นนทบุรี", "ปทุมธานี", "สมุทรปราการ"];
 
 /** ThaiWater telemetry stations in Bangkok + 3 neighbours reporting on `date` (Bangkok). */
 export function parseThaiWaterBkk(d: any, date: string) {
   const rows: any[] = d?.waterlevel_data?.data ?? [];
   const st = rows.filter((x) => BKK_AREA.includes(x?.geocode?.province_name?.th) && String(x?.waterlevel_datetime ?? "").startsWith(date) && x?.storage_percent != null)
-    .map((x) => ({ id: String(x.station?.id ?? x.station?.tele_station_oldcode ?? x.station?.tele_station_name?.th ?? ""), name: String(x.station?.tele_station_name?.th ?? ""), province: String(x.geocode.province_name.th), pct: Number(x.storage_percent), msl: Number(x.waterlevel_msl), at: String(x.waterlevel_datetime) }))
+    .map((x) => ({ id: String(x.station?.id ?? x.station?.tele_station_oldcode ?? x.station?.tele_station_name?.th ?? ""), name: String(x.station?.tele_station_name?.th ?? ""), province: String(x.geocode.province_name.th), pct: Number(x.storage_percent), msl: Number(x.waterlevel_msl), at: String(x.waterlevel_datetime), lat: num(x.station?.tele_station_lat), lng: num(x.station?.tele_station_long) }))
     .filter((x) => Number.isFinite(x.pct));
   st.sort((a, b) => b.pct - a.pct);
   return { stations: st, maxPct: st[0]?.pct, overBank: st.filter((x) => x.pct >= 100).length, top: st[0] };
