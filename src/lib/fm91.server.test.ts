@@ -10,24 +10,17 @@ describe("FM91 Firecrawl transient failures", () => {
 
   it.each([500, 429])("retries HTTP %i then accepts readable posts", async (status) => {
     process.env.FIRECRAWL_API_KEY = "test-key";
-    vi.useFakeTimers();
     const fetcher = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ error: "temporary" }), { status })).mockResolvedValueOnce(ok());
     vi.stubGlobal("fetch", fetcher);
-    const result = scrape();
-    await vi.runAllTimersAsync();
-    expect(await result).toContain("กรุงเทพฯ รถติด");
+    expect(await scrape()).toContain("กรุงเทพฯ รถติด");
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
 
   it("retries an empty feed but fails after the last attempt", async () => {
     process.env.FIRECRAWL_API_KEY = "test-key";
-    vi.useFakeTimers();
     const fetcher = vi.fn().mockResolvedValue(empty());
     vi.stubGlobal("fetch", fetcher);
-    const result = scrape();
-    const assertion = expect(result).rejects.toThrow("ไม่พบโพสต์ที่อ่านได้");
-    await vi.runAllTimersAsync();
-    await assertion;
+    await expect(scrape()).rejects.toThrow("ไม่พบโพสต์ที่อ่านได้");
     expect(fetcher).toHaveBeenCalledTimes(3);
   });
 
