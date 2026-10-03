@@ -189,9 +189,9 @@ const CostTrendIndexRoute = CostTrendIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CostTrendItemRoute = CostTrendItemRouteImport.update({
-  id: '/$item',
-  path: '/$item',
-  getParentRoute: () => CostTrendRoute,
+  id: '/cost-trend/$item',
+  path: '/cost-trend/$item',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DayDateRoute = DayDateRouteImport.update({
   id: '/day/$date',
@@ -564,6 +564,7 @@ export interface RootRouteChildren {
   StationsRoute: typeof StationsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   BriefDateRoute: typeof BriefDateRoute
+  CostTrendItemRoute: typeof CostTrendItemRoute
   DayDateRoute: typeof DayDateRoute
   SignalsFamilyRoute: typeof SignalsFamilyRoute
   BriefIndexRoute: typeof BriefIndexRoute
@@ -770,10 +771,10 @@ declare module '@tanstack/react-router' {
     }
     '/cost-trend/$item': {
       id: '/cost-trend/$item'
-      path: '/$item'
+      path: '/cost-trend/$item'
       fullPath: '/cost-trend/$item'
       preLoaderRoute: typeof CostTrendItemRouteImport
-      parentRoute: typeof CostTrendRoute
+      parentRoute: typeof rootRouteImport
     }
     '/day/$date': {
       id: '/day/$date'
@@ -960,6 +961,7 @@ const rootRouteChildren: RootRouteChildren = {
   StationsRoute: StationsRoute,
   AdminLoginRoute: AdminLoginRoute,
   BriefDateRoute: BriefDateRoute,
+  CostTrendItemRoute: CostTrendItemRoute,
   DayDateRoute: DayDateRoute,
   SignalsFamilyRoute: SignalsFamilyRoute,
   BriefIndexRoute: BriefIndexRoute,
