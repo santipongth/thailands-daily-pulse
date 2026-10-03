@@ -290,6 +290,13 @@ export async function refreshDams(): Promise<{ processed: number }> {
     { job_type: "connector", source: "ThaiWater (สสน.)" },
     { job_type: "connector", source: "RID อ่างเก็บน้ำ (กรมชลประทาน)" },
   ].filter((s) => cfg.get(s.source)?.enabled !== false && cfg.get(s.source)?.schedule !== "manual");
+  // Respect a 3-hour schedule here too (hourly dam runs were causing ThaiWater 429 rate limits).
+  const { data: lastRuns } = await admin.from("source_runs").select("source,ran_at").in("source", damSpecs.map((s) => s.source));
+  const lastAt = new Map((lastRuns ?? []).map((r: any) => [r.source, Date.parse(r.ran_at)]));
+  for (let i = damSpecs.length - 1; i >= 0; i--) {
+    const c = cfg.get(damSpecs[i]!.source);
+    if (c?.schedule === "3h" && Date.now() - (lastAt.get(damSpecs[i]!.source) ?? 0) < 3 * 3600e3 - 5 * 60e3) damSpecs.splice(i, 1);
+  }
   if (!damSpecs.length) return { processed: 0 };
   await enqueue(admin, damSpecs, "dams");
   const processed = await drain(admin, date, 150e3, 4);
