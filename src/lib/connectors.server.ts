@@ -6,7 +6,7 @@ type Values = Record<string, number>;
 export type ConnectorOut = Values | { values: Values; dates: Record<string, string> };
 export type Connector = { source: string; run: (date: string, ctx?: { admin?: any }) => Promise<ConnectorOut> };
 
-export const normalizeOut = (o: ConnectorOut): { values: Values; dates?: Record<string, string> } =>
+export const normalizeOut = (o: ConnectorOut): { values: Values; dates?: Record<string, string>; note?: string } =>
   o && typeof (o as any).values === "object" && typeof (o as any).dates === "object" ? (o as any) : { values: o as Values };
 
 const json = async (url: string) => (await politeFetch(url, { headers: { accept: "application/json, */*" } })).json() as Promise<any>;
@@ -204,7 +204,7 @@ export const CONNECTORS: Connector[] = [
       if (!r.stationFound) throw new Error(r.stations
         ? `กรมอุตุฯ ส่งไฟล์ไม่ครบ (มี ${r.stations} จาก ~126 สถานี ไม่มีสถานีกรุงเทพฯ และสถานีสำรอง) — ลองใหม่ 3 ครั้งแล้ว ใช้ค่ารอบก่อน`
         : "กรมอุตุฯ กำลังสร้างไฟล์รอบใหม่ (ไฟล์ว่าง) — ลองใหม่ 3 ครั้งแล้ว ใช้ค่ารอบก่อน");
-      if (r.stationId !== "48455") console.warn(`TMD 3h: ใช้สถานีสำรอง ${r.stationId} ${r.stationName} (ไฟล์มี ${r.stations} สถานี)`);
+      const note = r.stationId !== "48455" ? `สถานีสำรอง: ${r.stationName} (${r.stationId}) — ไฟล์รอบนี้ไม่มีสถานีกรุงเทพมหานคร (มี ${r.stations} สถานี)` : undefined;
       const day = r.date ?? date;
       const values: Values = {}, dates: Record<string, string> = {};
       if (r.rain24 !== undefined && r.rain24 >= 0) { values["rain_bkk"] = r.rain24; dates["rain_bkk"] = day; }
@@ -217,8 +217,8 @@ export const CONNECTORS: Connector[] = [
         const { data: y } = await admin.from("app_settings").select("value").eq("key", `tmax3h:${prevDay(day)}`).maybeSingle();
         if (y && Number.isFinite(Number(y.value))) { values["tmax_bkk"] = Number(y.value); dates["tmax_bkk"] = day; }
       }
-      if (!Object.keys(values).length) throw new Error("สถานี BANGKOK METROPOLIS ไม่มีค่าฝน และยังไม่มีอุณหภูมิสูงสุดของเมื่อวาน");
-      return { values, dates };
+      if (!Object.keys(values).length) throw new Error(`สถานี ${r.stationName ?? "BANGKOK METROPOLIS"} ไม่มีค่าฝน และยังไม่มีอุณหภูมิสูงสุดของเมื่อวาน`);
+      return note ? { values, dates, note } : { values, dates };
     },
   },
   {
