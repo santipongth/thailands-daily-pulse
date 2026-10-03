@@ -6,6 +6,7 @@
 - Holidays: Kapook yearly page (`kapook.ts`, job `holidays`); URL in `app_settings.holiday_url`, set on /calendar via `setHolidayUrl` — new year = new link.
 - Air/weather: GISTDA pm25_bkk; TMD Weather3Hours station 48455 (`tmd3h.ts`, decode XML char refs) → rain_bkk (24h, report date) and tmax_bkk = yesterday's max of 3-hourly readings (running max in app_settings `tmax3h:date`). Water: RID reservoir API → Pasak/Khun Dan; ThaiWater C.13 → cp_dam_q.
 - `weather_station_obs` (5 nearest 3h stations + 7d vicinity rows, by TMD connectors) feeds brief `StationCompare`; fixed `DamsBox` — compare regardless of thresholds.
+- FM91 Firecrawl requests retry transient 429/5xx/network/empty-post responses with bounded backoff; permanent client errors fail immediately and successful no-new-post runs are distinguished from failed fetches — avoid false success and duplicate posts.
 - ThaiWater order = `app_settings.thaiwater_mode` (default direct, then Firecrawl); errors verbatim in `source_runs.error`, shown via shared `missing-reason.ts`.
 - Household cost is fixed `BASKET` × real price change in `impact.ts`, shown by `HouseholdBasket` — keep this math deterministic.
 - `/tracking` shows per-source windows, missing values and cutoff reasons from this source pipeline — retain auditable status.

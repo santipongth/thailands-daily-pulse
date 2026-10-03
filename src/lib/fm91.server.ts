@@ -24,17 +24,39 @@ export function parseXPosts(md: string): RawPost[] {
   return out;
 }
 
-async function scrape(): Promise<string> {
+export async function scrape(): Promise<string> {
   const key = process.env["FIRECRAWL_API_KEY"];
   if (!key) throw new Error("FIRECRAWL_API_KEY ไม่ได้ตั้งค่า");
-  const r = await fetch("https://api.firecrawl.dev/v2/scrape", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ url: FM91_URL, formats: ["markdown"] }),
-  });
-  const j: any = await r.json().catch(() => null);
-  if (!r.ok || !j?.success) throw new Error(`Firecrawl ${r.status}: ${j?.error ?? "ไม่ทราบสาเหตุ"}`);
-  return j.data?.markdown ?? j.markdown ?? "";
+  let lastError: Error = new Error("ดึงโพสต์ FM91 ไม่สำเร็จ");
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let delay = [2000, 5000][attempt] ?? 5000;
+    try {
+      const r = await fetch("https://api.firecrawl.dev/v2/scrape", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ url: FM91_URL, formats: ["markdown"] }),
+        signal: AbortSignal.timeout(25_000),
+      });
+      const j: any = await r.json().catch(() => null);
+      if (!r.ok || !j?.success) {
+        const message = `Firecrawl ${r.status}: ${j?.error ?? "ไม่ทราบสาเหตุ"}`;
+        if (r.status === 429) {
+          const retryAfter = Number(r.headers.get("retry-after"));
+          if (Number.isFinite(retryAfter) && retryAfter > 0) delay = Math.min(retryAfter * 1000, 20_000);
+        }
+        if (r.status !== 429 && r.status < 500) throw Object.assign(new Error(message), { permanent: true });
+        throw new Error(message);
+      }
+      const md = j.data?.markdown ?? j.markdown ?? "";
+      if (!parseXPosts(md).length) throw new Error("ไม่พบโพสต์ที่อ่านได้ในหน้า X ของ FM91");
+      return md;
+    } catch (e) {
+      lastError = e instanceof Error ? e : new Error(String(e));
+      if ((e as { permanent?: boolean }).permanent || attempt === 2) break;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+  throw new Error(`ลองดึง FM91 แล้วไม่สำเร็จ: ${lastError.message}`);
 }
 
 type Verdict = { id: string; is_bkk: boolean; area: string; summary: string; reason: string };
@@ -97,7 +119,7 @@ export async function refreshSocial(): Promise<{ fetched: number; added: number;
     const md = await withEvidence(admin, job!.id, FM91_SOURCE, scrape);
     const posts = parseXPosts(md);
     fetched = posts.length;
-    if (!posts.length) throw new Error("ไม่พบโพสต์ในหน้า X ของ FM91");
+    if (!posts.length) throw new Error("ไม่พบโพสต์ที่อ่านได้ในหน้า X ของ FM91");
     const { data: ev } = await admin.from("raw_evidence").select("id").eq("job_id", job!.id).order("id", { ascending: false }).limit(1).maybeSingle();
     const { data: known } = await admin.from("social_posts").select("post_id").in("post_id", posts.map((p) => p.post_id));
     const seen = new Set((known ?? []).map((k) => k.post_id));
@@ -128,7 +150,7 @@ export async function refreshSocial(): Promise<{ fetched: number; added: number;
   }
   const ok = !error;
   await admin.from("ingest_jobs").update({ status: ok ? "done" : "failed", rows: added, error, finished_at: new Date().toISOString(), attempts: 1 }).eq("id", job!.id);
-  await admin.from("source_runs").upsert({ source: FM91_SOURCE, ran_at: ranAt, ok, rows: added, error, url: FM91_URL, kind: "api", run_kind: "social", ...(ok ? { last_ok_at: ranAt } : {}) });
+  await admin.from("source_runs").upsert({ source: FM91_SOURCE, ran_at: ranAt, ok, rows: added, error: ok && added === 0 ? "ดึงสำเร็จ แต่ไม่มีโพสต์ใหม่ที่ผ่านการคัดกรอง" : error, url: FM91_URL, kind: "api", run_kind: "social", ...(ok ? { last_ok_at: ranAt } : {}) });
   await admin.from("source_run_history").insert({ source: FM91_SOURCE, ran_at: ranAt, ok, rows: added, error, run_kind: "social" });
   await admin.from("job_locks").upsert({ name: "social_run", locked_until: new Date().toISOString() });
   return { fetched, added, ...(error ? { skipped: error } : {}) };

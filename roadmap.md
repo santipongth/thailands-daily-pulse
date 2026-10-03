@@ -24,3 +24,9 @@
 - [x] Apply the Today editorial shell, typography, sections, tables, and states across content pages
 - [x] Verify PostgreSQL metadata/private-file storage boundaries and public API/MCP exposure
 - [x] Validate metadata, MCP read-only tools, security, type safety, and responsive layouts at 320/390/768/1280
+
+## Source freshness and Today layout
+- [x] Move household costs below agency activity and match its editorial section
+- [x] Run Longdo hourly and show that cadence in sources
+- [x] Mark all sources stale after more than one day
+- [x] Retry transient FM91 failures with delay and verify source status

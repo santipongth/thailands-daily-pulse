@@ -50,11 +50,11 @@ function Today() {
   useEffect(() => {
     if (date !== today) return;
     refresh({ data: { maxAgeHours: readIntervalHours() } }).then((r) => {
-      if (r.refreshed) {
+      if (r?.refreshed) {
         qc.invalidateQueries({ queryKey: ["day", date] });
         router.invalidate();
       }
-    });
+    }).catch(() => { /* Scheduled collection failure is shown in source status. */ });
   }, [date]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fam = new Map(data.families.map((f) => [f.id, f]));
@@ -160,7 +160,6 @@ function Today() {
           )}
         </section>
 
-        <div className="mt-10"><HouseholdBasket date={date} /></div>
         {date === today && <div className="mt-12"><SocialFeed limit={6} /></div>}
 
         {agencyNews.length > 0 && (
@@ -182,6 +181,7 @@ function Today() {
           </section>
         )}
 
+        <div className="mt-12"><HouseholdBasket date={date} /></div>
         {date === today && <div className="mt-10"><LatestLottery /></div>}
 
         <section className="mt-14 border-t border-editorial-ink pt-4">
