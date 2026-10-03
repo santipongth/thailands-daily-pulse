@@ -35,6 +35,7 @@ import { Route as AdminTrackingRouteImport } from './routes/_admin/tracking'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as BriefIndexRouteImport } from './routes/brief.index'
 import { Route as BriefDateRouteImport } from './routes/brief.$date'
+import { Route as CostSignalsItemRouteImport } from './routes/cost-signals.$item'
 import { Route as CostTrendIndexRouteImport } from './routes/cost-trend.index'
 import { Route as CostTrendItemRouteImport } from './routes/cost-trend.$item'
 import { Route as DayDateRouteImport } from './routes/day.$date'
@@ -183,6 +184,11 @@ const BriefDateRoute = BriefDateRouteImport.update({
   path: '/brief/$date',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CostSignalsItemRoute = CostSignalsItemRouteImport.update({
+  id: '/cost-signals/$item',
+  path: '/cost-signals/$item',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CostTrendIndexRoute = CostTrendIndexRouteImport.update({
   id: '/cost-trend/',
   path: '/cost-trend/',
@@ -299,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/tracking': typeof AdminTrackingRoute
   '/admin/login': typeof AdminLoginRoute
   '/brief/$date': typeof BriefDateRoute
+  '/cost-signals/$item': typeof CostSignalsItemRoute
   '/cost-trend/$item': typeof CostTrendItemRoute
   '/day/$date': typeof DayDateRoute
   '/developers/api': typeof DevelopersApiRoute
@@ -343,6 +350,7 @@ export interface FileRoutesByTo {
   '/tracking': typeof AdminTrackingRoute
   '/admin/login': typeof AdminLoginRoute
   '/brief/$date': typeof BriefDateRoute
+  '/cost-signals/$item': typeof CostSignalsItemRoute
   '/cost-trend/$item': typeof CostTrendItemRoute
   '/day/$date': typeof DayDateRoute
   '/developers/api': typeof DevelopersApiRoute
@@ -390,6 +398,7 @@ export interface FileRoutesById {
   '/_admin/tracking': typeof AdminTrackingRoute
   '/admin/login': typeof AdminLoginRoute
   '/brief/$date': typeof BriefDateRoute
+  '/cost-signals/$item': typeof CostSignalsItemRoute
   '/cost-trend/$item': typeof CostTrendItemRoute
   '/day/$date': typeof DayDateRoute
   '/developers/api': typeof DevelopersApiRoute
@@ -437,6 +446,7 @@ export interface FileRouteTypes {
     | '/tracking'
     | '/admin/login'
     | '/brief/$date'
+    | '/cost-signals/$item'
     | '/cost-trend/$item'
     | '/day/$date'
     | '/developers/api'
@@ -481,6 +491,7 @@ export interface FileRouteTypes {
     | '/tracking'
     | '/admin/login'
     | '/brief/$date'
+    | '/cost-signals/$item'
     | '/cost-trend/$item'
     | '/day/$date'
     | '/developers/api'
@@ -527,6 +538,7 @@ export interface FileRouteTypes {
     | '/_admin/tracking'
     | '/admin/login'
     | '/brief/$date'
+    | '/cost-signals/$item'
     | '/cost-trend/$item'
     | '/day/$date'
     | '/developers/api'
@@ -564,6 +576,7 @@ export interface RootRouteChildren {
   StationsRoute: typeof StationsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   BriefDateRoute: typeof BriefDateRoute
+  CostSignalsItemRoute: typeof CostSignalsItemRoute
   CostTrendItemRoute: typeof CostTrendItemRoute
   DayDateRoute: typeof DayDateRoute
   SignalsFamilyRoute: typeof SignalsFamilyRoute
@@ -760,6 +773,13 @@ declare module '@tanstack/react-router' {
       path: '/brief/$date'
       fullPath: '/brief/$date'
       preLoaderRoute: typeof BriefDateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cost-signals/$item': {
+      id: '/cost-signals/$item'
+      path: '/cost-signals/$item'
+      fullPath: '/cost-signals/$item'
+      preLoaderRoute: typeof CostSignalsItemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cost-trend/': {
@@ -961,6 +981,7 @@ const rootRouteChildren: RootRouteChildren = {
   StationsRoute: StationsRoute,
   AdminLoginRoute: AdminLoginRoute,
   BriefDateRoute: BriefDateRoute,
+  CostSignalsItemRoute: CostSignalsItemRoute,
   CostTrendItemRoute: CostTrendItemRoute,
   DayDateRoute: DayDateRoute,
   SignalsFamilyRoute: SignalsFamilyRoute,
