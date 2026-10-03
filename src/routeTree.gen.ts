@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteRouteImport } from './routes/_admin/route'
-import { Route as CostTrendRouteImport } from './routes/cost-trend'
 import { Route as DataAllRouteImport } from './routes/data-all'
 import { Route as DataMapRouteImport } from './routes/data-map'
 import { Route as DevelopersRouteImport } from './routes/developers'
@@ -36,6 +35,7 @@ import { Route as AdminTrackingRouteImport } from './routes/_admin/tracking'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as BriefIndexRouteImport } from './routes/brief.index'
 import { Route as BriefDateRouteImport } from './routes/brief.$date'
+import { Route as CostTrendIndexRouteImport } from './routes/cost-trend.index'
 import { Route as CostTrendItemRouteImport } from './routes/cost-trend.$item'
 import { Route as DayDateRouteImport } from './routes/day.$date'
 import { Route as DevelopersIndexRouteImport } from './routes/developers.index'
@@ -61,11 +61,6 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AdminRouteRoute = AdminRouteRouteImport.update({
   id: '/_admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CostTrendRoute = CostTrendRouteImport.update({
-  id: '/cost-trend',
-  path: '/cost-trend',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DataAllRoute = DataAllRouteImport.update({
@@ -188,6 +183,11 @@ const BriefDateRoute = BriefDateRouteImport.update({
   path: '/brief/$date',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CostTrendIndexRoute = CostTrendIndexRouteImport.update({
+  id: '/cost-trend/',
+  path: '/cost-trend/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CostTrendItemRoute = CostTrendItemRouteImport.update({
   id: '/$item',
   path: '/$item',
@@ -276,7 +276,6 @@ const ApiPublicOgBriefDateRoute = ApiPublicOgBriefDateRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/cost-trend': typeof CostTrendRouteWithChildren
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
@@ -306,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/developers/mcp': typeof DevelopersMcpRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/brief/': typeof BriefIndexRoute
+  '/cost-trend/': typeof CostTrendIndexRoute
   '/developers/': typeof DevelopersIndexRoute
   '/agencies/$agency': typeof AdminAgenciesAgencyRoute
   '/events/$id': typeof AdminEventsIdRoute
@@ -321,7 +321,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/cost-trend': typeof CostTrendRouteWithChildren
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/failures': typeof FailuresRoute
@@ -350,6 +349,7 @@ export interface FileRoutesByTo {
   '/developers/mcp': typeof DevelopersMcpRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/brief': typeof BriefIndexRoute
+  '/cost-trend': typeof CostTrendIndexRoute
   '/developers': typeof DevelopersIndexRoute
   '/agencies/$agency': typeof AdminAgenciesAgencyRoute
   '/events/$id': typeof AdminEventsIdRoute
@@ -367,7 +367,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteRouteWithChildren
-  '/cost-trend': typeof CostTrendRouteWithChildren
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
@@ -397,6 +396,7 @@ export interface FileRoutesById {
   '/developers/mcp': typeof DevelopersMcpRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/brief/': typeof BriefIndexRoute
+  '/cost-trend/': typeof CostTrendIndexRoute
   '/developers/': typeof DevelopersIndexRoute
   '/_admin/agencies/$agency': typeof AdminAgenciesAgencyRoute
   '/_admin/events/$id': typeof AdminEventsIdRoute
@@ -414,7 +414,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/cost-trend'
     | '/data-all'
     | '/data-map'
     | '/developers'
@@ -444,6 +443,7 @@ export interface FileRouteTypes {
     | '/developers/mcp'
     | '/signals/$family'
     | '/brief/'
+    | '/cost-trend/'
     | '/developers/'
     | '/agencies/$agency'
     | '/events/$id'
@@ -459,7 +459,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/cost-trend'
     | '/data-all'
     | '/data-map'
     | '/failures'
@@ -488,6 +487,7 @@ export interface FileRouteTypes {
     | '/developers/mcp'
     | '/signals/$family'
     | '/brief'
+    | '/cost-trend'
     | '/developers'
     | '/agencies/$agency'
     | '/events/$id'
@@ -504,7 +504,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_admin'
-    | '/cost-trend'
     | '/data-all'
     | '/data-map'
     | '/developers'
@@ -534,6 +533,7 @@ export interface FileRouteTypes {
     | '/developers/mcp'
     | '/signals/$family'
     | '/brief/'
+    | '/cost-trend/'
     | '/developers/'
     | '/_admin/agencies/$agency'
     | '/_admin/events/$id'
@@ -551,7 +551,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
-  CostTrendRoute: typeof CostTrendRouteWithChildren
   DataAllRoute: typeof DataAllRoute
   DataMapRoute: typeof DataMapRoute
   DevelopersRoute: typeof DevelopersRouteWithChildren
@@ -568,6 +567,7 @@ export interface RootRouteChildren {
   DayDateRoute: typeof DayDateRoute
   SignalsFamilyRoute: typeof SignalsFamilyRoute
   BriefIndexRoute: typeof BriefIndexRoute
+  CostTrendIndexRoute: typeof CostTrendIndexRoute
   ApiPublicBriefRoute: typeof ApiPublicBriefRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
@@ -591,13 +591,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AdminRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cost-trend': {
-      id: '/cost-trend'
-      path: '/cost-trend'
-      fullPath: '/cost-trend'
-      preLoaderRoute: typeof CostTrendRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/data-all': {
@@ -768,6 +761,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BriefDateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cost-trend/': {
+      id: '/cost-trend/'
+      path: '/cost-trend'
+      fullPath: '/cost-trend/'
+      preLoaderRoute: typeof CostTrendIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cost-trend/$item': {
       id: '/cost-trend/$item'
       path: '/$item'
@@ -928,18 +928,6 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
   AdminRouteRouteChildren,
 )
 
-interface CostTrendRouteChildren {
-  CostTrendItemRoute: typeof CostTrendItemRoute
-}
-
-const CostTrendRouteChildren: CostTrendRouteChildren = {
-  CostTrendItemRoute: CostTrendItemRoute,
-}
-
-const CostTrendRouteWithChildren = CostTrendRoute._addFileChildren(
-  CostTrendRouteChildren,
-)
-
 interface DevelopersRouteChildren {
   DevelopersApiRoute: typeof DevelopersApiRoute
   DevelopersMcpRoute: typeof DevelopersMcpRoute
@@ -959,7 +947,6 @@ const DevelopersRouteWithChildren = DevelopersRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
-  CostTrendRoute: CostTrendRouteWithChildren,
   DataAllRoute: DataAllRoute,
   DataMapRoute: DataMapRoute,
   DevelopersRoute: DevelopersRouteWithChildren,
@@ -976,6 +963,7 @@ const rootRouteChildren: RootRouteChildren = {
   DayDateRoute: DayDateRoute,
   SignalsFamilyRoute: SignalsFamilyRoute,
   BriefIndexRoute: BriefIndexRoute,
+  CostTrendIndexRoute: CostTrendIndexRoute,
   ApiPublicBriefRoute: ApiPublicBriefRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
