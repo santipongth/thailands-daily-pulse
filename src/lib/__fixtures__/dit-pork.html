@@ -1,0 +1,135 @@
+iv>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>  <div class="container">
+
+    
+<div class="row">
+  <div class="box_main_body3">
+    <div class="box_main_head3">
+      <h1>กราฟราคาเฉลี่ยรายวัน </h1>    </div>
+    <form>
+      <div class="highcharts_box">
+        <div class="container">
+          <div class="row">
+
+            <script src="code/highcharts.js"></script>
+            <script src="code/modules/series-label.js"></script>
+            <script src="code/highcharts-more.js"></script>
+            <script src="code/modules/exporting.js"></script>
+            <script src="code/modules/export-data.js"></script>
+
+            <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+            
+            <script type="text/javascript">
+              function myyearthai(p1) {
+                var dateyear = (p1 + 543);
+                return dateyear;
+              }
+              var months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+              var ranges = [[1788282000000, 170, 180],                  [1788368400000, 170, 180],                  [1788454800000, 170, 180],                  [1788541200000, 170, 180],                  [1788800400000, 170, 180],                  [1788886800000, 170, 180],                  [1788973200000, 170, 180],                  [1789059600000, 170, 180],                  [1789146000000, 170, 180],                  [1789405200000, 170, 180],                  [1789491600000, 170, 180],                  [1789578000000, 170, 180],                  [1789664400000, 170, 180],                  [1789750800000, 170, 180],                  [1790010000000, 160, 170],                  [1790096400000, 160, 170],                  [1790182800000, 160, 170],                  [1790269200000, 160, 170],                  [1790355600000, 160, 170],                  [1790787600000, 150, 160],                  [1790874000000, 150, 160],                  [1790960400000, 150, 160]                                  ],
+                averages = [
+                  [1788282000000, 175.00],                  [1788368400000, 175.00],                  [1788454800000, 175.00],                  [1788541200000, 175.00],                  [1788800400000, 175.00],                  [1788886800000, 175.00],                  [1788973200000, 175.00],                  [1789059600000, 175.00],                  [1789146000000, 175.00],                  [1789405200000, 175.00],                  [1789491600000, 175.00],                  [1789578000000, 175.00],                  [1789664400000, 175.00],                  [1789750800000, 175.00],                  [1790010000000, 165.00],                  [1790096400000, 165.00],                  [1790182800000, 165.00],                  [1790269200000, 165.00],                  [1790355600000, 165.00],                  [1790787600000, 155.00],                  [1790874000000, 155.00],                  [1790960400000, 155.00]                                  ];
+
+
+              Highcharts.chart('container', {
+                title: {
+                  text: 'ราคาเฉลี่ยรายวัน'
+                },
+                scrollbar: {
+                  enabled: true
+                },
+                xAxis: {
+                  type: 'datetime',
+                  labels: {
+                    formatter: function() {
+                      var date = new Date(this.value);
+                      return date.getDate() + ' ' + months[date.getMonth()] + ' ' + myyearthai(date.getFullYear());
+                    }
+                  }
+                },
+
+                yAxis: {
+                  title: {
+                    text: 'บาท/กก.'
+                  }
+                },
+
+                tooltip: {
+                  crosshairs: true,
+                  shared: true,
+                  valueSuffix: ''
+                },
+                legend: {
+                  enabled: true,
+                },
+
+                credits: {
+                  enabled: false
+                },
+                series: [{
+                  name: 'ราคาเฉลี่ยรายวัน',
+                  data: averages,
+                  zIndex: 1,
+                  marker: {
+                    fillColor: 'white',
+                    lineWidth: 2,
+                    lineColor: Highcharts.getOptions().colors[0]
+                  }
+                }, {
+                  name: 'ราคาต่ำสุด-สูงสุด',
+                  data: ranges,
+                  type: 'arearange',
+                  lineWidth: 0,
+                  linkedTo: ':previous',
+                  color: Highcharts.getOptions().colors[0],
+                  fillOpacity: 0.3,
+                  zIndex: 0,
+                  marker: {
+                    enabled: false
+                  }
+                }],
+                exporting: {
+                  buttons: {
+                    contextButton: {
+                      enabled: false
+                    },
+                    exportButton: {
+                      text: '-',
+                      // Use only the download related menu items from the default
+                      // context button
+                      menuItems: [
+                        'downloadPNG',
+                        'downloadJPEG',
+                        'downloadPDF',
+                        'downloadSVG'
+                      ]
+                    }
+                  }
+                }
+
+              });
+            </script>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="box_main_body4">
+      <div id="day_cerrent2">
+        <h1>รายวัน</h1>
+      </div>
+      <div class="box_main_head4">
+        <div class="container">
+          <div class="row">
+            <div class="col_left">
+                            <h2>ประเภท <span>: ขายปลีก</span> สินค้า <span>: เนื้อสัตว์&nbsp;&nbsp;สุกรชำแหละ เนื้อสัน สันใน บาท/กก.</span></h2>
+            </div>
+            <div class="col_right"> ส่งออกข้อมูล <a href="exportpdf.php?settime=day&from=01/09/2569&to=03/10/2569&type=1&group=P11000&name=P11001" target="_blank"><img src="images/i
