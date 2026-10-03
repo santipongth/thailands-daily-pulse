@@ -78,6 +78,8 @@ bun run dev                             # → http://localhost:8080
 # 5. Collect the first data
 curl -X POST -H "Authorization: Bearer $LOVABLE_CRON_SECRET" "http://localhost:8080/api/public/ingest?mode=daily"
 ```
+**Prefer a form?** Open `/setup` on your running site: it tests your own database from your browser and generates `.env` and deploy commands (keys never leave your browser).
+
 Then create an admin user in Supabase Auth, run `database/create-admin.sql` with that email, and sign in at `/admin/login` (the username `admin` maps to `VITE_ADMIN_EMAIL`).
 
 > A new install starts empty. Signals appear once values change, and weekly comparisons need about 14 days of collected data.
