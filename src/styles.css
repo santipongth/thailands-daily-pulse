@@ -336,3 +336,12 @@ svg, canvas { max-width: 100%; }
 .bkk-pop { font-size: 0.85rem; line-height: 1.4; }
 .bkk-pop-val { margin-top: 0.25rem; font-weight: 600; }
 .bkk-pop-sub { color: var(--muted-foreground); font-size: 0.75rem; }
+.bkk-icon { background: none; border: 0; }
+.bkk-pin2 { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 9999px; border: 1.5px solid var(--map-ink); color: var(--map-ink); font: 600 11px/1 system-ui, sans-serif; box-shadow: 0 1px 3px oklch(0 0 0 / 0.3); }
+.bkk-pin2.map-b1 { background: var(--map-1); } .bkk-pin2.map-b2 { background: var(--map-2); } .bkk-pin2.map-b3 { background: var(--map-3); }
+.bkk-pin2.map-b4 { background: var(--map-4); } .bkk-pin2.map-b5 { background: var(--map-5); color: var(--background); }
+.bkk-pin2.bkk-weather { background: var(--background); border-width: 2.5px; }
+.bkk-pin2.bkk-rail { border-radius: 4px; font-size: 10px; }
+.bkk-pin2.bkk-approx { border-style: dashed; }
+.bkk-pin2.bkk-stale { opacity: 0.45; }
+.bkk-pin2.bkk-sel { outline: 3px solid var(--foreground); outline-offset: 2px; }
