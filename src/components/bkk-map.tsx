@@ -15,12 +15,14 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 
 type Spot = { c: [number, number]; label: string };
 
-export function BkkMap({ initialLayers, initialPoint }: { initialLayers?: string; initialPoint?: string }) {
+export function BkkMap({ initialLayers, initialPoint }: { initialLayers: string | undefined; initialPoint: string | undefined }) {
   const { data, dataUpdatedAt } = useQuery({ queryKey: ["bkk-map"], queryFn: loadMapData, refetchInterval: 10 * 60e3 });
-  const [on, setOn] = useState<Set<LayerId>>(new Set(DEFAULT_ON));
+  const [on, setOn] = useState<Set<LayerId>>(() => initialLayers
+    ? new Set(initialLayers.split(",").filter((x): x is LayerId => LAYERS.some((l) => l.id === x)))
+    : new Set(DEFAULT_ON));
   const [allRoads, setAllRoads] = useState(false);
   const [q, setQ] = useState("");
-  const [sel, setSel] = useState<string | null>(null);
+  const [sel, setSel] = useState<string | null>(initialPoint ?? null);
   const [spot, setSpot] = useState<Spot | null>(null);
   const [geoErr, setGeoErr] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -35,10 +37,6 @@ export function BkkMap({ initialLayers, initialPoint }: { initialLayers?: string
   const selPt = pts.find((p) => p.key === sel) ?? null;
 
   // Shared link: ?layers=pm25,water&pt=<key>, validated by the Today route.
-  useEffect(() => {
-    if (initialLayers) setOn(new Set(initialLayers.split(",").filter((x): x is LayerId => LAYERS.some((l) => l.id === x))));
-    if (initialPoint) setSel(initialPoint);
-  }, []);
   useEffect(() => {
     const u = new URL(window.location.href);
     u.searchParams.set("layers", [...on].join(","));

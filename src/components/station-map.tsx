@@ -19,7 +19,7 @@ export function StationMap() {
   return (
     <EditorialDataSection eyebrow="กรมอุตุนิยมวิทยา · รอบล่าสุด" title="สถานีตรวจอากาศใกล้กรุงเทพฯ">
       {!latest.length ? <p className="mt-2 text-sm text-muted-foreground">ยังไม่มีค่าสถานี — รอรอบดึงกรมอุตุฯ ราย 3 ชม.</p> : (
-        <div className="mt-2 grid gap-4 ">
+        <div className="mt-2 grid gap-4">
           <div className="overflow-x-auto"><table className="w-full min-w-[520px] text-sm">
             <thead><tr className="border-b border-editorial-ink text-left text-muted-foreground"><th className="py-2">สถานี</th><th>°C</th><th>ฝน 24 ชม.</th><th>รายงานรอบ</th><th>รับเมื่อ</th></tr></thead>
             <tbody>
