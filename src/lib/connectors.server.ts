@@ -177,8 +177,17 @@ export const CONNECTORS: Connector[] = [
     source: "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)",
     run: async (date, ctx) => {
       const { TMD3H_URL, parseTmd3h, parseNearStations } = await import("./tmd3h");
-      const xml3 = await text(TMD3H_URL);
-      const r = parseTmd3h(xml3);
+      // TMD rewrites the file every 3 h; mid-write it returns an empty (~0.5 KB) or partial file.
+      // Wait and re-fetch (spaced, not back-to-back) until the file is complete or attempts run out.
+      let xml3 = await text(TMD3H_URL);
+      let r = parseTmd3h(xml3);
+      for (const waitMs of [45_000, 90_000]) {
+        if (r.complete && r.stationId === "48455") break;
+        await new Promise((ok) => setTimeout(ok, waitMs));
+        const x = await text(TMD3H_URL).catch(() => "");
+        const p = parseTmd3h(x);
+        if (p.stations >= r.stations) { xml3 = x; r = p; }
+      }
       // Nearest stations: one row per station/day — temp = highest reading so far that day, rain = latest 24-h total.
       if (ctx?.admin) {
         const near = parseNearStations(xml3);
@@ -192,7 +201,10 @@ export const CONNECTORS: Connector[] = [
           }), { onConflict: "station_id,obs_date,kind" });
         }
       }
-      if (!r.stationFound) throw new Error(r.stations ? "ไม่พบสถานี 48455 BANGKOK METROPOLIS ในไฟล์" : "กรมอุตุฯ ยังไม่มีรายการสถานีในรอบนี้ (ไฟล์ว่าง)");
+      if (!r.stationFound) throw new Error(r.stations
+        ? `กรมอุตุฯ ส่งไฟล์ไม่ครบ (มี ${r.stations} จาก ~126 สถานี ไม่มีสถานีกรุงเทพฯ และสถานีสำรอง) — ลองใหม่ 3 ครั้งแล้ว ใช้ค่ารอบก่อน`
+        : "กรมอุตุฯ กำลังสร้างไฟล์รอบใหม่ (ไฟล์ว่าง) — ลองใหม่ 3 ครั้งแล้ว ใช้ค่ารอบก่อน");
+      if (r.stationId !== "48455") console.warn(`TMD 3h: ใช้สถานีสำรอง ${r.stationId} ${r.stationName} (ไฟล์มี ${r.stations} สถานี)`);
       const day = r.date ?? date;
       const values: Values = {}, dates: Record<string, string> = {};
       if (r.rain24 !== undefined && r.rain24 >= 0) { values["rain_bkk"] = r.rain24; dates["rain_bkk"] = day; }
