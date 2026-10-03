@@ -64,7 +64,7 @@ function Archive() {
         {totalPages > 1 && <nav aria-label="หน้าคลัง Daily Brief" className="mt-8 flex flex-wrap items-center justify-center gap-2 border-t border-foreground pt-5 text-sm">
           {page > 1 && <Link to="/brief" search={{ page: page - 1 }} className="border border-border px-3 py-2 hover:bg-card">← ก่อนหน้า</Link>}
           {pages.map((n, i) => <span key={n} className="contents">
-            {i > 0 && n - pages[i - 1] > 1 && <span aria-hidden="true" className="px-1 text-muted-foreground">…</span>}
+            {i > 0 && n - (pages[i - 1] ?? n) > 1 && <span aria-hidden="true" className="px-1 text-muted-foreground">…</span>}
             <Link to="/brief" search={{ page: n }} aria-current={n === page ? "page" : undefined} className={`min-w-10 border px-3 py-2 text-center ${n === page ? "border-foreground bg-foreground text-background" : "border-border hover:bg-card"}`}>{n}</Link>
           </span>)}
           {page < totalPages && <Link to="/brief" search={{ page: page + 1 }} className="border border-border px-3 py-2 hover:bg-card">ถัดไป →</Link>}
