@@ -66,7 +66,6 @@ function Today() {
   const off = new Set(SOURCES.filter((x) => prefs.disabled.includes(x.source)).flatMap((x) => x.metrics));
   const allMoves = data.signals.filter((s) => met.get(s.metric_id)?.kind !== "release" && !off.has(s.metric_id));
   const moves = allMoves.filter((s) => SENS_SEVERITIES[sens].includes(s.severity));
-  const hidden = allMoves.length - moves.length;
   const agencyNews = data.news.filter((n) => n.agency).slice(0, 6);
   const activeFams = new Set([...releases, ...moves].map((s) => s.family_id));
   const quiet = data.families.filter((f) => !activeFams.has(f.id));
@@ -134,11 +133,8 @@ function Today() {
         )}
 
         <section className="mt-9 border-t border-editorial-ink pt-5">
-          <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+          <div className="mb-4">
             <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้</h2>
-            <Link to="/settings" className="text-xs text-muted-foreground hover:underline">
-              ความไว: {{ low: "ต่ำสุด", medium: "ปานกลาง", high: "สูง" }[sens]}{hidden > 0 ? ` · ซ่อน ${hidden} เรื่องเล็ก` : ""} — ปรับ
-            </Link>
           </div>
           {moves.length === 0 ? (
             <p className="text-muted-foreground">ยังไม่มีการเปลี่ยนแปลงจากข้อมูลที่ตรวจสอบได้ที่เกินเกณฑ์ ส่วนแหล่งที่ตรวจไม่ได้ต้องดูสถานะแยกต่างหาก</p>
