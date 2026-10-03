@@ -23,7 +23,7 @@ const brief = listTool("get_brief_by_date", "daily_briefs", "brief_date", "brief
 const compare = defineTool({ ...toolMeta("compare_briefs"), annotations, inputSchema: { date: z.string().refine(validDate), previous_date: z.string().refine(validDate) }, handler: async ({ date, previous_date }) => result((await Promise.all([readPublicRows("daily_briefs", { limit: 1, order: "brief_date", filters: { brief_date: date } }), readPublicRows("daily_briefs", { limit: 1, order: "brief_date", filters: { brief_date: previous_date } })])).flat()) });
 const eventId = z.string().regex(/^[a-z0-9_]+:\d{4}-\d{2}-\d{2}$/);
 const signal = defineTool({ ...toolMeta("get_signal"), annotations, inputSchema: { id: eventId }, handler: async ({ id }) => {
-  const [metric_id, signal_date] = id.split(":");
+  const [metric_id = "", signal_date = ""] = id.split(":");
   const [signals, events, versions] = await Promise.all([
     readPublicRows("signals", { limit: 1, order: "signal_date", filters: { metric_id, signal_date } }),
     readPublicRows("signal_events", { limit: 1, order: "signal_date", filters: { event_id: id } }),
