@@ -78,7 +78,7 @@ export function BriefFrontPage({ date, items, edition, cutoff }: { date: string;
         ) : (
           <h2 className="font-display text-3xl font-black leading-tight sm:text-5xl">วันนี้ไม่มีอะไรเปลี่ยน<span className="text-headline-red">เกินเกณฑ์</span></h2>
         )}
-        <p className="mt-1 text-sm font-semibold">{top ? top.importance : "ไม่เปลี่ยน = ไม่มีสัญญาณ ตัวเลขทุกตัวอยู่ในช่วงปกติเมื่อเทียบเมื่อวาน"}</p>
+        <p className="mt-1 text-sm font-semibold">{top ? top.importance : "ยังไม่มีข้อมูลที่ตรวจสอบได้เปลี่ยนเกินเกณฑ์ แหล่งที่ตรวจไม่ได้แสดงแยกด้านล่าง"}</p>
       </div>
 
       {/* Hero photo + big number */}
