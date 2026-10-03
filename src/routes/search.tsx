@@ -26,8 +26,8 @@ const SEV: Record<string, [string, string]> = {
   medium: ["น่าจับตา", "border border-editorial-red text-editorial-red"],
   low: ["เล็กน้อย", "border border-editorial-rule text-muted-foreground"],
 };
-const thDay = (d: string) => new Date(`${d}T00:00:00+07:00`).toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "2-digit" });
-const thMonth = (d: string) => new Date(`${d}T00:00:00+07:00`).toLocaleDateString("th-TH", { month: "long", year: "numeric" });
+const thDay = (d: string) => new Date(`${d}T00:00:00+07:00`).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok", day: "numeric", month: "short", year: "2-digit" });
+const thMonth = (d: string) => new Date(`${d}T00:00:00+07:00`).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok", month: "long", year: "numeric" });
 const num = (v: number | null) => (v === null ? "—" : Number(v).toLocaleString("th-TH", { maximumFractionDigits: 2 }));
 
 function Mark({ text, term }: { text: string; term: string }) {
