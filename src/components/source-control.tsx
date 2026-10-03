@@ -3,10 +3,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listSourceConfig, runSourceNow, saveSourceConfig } from "@/lib/source-config.functions";
 
-type Cfg = { enabled: boolean; schedule: string; daily_hour: number | null; fetch_mode: string; max_attempts: number; retry_delay_min: number | null };
-const DEF: Cfg = { enabled: true, schedule: "default", daily_hour: 5, fetch_mode: "default", max_attempts: 3, retry_delay_min: null };
+type Cfg = { enabled: boolean; schedule: string; daily_hour: number | null; fetch_mode: string; max_attempts: number; retry_delay_min: number | null; range_start: number | null; range_end: number | null; extra_hours: number[] };
+const DEF: Cfg = { enabled: true, schedule: "default", daily_hour: 5, fetch_mode: "default", max_attempts: 3, retry_delay_min: null, range_start: 16, range_end: 8, extra_hours: [] };
+const hh = (h: number) => `${String(h).padStart(2, "0")}:00`;
 const SCHED = [
-  ["default", "ตามรอบเดิมของระบบ"], ["hourly", "ทุกชั่วโมง"], ["3h", "ทุก 3 ชั่วโมง"], ["daily", "วันละครั้ง"], ["manual", "ดึงด้วยมือเท่านั้น"],
+  ["default", "ตามรอบเดิมของระบบ"], ["hourly", "ทุกชั่วโมง"], ["3h", "ทุก 3 ชั่วโมง"], ["daily", "วันละครั้ง"], ["hourly_range", "ทุกชั่วโมงในช่วงเวลา (นอกช่วงทุก 3 ชม.)"], ["manual", "ดึงด้วยมือเท่านั้น"],
 ] as const;
 const MODES = [
   ["default", "ตามค่าเดิม"], ["auto", "อัตโนมัติ (ตรงก่อน แล้วค่อย Firecrawl)"], ["direct", "ดึงตรงอย่างเดียว"], ["firecrawl", "ผ่าน Firecrawl อย่างเดียว"],
@@ -61,6 +62,21 @@ function Row({ source, config, run }: { source: string; config: Cfg | null; run:
             {Array.from({ length: 24 }, (_, h) => <option key={h} value={h}>{String(h).padStart(2, "0")}:00 น.</option>)}
           </select>
         )}
+        {c.schedule === "hourly_range" && (
+          <>
+            <select aria-label="เริ่มช่วง" className={sel} value={c.range_start ?? 16} onChange={(e) => up({ range_start: Number(e.target.value) })}>
+              {Array.from({ length: 24 }, (_, h) => <option key={h} value={h}>{hh(h)}</option>)}
+            </select>
+            ถึง
+            <select aria-label="สิ้นสุดช่วง" className={sel} value={c.range_end ?? 8} onChange={(e) => up({ range_end: Number(e.target.value) })}>
+              {Array.from({ length: 24 }, (_, h) => <option key={h} value={h}>{hh(h)}</option>)}
+            </select>
+          </>
+        )}
+        <label className="flex items-center gap-1">รอบเพิ่ม
+          <input aria-label="รอบเพิ่ม (ชั่วโมง คั่นด้วยจุลภาค)" placeholder="เช่น 17" className={`${sel} w-24`} defaultValue={c.extra_hours.join(",")}
+            onBlur={(e) => up({ extra_hours: [...new Set(e.target.value.split(/[,\s]+/).map(Number).filter((n) => Number.isInteger(n) && n >= 0 && n <= 23))].sort((a, b) => a - b) })} />
+        </label>
         <select aria-label="วิธีส่งคำขอ" className={sel} value={c.fetch_mode} onChange={(e) => up({ fetch_mode: e.target.value })}>
           {MODES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
@@ -76,7 +92,7 @@ function Row({ source, config, run }: { source: string; config: Cfg | null; run:
           </select>
         </label>
         <button type="button" disabled={!dirty || !!busy} className="border border-editorial-ink px-3 py-1.5 font-semibold disabled:opacity-40"
-          onClick={async () => { setBusy("save"); setMsg(null); try { const r = await save({ data: { source, ...c, daily_hour: c.schedule === "daily" ? c.daily_hour ?? 5 : null } }); setMsg(r.ok ? "บันทึกแล้ว" : r.error); if (r.ok) qc.invalidateQueries({ queryKey: ["source-config"] }); } catch { setMsg("บันทึกไม่สำเร็จ"); } finally { setBusy(""); } }}>
+          onClick={async () => { setBusy("save"); setMsg(null); try { const r = await save({ data: { source, ...c, daily_hour: c.schedule === "daily" ? c.daily_hour ?? 5 : null, range_start: c.schedule === "hourly_range" ? c.range_start ?? 16 : null, range_end: c.schedule === "hourly_range" ? c.range_end ?? 8 : null } }); setMsg(r.ok ? "บันทึกแล้ว" : r.error); if (r.ok) qc.invalidateQueries({ queryKey: ["source-config"] }); } catch { setMsg("บันทึกไม่สำเร็จ"); } finally { setBusy(""); } }}>
           {busy === "save" ? "กำลังบันทึก…" : "บันทึก"}
         </button>
         <button type="button" disabled={!!busy} className="underline disabled:opacity-40"

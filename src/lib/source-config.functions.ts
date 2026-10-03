@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireAdmin } from "./admin-middleware";
 
-export const SCHEDULES = ["default", "hourly", "3h", "daily", "manual"] as const;
+export const SCHEDULES = ["default", "hourly", "3h", "daily", "manual", "hourly_range"] as const;
 export const SOURCE_FETCH_MODES = ["default", "auto", "direct", "firecrawl"] as const;
 
 /** All runnable sources with their admin config (if any) and latest run. */
@@ -29,6 +29,9 @@ export const saveSourceConfig = createServerFn({ method: "POST" })
     fetch_mode: z.enum(SOURCE_FETCH_MODES),
     max_attempts: z.number().int().min(1).max(6),
     retry_delay_min: z.number().int().min(1).max(240).nullable(),
+    range_start: z.number().int().min(0).max(23).nullable().default(null),
+    range_end: z.number().int().min(0).max(23).nullable().default(null),
+    extra_hours: z.array(z.number().int().min(0).max(23)).max(24).default([]),
   }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
