@@ -187,7 +187,7 @@ function match(p: Pt, t: string) {
   return [p.name, p.area, p.district].some((s) => s && s.toLowerCase().includes(t));
 }
 
-function SumCell({ title, value, sub, tone, onClick }: { title: string; value: string; sub: string; tone?: "bad"; onClick?: () => void }) {
+function SumCell({ title, value, sub, tone, onClick }: { title: string; value: string; sub: string; tone?: "bad" | undefined; onClick?: (() => void) | undefined }) {
   return (
     <button type="button" onClick={onClick} disabled={!onClick} className="bg-background p-2 text-left hover:bg-accent disabled:cursor-default disabled:hover:bg-background">
       <span className="block text-xs text-muted-foreground">{title}</span>
