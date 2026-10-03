@@ -13,10 +13,11 @@ export const srcOf = (id: string) => SOURCES.find((s) => s.metrics.includes(id))
 export function makeReasonOf(runs: Run[], releases: Release[], completeness: Completeness[] | null = null) {
   return (m: M): string => {
     if (m.id === "quake_th") return "ไม่มีแผ่นดินไหวในไทยวันนี้ (ไม่ใช่ข้อมูลขาด)";
-    if (m.id.startsWith("lot")) return "ไม่ใช่วันออกสลาก — ออกรางวัลวันที่ 1 และ 16 ของเดือน";
-    const REL_KW: Record<string, string> = { cpi: "เงินเฟ้อ", gdp: "GDP", unemp: "ว่างงาน" };
-    const kw = REL_KW[m.id] as string | undefined;
-    const rel = releases.find((x) => x.family_id === m.family_id && (!kw || x.title.includes(kw))) ?? releases.find((x) => x.family_id === m.family_id);
+    if (m.id.startsWith("lot")) {
+      const run = runs.find((x) => x.source.startsWith("สำนักงานสลาก") && x.ok);
+      return `ไม่ใช่วันออกสลาก — แสดงผลงวดล่าสุดแทน (ออกรางวัลวันที่ 1 และ 16)${run ? ` · ตรวจล่าสุด ${hm(run.ran_at)} น.` : ""}`;
+    }
+    const rel = releases.find((x) => x.family_id === m.family_id);
     const src = srcOf(m.id);
     if (!src) return rel ? `ประกาศตามรอบ ไม่ได้ดึงรายวัน — รอบถัดไป ${thaiDate(rel.release_date, { day: "numeric", month: "short" })} (${rel.title})` : "ไม่มีแหล่งข้อมูลผูกไว้";
     const c = completeness?.find((x) => x.source === src);

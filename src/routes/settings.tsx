@@ -51,7 +51,7 @@ function Settings() {
             </label>
           ))}
         </fieldset>
-        <p className="mt-6 text-sm text-muted-foreground">ตัวเลขที่ประกาศเป็นรอบ เช่น เงินเฟ้อ GDP หวย จะแสดงเสมอในวันที่ประกาศ</p>
+        <p className="mt-6 text-sm text-muted-foreground">ตัวเลขที่ประกาศเป็นรอบ เช่น ผลสลาก จะแสดงเสมอในวันที่ประกาศ</p>
         <SourceSettings />
       </main>
     </div>
