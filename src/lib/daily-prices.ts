@@ -1,6 +1,15 @@
 /** Do not mistake a page refresh for a new price or a new wage announcement. */
 export const LPG_URL = "https://www.eppo.go.th/wp-json/oil-api/v1/lpg-prices";
 export const WAGE_URL = "https://www.mol.go.th/news/เริ่ม-1-กรกฎาคมนี้-กระทรวงแรงงาน-ปรับใหม่ค่าแรงขั้นต่ำ-สอดรับเศรษฐกิจ-ยกระดับคุณภาพชีวิตแรงงาน";
+export const WAGE_INDEX_URL = "https://www.mol.go.th/อัตราค่าจ้างขั้นต่ำ";
+
+export function verifyWageNotice(index: string, effective: string) {
+  if (/Incapsula|incident_id|Request unsuccessful|Access Denied/i.test(index)) throw new Error("ดัชนีประกาศค่าแรงกระทรวงแรงงานถูกปิดกั้น");
+  const normalized = index.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
+  // The ministry index identifies the governing notice; an old article alone cannot establish today's rate.
+  if (!/อัตราค่าจ้างขั้นต่ำ\s*\(ฉบับที่\s*14\)/.test(normalized) || effective !== "2025-07-01")
+    throw new Error("ประกาศค่าแรงล่าสุดไม่ตรงกับประกาศที่ใช้ดึงอัตรา — ต้องตรวจสอบฉบับใหม่");
+}
 
 export function thaiPriceDate(raw: unknown) {
   const match = String(raw ?? "").match(/(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(25\d{2}|20\d{2})/);
