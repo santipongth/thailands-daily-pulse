@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { scrape } from "./fm91.server";
 
-const post = "### 1. Post\nPosted: 2026-10-03T05:00:00Z\nURL: [post](https://x.com/fm91trafficpro/status/12345)\n> กรุงเทพฯ รถติด";
+const post = "FM91 feed\n### 1. Post\nPosted: 2026-10-03T05:00:00Z\nURL: [post](https://x.com/fm91trafficpro/status/12345)\n> กรุงเทพฯ รถติด";
 const response = (status: number, body: unknown) => ({ ok: status >= 200 && status < 300, status, headers: new Headers(), json: async () => body });
 const ok = () => response(200, { success: true, data: { markdown: post } });
 const empty = () => response(200, { success: true, data: { markdown: "" } });
