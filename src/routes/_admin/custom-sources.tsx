@@ -40,7 +40,7 @@ function Page() {
   const [f, setF] = useState({ name: "", key: "", owner: "", url: "", licence: "", format: "json", value_path: "", date_path: "", row_match: "", family_id: "", metric_name: "", unit: "", times: "" });
   const [res, setRes] = useState<any>(null);
   const [busy, setBusy] = useState(false);
-  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { setF({ ...f, [k]: e.target.value }); setRes(null); };
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { setF({ ...f, [k]: e.target.value }); if (["url", "format", "value_path", "date_path", "row_match"].includes(k)) setRes(null); };
   const cfg = { url: f.url.trim(), format: f.format as "json", value_path: f.value_path, date_path: f.date_path || null, row_match: f.row_match || null };
   const times = parseTimes(f.times);
 
