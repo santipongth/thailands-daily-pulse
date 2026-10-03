@@ -64,7 +64,26 @@ export const CONNECTORS: Connector[] = [
     // Chao Phraya Dam release (station C.13 ท้ายเขื่อนเจ้าพระยา) only exists in ThaiWater's water-level list.
     source: "ThaiWater (สสน.)",
     run: async () => {
-      const d = await json("https://api-v3.thaiwater.net/api/v1/thaiwater30/public/thailand_main");
+      const URL_TW = "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/thailand_main";
+      let d: any;
+      try { d = await json(URL_TW); }
+      catch (e) {
+        // Fallback: Firecrawl (real browser, stealth proxy, TH location) — ThaiWater blocks the hosting address.
+        const key = process.env.FIRECRAWL_API_KEY;
+        if (!key) throw e;
+        const r = await fetch("https://api.firecrawl.dev/v2/scrape", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ url: URL_TW, formats: ["rawHtml"], onlyMainContent: false, location: { country: "TH" }, proxy: "auto", maxAge: 0, timeout: 120000 }),
+        });
+        const fc: any = await r.json().catch(() => null);
+        if (!r.ok || !fc?.success) throw new Error(`${(e as Error).message} · Firecrawl [${r.status}] ${fc?.error ?? ""}`.slice(0, 280));
+        const raw: string = fc.data?.rawHtml ?? "";
+        const body = (raw.match(/<pre[^>]*>([\s\S]*)<\/pre>/)?.[1] ?? raw).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+        const st = fc.data?.metadata?.statusCode;
+        if (st && st !== 200) throw new Error(`${(e as Error).message} · Firecrawl ก็ถูก ThaiWater จำกัดคำขอ (${st})`);
+        d = JSON.parse(body);
+      }
       const wl: any[] = d?.waterlevel?.data?.data ?? d?.waterlevel?.data ?? [];
       const c13 = wl.find((x) => String(x?.station?.tele_station_oldcode ?? "").trim() === "C.13");
       const q = pos(c13?.discharge);
