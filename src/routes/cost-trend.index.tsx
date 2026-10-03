@@ -42,7 +42,8 @@ function CostTrend() {
   const r = obs ? costTrend(obs, end, days) : null;
   const first = r?.series.find((d) => d.complete) ?? r?.series[0];
   const last = r?.series[r.series.length - 1];
-  const chart = r?.series.map((d) => ({ ...d, label: d.date.slice(5) })) ?? [];
+  // Incomplete days (some basket prices not yet collected) are left blank instead of drawn as a low/zero total.
+  const chart = r?.series.map((d) => ({ ...d, label: d.date.slice(5), total: d.complete ? d.total : null, fuel: d.complete ? d.fuel : null, food: d.complete ? d.food : null, gas: d.complete ? d.gas : null })) ?? [];
   return (
     <div className="min-h-screen bg-background font-editorial-body">
       <Masthead />
@@ -66,7 +67,7 @@ function CostTrend() {
           <div className="mt-2 h-64"><ResponsiveContainer><LineChart data={chart}><CartesianGrid stroke="var(--border)" strokeDasharray="3 3" /><XAxis dataKey="label" fontSize={11} /><YAxis fontSize={11} domain={["auto", "auto"]} /><Tooltip formatter={(v: number) => `${b2(v)} ฿`} /><Legend />
             <Line dataKey="fuel" name={GROUP_TH.fuel} stroke="var(--map-4)" dot={false} />
             <Line dataKey="food" name={GROUP_TH.food} stroke="var(--map-2)" dot={false} />
-            {chart.some((d) => d.gas > 0) && <Line dataKey="gas" name={GROUP_TH.gas} stroke="var(--map-5)" dot={false} />}
+            {chart.some((d) => (d.gas ?? 0) > 0) && <Line dataKey="gas" name={GROUP_TH.gas} stroke="var(--map-5)" dot={false} />}
           </LineChart></ResponsiveContainer></div>
           <h2 className="mt-8 font-editorial text-2xl text-editorial-red">รายการที่เปลี่ยนมากที่สุด</h2>
           <div className="overflow-x-auto"><table className="mt-2 w-full min-w-[520px] text-sm">
