@@ -267,6 +267,7 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
       // Values may refer to yesterday (e.g. farm prices published late) — detect on their own date.
       await admin.rpc("detect_signals", { _d: bangkokDate(-1) });
       await admin.rpc("detect_signals", { _d: date });
+      await admin.rpc("detect_received_signals", { _d: date });
       await admin.rpc("rank_signals", { _d: date });
     }
     await refreshBrief(admin, date, !!opts.publish);
@@ -302,7 +303,9 @@ export async function refreshDams(): Promise<{ processed: number }> {
   const processed = await drain(admin, date, 150e3, 4);
   if (processed) {
     await admin.rpc("detect_signals", { _d: date });
+    await admin.rpc("detect_received_signals", { _d: date });
     await admin.rpc("rank_signals", { _d: date });
+    await refreshBrief(admin, date);
   }
   // Hourly snapshot of the latest real dam values (feeds the 48h chart on /data-all).
   const { data: obs } = await admin.from("observations").select("metric_id,value,observed_on")
