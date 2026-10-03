@@ -11,3 +11,11 @@
 - Household cost is fixed `BASKET` × real price change in `impact.ts`, shown by `HouseholdBasket` — keep this math deterministic.
 - `/tracking` shows per-source windows, missing values and cutoff reasons from this source pipeline — retain auditable status.
 - `/agencies` groups active `SOURCES` into government and other `AGENCIES`; names must match collection run names so coverage and status remain inspectable.
+
+- Sources: connectors `{metric_id: value}` in `connectors.server.ts`; CheckRaka/RakaKaset aggregators (trust medium); GLO lottery confirmed by 2nd endpoint; outcomes in `source_runs` + `source_run_history` (30d).
+- Every job fetch is archived as raw evidence (private `evidence` bucket, sha256 dedup, kept forever, `raw_evidence`, signed URLs); `/evidence` diffs vs previous file.
+- News RSS: keyword-tagged, tagged items only; never creates signals.
+- Backfill (`backfill.server.ts`, `/api/public/ingest?mode=backfill`, cron-secret) only for sources that publish history (none now); real rows replace demo rows, never real ones; then detect/rank/brief replayed oldest→newest, briefs left unpublished (archive editions).
+- Social: FM91 Trafficpro from X via Firecrawl (Facebook refused by Firecrawl), `fm91.server.ts`, cron every 30 min `?mode=social`, AI (Responses, streamed) tags is_bkk/area/summary in `social_posts`; summaries with new numbers dropped; 402/403 pauses via app_settings `social_ai_paused`; never creates signals; shown on home, brief (data window) and ticker as labelled FM91 items.
+- `dam_readings`: each dams run snapshots today's dam values (even if unchanged) for the 48h hourly chart on /data-all; observations stay one row/day.
+- Raw evidence: a re-fetch identical to the URL's latest record only bumps `last_seen_at`/`seen_count`/`last_job_id` (no new row); freshness uses max(fetched_at,last_seen_at) — keeps "file changed that day" ranking semantics without row bloat.
