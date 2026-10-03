@@ -18,3 +18,7 @@
 - [x] GLO lottery (verified), volatility-aware detection, deterministic household impact + official advice, 06:00 Daily Brief + archive
 - [ ] Food prices and economic releases (CPI/GDP/unemployment) from official catalog CSVs — series selection pending
 - [ ] Interest rates — blocked: needs BOT API key
+
+- [x] Fix TMD 3h (char-ref decoding), forecast via 7-day API, dams around Bangkok (RID + ThaiWater C.13), browser-like fetch with 120s timeout
+- [ ] Chao Phraya Dam release on live site depends on ThaiWater lifting its 429 block on hosting address
+- [ ] Real headless browser (Playwright) collection — not possible in the hosting runtime; option: Firecrawl connector
