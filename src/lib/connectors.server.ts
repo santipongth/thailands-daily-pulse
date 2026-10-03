@@ -5,10 +5,10 @@ import { politeFetch } from "./http.server";
 type Values = Record<string, number>;
 /** Per-station/road detail kept in station_snapshots for the public flood/air tables. */
 export type Snap = { station_id: string; name: string; area?: string | null; value?: number | null; pct?: number | null; status?: string | null; observed_at?: string | null; lat?: number | null; lng?: number | null };
-export type ConnectorOut = Values | { values: Values; dates: Record<string, string>; note?: string; sample?: string; rows?: Snap[] };
+export type ConnectorOut = Values | { values: Values; dates: Record<string, string>; effective?: Record<string, string>; note?: string; sample?: string; rows?: Snap[] };
 export type Connector = { source: string; run: (date: string, ctx?: { admin?: any }) => Promise<ConnectorOut> };
 
-export const normalizeOut = (o: ConnectorOut): { values: Values; dates?: Record<string, string>; note?: string; sample?: string; rows?: Snap[] } =>
+export const normalizeOut = (o: ConnectorOut): { values: Values; dates?: Record<string, string>; effective?: Record<string, string>; note?: string; sample?: string; rows?: Snap[] } =>
   o && typeof (o as any).values === "object" && typeof (o as any).dates === "object" ? (o as any) : { values: o as Values };
 
 const json = async (url: string) => (await politeFetch(url, { headers: { accept: "application/json, */*" } })).json() as Promise<any>;
@@ -70,7 +70,7 @@ export const CONNECTORS: Connector[] = [
     run: async (date, ctx) => {
       const { readLpgWithAi } = await import("./lpg-ai.server");
       const r = await readLpgWithAi(date, ctx?.admin);
-      return { values: { lpg: r.price }, dates: { lpg: r.asOf }, sample: `ปตท. ถัง 15 กก. ${r.price} บาท · มีผลตั้งแต่ ${r.effective ?? "หน้าไม่ระบุ"} · ยืนยันจากหน้า สนพ. วันที่ ${r.asOf}` };
+      return { values: { lpg: r.price }, dates: { lpg: r.asOf }, ...(r.effective ? { effective: { lpg: r.effective } } : {}), sample: `ปตท. ถัง 15 กก. ${r.price} บาท · มีผลตั้งแต่ ${r.effective ?? "หน้าไม่ระบุ"} · ยืนยันจากหน้า สนพ. วันที่ ${r.asOf}` };
     },
   },
   {

@@ -4,7 +4,7 @@
 import { politeFetch } from "./http.server";
 
 type Run = { source: string; ok: boolean; rows: number; error: string | null; ran_at: string; kind?: string; url?: string; sample?: string | null };
-type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> | undefined; snaps?: import("./connectors.server").Snap[] | undefined };
+type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> | undefined; effective?: Record<string, string> | undefined; snaps?: import("./connectors.server").Snap[] | undefined };
 type Ctx = { admin: any; date: string };
 
 /** Station/road rows for the public tables, linked to the newest raw file of that source. */
@@ -53,8 +53,8 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     if (!c) throw new Error(`unknown connector ${source}`);
     const ran_at = new Date().toISOString();
     try {
-      const { values, dates, note, sample, rows } = normalizeOut(await c.run(date, { admin }));
-      return { values, dates, snaps: rows, runs: [{ source, ok: true, rows: Object.keys(values).length, error: note ?? null, ran_at, kind: "api", sample: sample ?? null }] };
+      const { values, dates, effective, note, sample, rows } = normalizeOut(await c.run(date, { admin }));
+      return { values, dates, effective, snaps: rows, runs: [{ source, ok: true, rows: Object.keys(values).length, error: note ?? null, ran_at, kind: "api", sample: sample ?? null }] };
     } catch (e) {
       return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: "api" }] };
     }
@@ -198,7 +198,7 @@ export async function drain(admin: any, date: string, budgetMs = 240e3, maxJobs 
       const { data: ev } = await admin.from("raw_evidence").select("id").or(`job_id.eq.${job.id},last_job_id.eq.${job.id}`).order("id", { ascending: false }).limit(1).maybeSingle();
       const rows = Object.entries(res.values).map(([metric_id, value]) => {
         const d = res!.dates?.[metric_id] ?? date;
-        return { metric_id, value, observed_on: d, period_start: d, period_end: d, effective_from: d, is_demo: false, received_at: now, created_at: now, evidence_id: ev?.id ?? null };
+        return { metric_id, value, observed_on: d, period_start: d, period_end: d, effective_from: res!.effective?.[metric_id] ?? d, is_demo: false, received_at: now, created_at: now, evidence_id: ev?.id ?? null };
       });
       // Re-fetching an unchanged value keeps the original received time (replay stays honest).
       const { data: existing } = await admin.from("observations").select("metric_id,observed_on,value,is_demo").in("metric_id", rows.map((r) => r.metric_id)).in("observed_on", [...new Set(rows.map((r) => r.observed_on))]);
