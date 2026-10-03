@@ -13,15 +13,13 @@ const agencyQuery = (key: string) =>
       if (!a) return null;
       const since = shiftDate(bkkToday(), -13);
       const mids = agencyMetrics(a);
-      const [metrics, obs, changes, datasets, history, news] = await Promise.all([
+      const [metrics, obs, history, news] = await Promise.all([
         supabase.from("metrics").select("*").in("id", mids.length ? mids : ["-"]),
         supabase.from("observations").select("metric_id,observed_on,value,is_demo").in("metric_id", mids.length ? mids : ["-"]).eq("is_demo", false).gte("observed_on", shiftDate(since, -1)).order("observed_on"),
-        Promise.resolve({ data: [] }),
-        Promise.resolve({ data: [] }),
         supabase.from("source_run_history").select("source,ran_at,ok,rows,error").in("source", a.sources).order("ran_at", { ascending: false }).limit(20),
-        a.newsAgency ? supabase.from("news_items").select("id,title,link,source,published_at").eq("agency", a.newsAgency).like("source", "%เว็บไซต์ทางการ%").gte("published_at", since).order("published_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] }),
+        a.newsAgency ? supabase.from("news_items").select("id,title,link,source,published_at").eq("agency", a.newsAgency).gte("published_at", since).order("published_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] }),
       ]);
-      return { a, metrics: (metrics.data ?? []) as Metric[], obs: obs.data ?? [], changes: (changes.data ?? []) as any[], datasets: (datasets.data ?? []) as any[], history: history.data ?? [], news: (news.data ?? []) as any[], since };
+      return { a, metrics: (metrics.data ?? []) as Metric[], obs: obs.data ?? [], history: history.data ?? [], news: (news.data ?? []) as any[], since };
     },
   });
 
@@ -67,7 +65,6 @@ function AgencyPage() {
       byDay.get(c.observed_on)!.push({ key: `${m.id}${c.observed_on}`, text: `${m.name_th}: ${fmt(Number(p.value), m.decimals)} → ${fmt(Number(c.value), m.decimals)} ${m.unit}`, detail: `${pct != null ? `${pct > 0 ? "+" : ""}${pct.toFixed(2)}% · ` : ""}เทียบกับ ${thaiDate(p.observed_on, { day: "numeric", month: "short" })}` });
     }
   }
-  for (const c of data.changes) byDay.get(c.change_date)?.push({ key: `c${c.id}`, text: c.reason_th, detail: `${c.before_text ?? "—"} → ${c.after_text ?? "—"}${c.pct != null ? ` · ${c.pct}%` : ""}${c.kind === "updated" ? " · อัปโหลดใหม่โดยไม่เปลี่ยนตัวเลข (ไม่ตัดเป็นสัญญาณ)" : ""}`, href: c.gov_datasets?.url });
   for (const n of data.news) {
     const d = new Date(new Date(n.published_at).getTime() + 7 * 3600e3).toISOString().slice(0, 10);
     byDay.get(d)?.push({ key: `n${n.id}`, text: `ประกาศใหม่บนเว็บไซต์: ${n.title}`, href: n.link });
@@ -107,16 +104,6 @@ function AgencyPage() {
                 const o = data.obs.filter((x) => x.metric_id === m.id).at(-1);
                 return <li key={m.id} className="flex justify-between border-b border-border py-1.5"><span>{met.get(m.id)?.name_th}</span><span className="tabular-nums">{o ? `${fmt(Number(o.value), m.decimals)} ${m.unit} · ${thaiDate(o.observed_on, { day: "numeric", month: "short" })}` : "—"}</span></li>;
               })}
-            </ul>
-          </section>
-        )}
-        {data.datasets.length > 0 && (
-          <section className="mt-10">
-            <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">ชุดข้อมูลที่ติดตาม ({data.datasets.length})</h2>
-            <ul className="mt-2 grid gap-x-6 text-sm sm:grid-cols-2">
-              {data.datasets.map((d) => (
-                <li key={d.id} className="border-b border-border py-1.5"><a href={d.url} target="_blank" rel="noreferrer" className="hover:underline">{d.title}</a><span className="block text-xs text-muted-foreground">{d.org}</span></li>
-              ))}
             </ul>
           </section>
         )}

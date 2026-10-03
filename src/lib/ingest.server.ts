@@ -121,7 +121,7 @@ export async function refreshBrief(admin: any, date: string, publish = false, st
     const v = (vers ?? []).find((x: any) => x.event_id === event_id && x.version === version);
     const why = s.checks?.rule === "delta" && s.checks?.z != null
       ? `เปลี่ยนแรงกว่าความผันผวนปกติ ${Number(s.checks.z).toFixed(1)} เท่า`
-      : s.checks?.rule === "level" ? "ข้ามระดับเกณฑ์ที่กำหนด" : s.checks?.rule === "release" ? "ตัวเลขรอบใหม่ประกาศวันนี้" : s.checks?.rule === "catalog" ? "ชุดข้อมูลทางการเปลี่ยนจริง" : "เกินเกณฑ์ที่กำหนด";
+      : s.checks?.rule === "level" ? "ข้ามระดับเกณฑ์ที่กำหนด" : s.checks?.rule === "release" ? "ตัวเลขรอบใหม่ประกาศวันนี้" : "เกินเกณฑ์ที่กำหนด";
     const impact = householdImpact(s);
     const advice = officialAdvice(s);
     return {
@@ -193,6 +193,19 @@ async function recordBriefUpdates(admin: any, date: string, brief: { published_a
   await admin.from("brief_updates").insert(rows);
 }
 
+// Gold, FX and farm prices: once a day at 05:00 Bangkok (every day); the 05:30 run retries only failures.
+const DAILY_05 = ["สมาคมค้าทองคำ", "ExchangeRate (อัตราแลกเปลี่ยน)", "RakaKaset (ราคาเกษตร)"];
+async function daily05Due(admin: any, date: string, runKind?: string) {
+  const spec = (s: string) => ({ job_type: s.startsWith("RakaKaset") ? "rakakaset" : "connector", source: s });
+  if (runKind === "manual") return DAILY_05.map(spec);
+  const b = new Date(Date.now() + 7 * 3600e3);
+  if (runKind !== "daily" || b.getUTCHours() !== 5) return [];
+  if (b.getUTCMinutes() < 30) return DAILY_05.map(spec);
+  const { data } = await admin.from("source_runs").select("source,ok,ran_at").in("source", DAILY_05);
+  const okToday = new Set((data ?? []).filter((r: any) => r.ok && new Date(new Date(r.ran_at).getTime() + 7 * 3600e3).toISOString().slice(0, 10) === date).map((r: any) => r.source));
+  return DAILY_05.filter((s) => !okToday.has(s)).map(spec);
+}
+
 export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; publish?: boolean; runKind?: "hourly" | "daily" | "manual" } = {}): Promise<{ refreshed: boolean }> {
   const STALE = Math.min(24, Math.max(1, maxAgeHours)) * 3600e3;
   const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
@@ -222,13 +235,13 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
     const specs: { job_type: string; source: string }[] = [];
     if (liveStale) {
       const { CONNECTORS } = await import("./connectors.server");
-      for (const c of CONNECTORS) specs.push({ job_type: "connector", source: c.source });
-      // Food/farm prices change once a day: fetch on daily/manual runs or if today's prices are missing.
+      for (const c of CONNECTORS) if (!DAILY_05.includes(c.source)) specs.push({ job_type: "connector", source: c.source });
+      for (const s of await daily05Due(admin, date, opts.runKind)) specs.push(s);
+      // Food prices change once a day: fetch on daily/manual runs or if today's prices are missing.
       const { count: foodToday } = await admin.from("observations").select("id", { count: "exact", head: true })
         .eq("observed_on", date).eq("is_demo", false).in("metric_id", ["pork", "egg"]);
       if (opts.runKind === "daily" || opts.runKind === "manual" || !foodToday) {
         specs.push({ job_type: "checkraka", source: "CheckRaka (ราคาอาหาร)" });
-        specs.push({ job_type: "rakakaset", source: "RakaKaset (ราคาเกษตร)" });
       }
       if (opts.runKind === "daily" || opts.runKind === "manual") specs.push({ job_type: "holidays", source: "Kapook ปฏิทินวันหยุด" });
       if (opts.runKind === "daily" || opts.runKind === "manual") specs.push({ job_type: "rdtax", source: "กรมสรรพากร (ปฏิทินภาษี)" });

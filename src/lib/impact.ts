@@ -35,14 +35,14 @@ export function householdImpact(s: S): string | null {
 
 export type Advice = { text: string; source: string; url: string };
 
-const PCD = "https://air4thai.pcd.go.th";
+const PCD = "https://pm25.gistda.or.th";
 function pmAdvice(v: number): Advice {
   const text =
     v > 75 ? "ระดับมีผลกระทบต่อสุขภาพ (สีแดง): ทุกคนควรงดกิจกรรมกลางแจ้ง สวมหน้ากาก N95 เมื่อออกนอกอาคาร"
     : v > 37.5 ? "เริ่มมีผลกระทบ (สีส้ม): กลุ่มเสี่ยง เด็ก ผู้สูงอายุ ผู้มีโรคทางเดินหายใจ ควรลดกิจกรรมกลางแจ้งและสวมหน้ากาก"
     : v > 25 ? "ปานกลาง (สีเหลือง): กลุ่มเสี่ยงควรสังเกตอาการ ทำกิจกรรมกลางแจ้งได้ตามปกติ"
     : "คุณภาพอากาศดี ทำกิจกรรมกลางแจ้งได้ตามปกติ";
-  return { text, source: "กรมควบคุมมลพิษ (เกณฑ์ AQI)", url: PCD };
+  return { text, source: "เกณฑ์ AQI กรมควบคุมมลพิษ · ค่าจาก GISTDA", url: PCD };
 }
 
 export function officialAdvice(s: S): Advice | null {
@@ -50,7 +50,7 @@ export function officialAdvice(s: S): Advice | null {
     case "air": return pmAdvice(s.new_value);
     case "weather":
       if (s.metric_id === "quake_th") return { text: "ตรวจสอบประกาศและคำแนะนำล่าสุดจากกรมอุตุนิยมวิทยา หากรู้สึกสั่นไหวให้ออกจากอาคารอย่างปลอดภัย", source: "กรมอุตุนิยมวิทยา", url: "https://earthquake.tmd.go.th" };
-      return { text: "ติดตามประกาศเตือนภัยฉบับเต็มของกรมอุตุนิยมวิทยาก่อนเดินทาง", source: "กรมอุตุนิยมวิทยา", url: "https://www.tmd.go.th" };
+      return { text: "ติดตามประกาศเตือนภัยฉบับเต็มของกรมอุตุนิยมวิทยาก่อนเดินทาง", source: "กรมอุตุนิยมวิทยา", url: "https://data.tmd.go.th" };
     case "water": return { text: "ประชาชนในพื้นที่ลุ่มต่ำริมแม่น้ำติดตามประกาศระดับน้ำและการระบายน้ำจากกรมชลประทาน", source: "กรมชลประทาน / สสน.", url: "https://www.thaiwater.net" };
     case "oil": return { text: "ราคาขายปลีกประกาศโดยผู้ค้าน้ำมัน ตรวจสอบราคาหน้าปั๊มและโครงสร้างราคาที่ สนพ.", source: "สำนักงานนโยบายและแผนพลังงาน", url: "https://www.eppo.go.th" };
     case "gold": return { text: "ราคาประกาศอาจเปลี่ยนหลายครั้งต่อวัน ตรวจราคาล่าสุดก่อนซื้อขาย", source: "สมาคมค้าทองคำ", url: "https://www.goldtraders.or.th" };
