@@ -34,6 +34,11 @@ export const Route = createFileRoute("/api/public/ingest")({
           const { refreshDams } = await import("@/lib/ingest.server");
           return Response.json(await refreshDams());
         }
+        // mode=social (every 30 min): FM91 posts + AI relevance check; lease-guarded, max 10 new posts/run.
+        if (new URL(request.url).searchParams.get("mode") === "social") {
+          const { refreshSocial } = await import("@/lib/fm91.server");
+          return Response.json(await refreshSocial());
+        }
         // mode=early (00:10/03:00/05:00 Bangkok): forced collection so overnight price changes land before the 05:45 cutoff.
         if (new URL(request.url).searchParams.get("mode") === "early") return Response.json(await refreshIfStale(3, { force: true, runKind: "daily" }));
         return Response.json(await refreshIfStale());
