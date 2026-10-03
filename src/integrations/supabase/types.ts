@@ -1316,6 +1316,7 @@ export type Database = {
           title: string
         }[]
       }
+      detect_received_signals: { Args: { _d: string }; Returns: number }
       detect_signals: { Args: { _d: string }; Returns: number }
       family_evidence_source: { Args: { _family: string }; Returns: string }
       has_role: {
