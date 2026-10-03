@@ -113,7 +113,7 @@ FIRECRAWL_API_KEY=${f.firecrawl}
           <h1 className="font-serif text-3xl font-bold">ตั้งค่าฐานข้อมูลสำหรับติดตั้งเอง</h1>
           <p className="text-muted-foreground">สำหรับผู้ที่นำโค้ดจาก GitHub ไปติดตั้งบนเซิร์ฟเวอร์ของตัวเอง ใส่ข้อมูลฐานข้อมูล <b>ของคุณ</b> ทดสอบการเชื่อมต่อ แล้วนำไฟล์ตั้งค่าที่ได้ไปใช้ — ไม่ต้องใช้ฐานข้อมูลของโครงการนี้</p>
           <p className="rounded border border-border bg-muted p-3 text-sm">ความปลอดภัย: ทุกอย่างในหน้านี้ทำงานในเบราว์เซอร์ของคุณเท่านั้น คีย์ที่พิมพ์จะไม่ถูกส่งหรือบันทึกที่เซิร์ฟเวอร์ใด การทดสอบเรียกไปยังฐานข้อมูลของคุณโดยตรง</p>
-          <p className="text-sm text-muted-foreground">เว็บนี้เชื่อมกับ: {current ? new URL(current).hostname : "ยังไม่ได้ตั้งค่า"} · คู่มือเต็ม <a className="underline" href="https://github.com" target="_blank" rel="noreferrer">docs/deployment.md</a></p>
+          <p className="text-sm text-muted-foreground">เว็บนี้เชื่อมกับ: {current ? new URL(current).hostname : "ยังไม่ได้ตั้งค่า"} · คู่มือเต็มอยู่ในไฟล์ docs/deployment.md ของโค้ด</p>
         </header>
 
         <section className="space-y-4">
