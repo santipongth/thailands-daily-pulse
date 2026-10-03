@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_admin")({
 
 export const ADMIN_LINKS = [
   ["/admin", "ภาพรวมระบบ"], ["/agencies", "หน่วยงาน"], ["/events", "เหตุการณ์"], ["/impact", "สูตรผลกระทบ"], ["/calendar", "วันหยุด/ภาษี"],
-  ["/data", "ข้อมูลดิบ"], ["/evidence", "ไฟล์ดิบ"], ["/method", "วิธีคำนวณ"], ["/sources", "แหล่งข้อมูล"], ["/tracking", "ติดตามข้อมูล"], ["/settings", "ตั้งค่า"],
+  ["/data", "ข้อมูลดิบ"], ["/evidence", "ไฟล์ดิบ"], ["/raw-log", "บันทึกการดึง"], ["/method", "วิธีคำนวณ"], ["/sources", "แหล่งข้อมูล"], ["/tracking", "ติดตามข้อมูล"], ["/settings", "ตั้งค่า"],
 ] as const;
 
 function AdminLayout() {
