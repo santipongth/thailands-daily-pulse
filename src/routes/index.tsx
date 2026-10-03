@@ -147,9 +147,9 @@ function Today() {
           <p className="mb-5 text-sm text-muted-foreground">เฉพาะข้อมูลที่เปลี่ยนเกินเกณฑ์ตรวจสอบในวันที่เลือก ตามระดับความสำคัญและแหล่งข้อมูลที่คุณเลือก · หมวดอื่นอาจไม่เปลี่ยน ยังไม่เกินเกณฑ์ หรือยังไม่มีค่าก่อนหน้าให้เทียบ</p>
           {moves.length === 0 && <p className="text-muted-foreground">ยังไม่มีการเปลี่ยนแปลงที่เกินเกณฑ์ในระดับที่คุณเลือก ส่วนแหล่งที่ตรวจไม่ได้ต้องดูสถานะแยกต่างหาก</p>}
           {moves.length > 0 && (
-            <div className="grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-x-10 gap-y-10 md:grid-cols-2">
               {moves.map((s) => (
-                <div key={s.id} className={s.severity === "high" ? "sm:col-span-2" : ""}><SignalCard s={s} family={fam.get(s.family_id)!} metric={met.get(s.metric_id)!} history={hist(s.metric_id)} news={data.news} /></div>
+                <SignalCard key={s.id} s={s} family={fam.get(s.family_id)!} metric={met.get(s.metric_id)!} history={hist(s.metric_id)} news={data.news} />
               ))}
             </div>
           )}

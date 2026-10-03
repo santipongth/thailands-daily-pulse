@@ -4,6 +4,7 @@ import { SignalExplain } from "@/components/signal-explain";
 import { fmt } from "@/lib/signals";
 import { CostSignalChart } from "@/components/cost-signal-chart";
 import { RailSignalChart } from "@/components/rail-signal-chart";
+import { MetricSignalChart } from "@/components/metric-signal-chart";
 
 export function Sparkline({ values, className = "" }: { values: number[]; className?: string }) {
   if (values.length < 2) return null;
@@ -34,14 +35,14 @@ export function SignalCard({ s, family, metric, history, news }: { s: Signal; fa
   const up = (s.change_abs ?? 0) > 0;
   const tone = metric.kind === "release" || metric.kind === "events" ? "text-foreground" : up ? "text-up" : "text-down";
   return (
-    <div className={`border-t-2 pt-3 ${s.severity === "high" ? "border-up" : "border-foreground"}`}>
+    <article className={`min-w-0 border-t-2 pt-4 ${s.severity === "high" ? "border-up" : "border-foreground"}`}>
     <Link to="/signals/$family" params={{ family: family.id }} className="group block transition-colors hover:bg-card">
       <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span className="font-medium uppercase tracking-wide">{family.emoji} {family.name_th}</span>
         <span className={s.severity === "high" ? "font-semibold text-up" : ""}>{sevLabel[s.severity]}</span>
       </div>
-      <h3 className="mt-2 font-display text-xl leading-snug group-hover:underline">{s.title}</h3>
-      <div className="mt-3 flex items-end justify-between">
+      <h3 className="mt-3 font-display text-2xl leading-snug break-words group-hover:underline">{s.title}</h3>
+      <div className="mt-4 flex items-end justify-between gap-3">
         <div>
           <div className={`font-display text-3xl tabular-nums ${tone}`}>
             {metric.kind === "release" || metric.kind === "events" ? fmt(s.new_value, metric.decimals) : `${up ? "▲" : "▼"} ${fmt(Math.abs(s.change_abs ?? 0), metric.decimals)}`}
@@ -51,16 +52,17 @@ export function SignalCard({ s, family, metric, history, news }: { s: Signal; fa
             {metric.unit}
           </div>
         </div>
-        <Sparkline values={history.map((o) => Number(o.value))} className={tone} />
+        <Sparkline values={history.filter((o) => o.is_demo === s.is_demo).map((o) => Number(o.value))} className={tone} />
       </div>
     </Link>
-      <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-        <span className="truncate">ที่มา: {s.metric_id.startsWith("dit_") ? "กรมการค้าภายใน (ราคาขายปลีก กทม.)" : family.source_name}{s.checks?.price_date && s.checks.price_date !== s.signal_date ? ` · ราคาวันที่ ${s.checks.price_date}` : ""}</span>
-        <DataBadge demo={s.is_demo} />
-      </div>
-      {family.id === "food" && <CostSignalChart s={s} metric={metric} />}
+      {family.id === "food" && <CostSignalChart s={s} metric={metric} history={history} />}
       {family.id === "rail" && <RailSignalChart s={s} />}
-      <div className="mt-2"><SignalExplain s={s} family={family} metric={metric} history={history} news={news} /></div>
-    </div>
+      {family.id !== "food" && family.id !== "rail" && <MetricSignalChart s={s} metric={metric} history={history} />}
+      <div className="mt-4 border-t border-editorial-rule pt-3 text-xs leading-relaxed text-muted-foreground">
+        ที่มา: {s.metric_id.startsWith("dit_") ? "กรมการค้าภายใน (ราคาขายปลีก กทม.)" : family.source_name}{s.checks?.price_date && s.checks.price_date !== s.signal_date ? ` · ราคาวันที่ ${s.checks.price_date}` : ""}
+        {s.is_demo && <span className="ml-2"><DataBadge demo /></span>}
+      </div>
+      <div className="mt-3"><SignalExplain s={s} family={family} metric={metric} history={history} news={news} /></div>
+    </article>
   );
 }
