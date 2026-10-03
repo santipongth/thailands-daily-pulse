@@ -6,7 +6,7 @@ export function thaiPriceDate(raw: unknown) {
   const match = String(raw ?? "").match(/(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(25\d{2}|20\d{2})/);
   if (!match) throw new Error("ไม่มีวันที่ประกาศราคาน้ำมัน");
   const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-  return `${Number(match[3]) > 2400 ? Number(match[3]) - 543 : match[3]}-${String(months.indexOf(match[2]) + 1).padStart(2, "0")}-${String(match[1]).padStart(2, "0")}`;
+  return `${Number(match[3]) > 2400 ? Number(match[3]) - 543 : match[3]}-${String(months.indexOf(match[2] ?? "") + 1).padStart(2, "0")}-${String(match[1]).padStart(2, "0")}`;
 }
 
 export function parseLpg(data: any, today: string) {
@@ -26,7 +26,7 @@ export function parseBangkokWage(page: string, today: string) {
   const date = plain.match(/(?:มีผล(?:บังคับ)?ใช้|ตั้งแต่วันที่)\s*(\d{1,2})\s*(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s*(25\d{2}|20\d{2})/);
   if (!match || !date) throw new Error("ไม่พบค่าแรงกรุงเทพฯ และวันมีผลบังคับใช้ในประกาศเดียวกัน");
   const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-  const iso = `${Number(date[3]) > 2400 ? Number(date[3]) - 543 : date[3]}-${String(months.indexOf(date[2]) + 1).padStart(2, "0")}-${String(date[1]).padStart(2, "0")}`;
+  const iso = `${Number(date[3]) > 2400 ? Number(date[3]) - 543 : date[3]}-${String(months.indexOf(date[2] ?? "") + 1).padStart(2, "0")}-${String(date[1]).padStart(2, "0")}`;
   const price = Number(match[1]);
   if (iso > today || price < 300 || price > 1500) throw new Error("ข้อมูลค่าแรงหรือวันมีผลไม่สมเหตุสมผล");
   return { price, date: iso };
