@@ -7,7 +7,8 @@ export function verifyWageNotice(index: string, effective: string) {
   if (/Incapsula|incident_id|Request unsuccessful|Access Denied/i.test(index)) throw new Error("ดัชนีประกาศค่าแรงกระทรวงแรงงานถูกปิดกั้น");
   const normalized = index.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
   // The ministry index identifies the governing notice; an old article alone cannot establish today's rate.
-  if (!/อัตราค่าจ้างขั้นต่ำ\s*\(ฉบับที่\s*14\)/.test(normalized) || effective !== "2025-07-01")
+  const notices = [...normalized.matchAll(/อัตราค่าจ้างขั้นต่ำ\s*\(ฉบับที่\s*(\d+)\)/g)].map((m) => Number(m[1]));
+  if (!notices.length || Math.max(...notices) !== 14 || effective !== "2025-07-01")
     throw new Error("ประกาศค่าแรงล่าสุดไม่ตรงกับประกาศที่ใช้ดึงอัตรา — ต้องตรวจสอบฉบับใหม่");
 }
 
