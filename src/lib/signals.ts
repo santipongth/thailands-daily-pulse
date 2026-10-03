@@ -80,9 +80,3 @@ export const sourcesQuery = queryOptions({
   },
 });
 
-export type Sensitivity = "low" | "medium" | "high";
-export const SENS_SEVERITIES: Record<Sensitivity, string[]> = {
-  low: ["high"],
-  medium: ["high", "medium"],
-  high: ["high", "medium", "low"],
-};

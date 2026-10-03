@@ -41,7 +41,7 @@ export function CostSignalCalc() {
           const stored = data.sig.find((s) => s.metric_id === m.id);
           return (
             <tr key={m.id} className="border-b border-editorial-rule align-top">
-              <td className="py-2"><Link to="/cost-signals/$item" params={{ item: m.id }} className="underline">{m.name_th}</Link><div className="text-[11px] text-muted-foreground">{m.unit}</div></td>
+              <td className="py-2"><Link to="/cost-trend/$item" params={{ item: m.id }} className="underline">{m.name_th}</Link><div className="text-[11px] text-muted-foreground">{m.unit}</div></td>
               <td>{c.lagDays} วัน</td>
               <td className="tabular-nums">{c.priceDate ?? "—"}{got && <div className="text-[11px] text-muted-foreground">{new Date(got).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" })}</div>}</td>
               <td className="tabular-nums">{n2(c.prevAvg)} → {n2(c.curAvg)}</td>
