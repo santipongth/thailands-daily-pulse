@@ -72,19 +72,7 @@ function Today() {
   const [sens] = useSensitivity();
   const [prefs] = useSourcePrefs();
   const off = new Set(SOURCES.filter((x) => prefs.disabled.includes(x.source)).flatMap((x) => x.metrics));
-  const allMoves = data.signals.filter((s) => met.get(s.metric_id)?.kind !== "release" && !off.has(s.metric_id));
-  const moves = allMoves.filter((s) => SENS_SEVERITIES[sens].includes(s.severity));
-  const minor = allMoves.filter((s) => !SENS_SEVERITIES[sens].includes(s.severity));
-  // Near threshold: real latest change ≥ 70% of the metric's threshold but no signal — context only, never counted.
-  const signalled = new Set(data.signals.map((s) => s.metric_id));
-  const nearMisses = data.metrics.flatMap((m) => {
-    if (signalled.has(m.id) || off.has(m.id) || m.kind !== "delta" || (m.threshold_abs == null && m.threshold_pct == null)) return [];
-    const h = hist(m.id); const last = h.at(-1), prev = h.at(-2);
-    if (!last || !prev || last.observed_on < shiftDate(date, -3)) return [];
-    const d = Number(last.value) - Number(prev.value); const pc = Number(prev.value) ? (d / Number(prev.value)) * 100 : null;
-    const ratio = Math.max(m.threshold_abs ? Math.abs(d) / m.threshold_abs : 0, m.threshold_pct && pc != null ? Math.abs(pc) / m.threshold_pct : 0);
-    return ratio >= 0.7 && ratio < 1 ? [{ m, d, pc, ratio, h, last }] : [];
-  }).sort((a, b) => b.ratio - a.ratio).slice(0, 8);
+  const moves = data.signals.filter((s) => met.get(s.metric_id)?.kind !== "release" && !off.has(s.metric_id) && SENS_SEVERITIES[sens].includes(s.severity));
   const agencyNews = data.news.filter((n) => n.agency).slice(0, 6);
   const activeFams = new Set([...releases, ...moves].map((s) => s.family_id));
   const quiet = data.families.filter((f) => !activeFams.has(f.id));
@@ -153,7 +141,7 @@ function Today() {
 
         <section className="mt-9 border-t border-editorial-ink pt-5">
           <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้ <span className="font-editorial-body text-sm font-normal text-muted-foreground">({moves.length}{minor.length ? ` / ทั้งหมด ${allMoves.length}` : ""})</span></h2>
+            <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้ <span className="font-editorial-body text-sm font-normal text-muted-foreground">({moves.length})</span></h2>
             <Link to="/data-all" className="text-sm underline">ดูตัวเลขทุกหมวด →</Link>
           </div>
           <p className="mb-5 text-sm text-muted-foreground">เฉพาะข้อมูลที่เปลี่ยนเกินเกณฑ์ตรวจสอบในวันที่เลือก ตามระดับความสำคัญและแหล่งข้อมูลที่คุณเลือก · หมวดอื่นอาจไม่เปลี่ยน ยังไม่เกินเกณฑ์ หรือยังไม่มีค่าก่อนหน้าให้เทียบ</p>
@@ -165,26 +153,6 @@ function Today() {
               ))}
             </div>
           )}
-          {minor.length > 0 && <>
-            <h3 className="mt-10 font-editorial text-xl">สัญญาณระดับเล็กน้อย <span className="text-sm font-normal text-muted-foreground">({minor.length}) — ต่ำกว่าระดับที่คุณเลือก</span></h3>
-            <div className="mt-3 grid gap-x-8 gap-y-8 opacity-80 sm:grid-cols-2 lg:grid-cols-4">
-              {minor.map((s) => <SignalCard key={s.id} s={s} family={fam.get(s.family_id)!} metric={met.get(s.metric_id)!} history={hist(s.metric_id)} news={data.news} />)}
-            </div>
-          </>}
-          {nearMisses.length > 0 && <>
-            <h3 className="mt-10 font-editorial text-xl">ใกล้เกณฑ์ <span className="text-sm font-normal text-muted-foreground">— ยังไม่ใช่สัญญาณ ไม่นับในฉบับเช้า</span></h3>
-            <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {nearMisses.map(({ m, d, pc, ratio, h, last }) => (
-                <Link key={m.id} to="/signals/$family" params={{ family: m.family_id }} className="block border border-dashed border-editorial-rule p-3 text-sm hover:bg-card">
-                  <div className="flex justify-between text-xs text-muted-foreground"><span>{fam.get(m.family_id)?.emoji} {fam.get(m.family_id)?.name_th}</span><span>ยังไม่ใช่สัญญาณ</span></div>
-                  <div className="mt-1 font-medium">{m.name_th}</div>
-                  <div className="mt-2 flex items-end justify-between"><div><div className="font-display text-xl tabular-nums">{d > 0 ? "▲" : "▼"} {fmt(Math.abs(d), m.decimals)} <span className="text-xs">{m.unit}</span></div>
-                    <div className="text-xs text-muted-foreground">{pc != null ? `${pc > 0 ? "+" : ""}${pc.toFixed(1)}% · ` : ""}{Math.round(ratio * 100)}% ของเกณฑ์ ({m.threshold_pct != null ? `${m.threshold_pct}%` : fmt(m.threshold_abs!, m.decimals)}) · {last.observed_on}</div></div>
-                    <Sparkline values={h.map((o) => Number(o.value))} /></div>
-                </Link>
-              ))}
-            </div>
-          </>}
         </section>
 
         {date === today && (
