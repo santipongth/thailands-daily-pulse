@@ -80,7 +80,7 @@ export function SocialDaily() {
                 <XAxis dataKey="d" tick={{ fontSize: 10 }} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 10 }} width={30} />
                 <Tooltip formatter={(v) => `${v} โพสต์`} />
-                <Bar dataKey="v" fill="var(--color-primary)" isAnimationActive={false} />
+                <Bar dataKey="v" fill="var(--color-primary)" maxBarSize={48} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>
           </div>

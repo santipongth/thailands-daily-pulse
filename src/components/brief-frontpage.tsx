@@ -124,22 +124,22 @@ export function BriefFrontPage({ date, items, edition, cutoff }: { date: string;
       {/* Bottom strip */}
       <div className="tds-grid grid grid-cols-2 text-sm sm:grid-cols-4">
         <div className="border-r-2 border-ink p-2">
-          <p className="text-xs font-bold text-headline-red">🚦 จราจร FM91</p>
+          <p className="text-xs font-bold text-headline-red">จราจร FM91</p>
           <p className="line-clamp-3">{data?.post ? (data.post.summary ?? data.post.text) : "ยังไม่มีโพสต์"}</p>
           <p className="text-[10px]">Social — ยังไม่ยืนยันจากหน่วยงานรัฐ</p>
         </div>
         <div className="p-2 sm:border-r-2 sm:border-ink">
-          <p className="text-xs font-bold text-headline-red">🌦 อากาศ กทม.</p>
+          <p className="text-xs font-bold text-headline-red">อากาศ กทม.</p>
           <p>{tmin && tmax ? `${fmt(Number(tmin.value), 0)}–${fmt(Number(tmax.value), 0)}°C` : "—"}{rain ? ` · ฝน ${fmt(Number(rain.value), 1)} มม.` : ""}</p>
           {pm && <p className="text-xs">PM2.5 {fmt(Number(pm.value), 1)} µg/m³</p>}
         </div>
         <div className="border-r-2 border-t-2 border-ink p-2 sm:border-t-0">
-          <p className="text-xs font-bold text-headline-red">💧 เขื่อนป่าสักฯ</p>
+          <p className="text-xs font-bold text-headline-red">เขื่อนป่าสักฯ</p>
           <p>{dam ? `${fmt(Number(dam.value), 1)}% ความจุ` : "—"}</p>
           {dam && <p className="text-[10px]">ข้อมูล {dam.observed_on}</p>}
         </div>
         <div className="border-t-2 border-ink p-2 sm:border-t-0">
-          <p className="text-xs font-bold text-headline-red">🎫 สลากงวด {data?.lot ? thaiDate(data.lot.draw_date, { day: "numeric", month: "short" }) : "—"}</p>
+          <p className="text-xs font-bold text-headline-red">สลากงวด {data?.lot ? thaiDate(data.lot.draw_date, { day: "numeric", month: "short" }) : "—"}</p>
           <p className="font-display text-2xl font-black tracking-wider">{data?.lot?.first ?? "—"}</p>
           {data?.lot?.last2 && <p className="text-xs">เลขท้าย 2 ตัว {data.lot.last2}</p>}
         </div>
