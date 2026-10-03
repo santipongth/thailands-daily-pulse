@@ -3,15 +3,13 @@
 // taken from the source's latest fetch run, the release calendar, or the completeness list).
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { shiftDate, thaiDate } from "@/lib/signals";
-import { SOURCES } from "@/lib/sources";
+import { shiftDate } from "@/lib/signals";
 import type { Completeness } from "@/lib/completeness";
+import { makeReasonOf, type Run, type Release } from "@/lib/missing-reason";
 
 const hm = (s: string) => new Date(s).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" });
 
 type Obs = { metric_id: string; observed_on: string; value: number; received_at: string };
-type Run = { source: string; ran_at: string; ok: boolean; error: string | null };
-type Release = { family_id: string; title: string; release_date: string };
 
 export function AllMetricsCompare({ date, cutoff, completeness }: { date: string; cutoff: string | null; completeness: Completeness[] | null }) {
   const prev = shiftDate(date, -1);
@@ -29,26 +27,7 @@ export function AllMetricsCompare({ date, cutoff, completeness }: { date: string
   });
   if (!data) return null;
   const cut = cutoff ? Date.parse(cutoff) : Infinity;
-  const srcOf = (id: string) => SOURCES.find((s) => s.metrics.includes(id))?.source ?? null;
-  const reasonOf = (m: any): string => {
-    if (m.id === "quake_th") return "ไม่มีแผ่นดินไหวในไทยวันนี้ (ไม่ใช่ข้อมูลขาด)";
-    if (m.id.startsWith("lot")) return "ไม่ใช่วันออกสลาก — ออกรางวัลวันที่ 1 และ 16 ของเดือน";
-    // Scheduled-release metrics (macro etc.): no daily fetch, they publish on fixed rounds.
-    const REL_KW: Record<string, string> = { cpi: "เงินเฟ้อ", gdp: "GDP", unemp: "ว่างงาน" };
-    const kw = REL_KW[m.id] as string | undefined;
-    const rel = data.releases.find((x) => x.family_id === m.family_id && (!kw || x.title.includes(kw))) ?? data.releases.find((x) => x.family_id === m.family_id);
-    if (!srcOf(m.id) && rel) return `ประกาศตามรอบ ไม่ได้ดึงรายวัน — รอบถัดไป ${thaiDate(rel.release_date, { day: "numeric", month: "short" })} (${rel.title})`;
-    const src = srcOf(m.id);
-    const c = completeness?.find((x) => x.source === src);
-    const run = src ? data.runs.find((x) => x.source === src) : null;
-    if (!src) return rel ? `ประกาศตามรอบ — รอบถัดไป ${thaiDate(rel.release_date, { day: "numeric", month: "short" })}` : "ไม่มีแหล่งข้อมูลผูกไว้";
-    if (!run) return `${src}: ยังไม่เคยดึงสำเร็จ — รอรอบดึงถัดไป`;
-    if (!run.ok && run.error?.startsWith("429")) return `${src} ถูกจำกัดคำขอ (429) ล่าสุด ${hm(run.ran_at)} น. — ผู้ให้บริการบล็อกที่อยู่ของเซิร์ฟเวอร์ ไม่ใช่ "ไม่เปลี่ยน"`;
-    if (!run.ok) return `${src}: ดึงล้มเหลวล่าสุด ${hm(run.ran_at)} น.${run.error ? ` — ${run.error}` : ""}`;
-    if (m.id === "tmax_bkk") return `${src}: ค่านี้คือสูงสุดของเมื่อวานจากรายงานราย 3 ชม. — ยังไม่มีรายงานของเมื่อวานครบ (ระบบเริ่มเก็บ 3 ต.ค.)`;
-    if (c && c.status !== "ok") return `${src}: ${c.reason}`;
-    return `${src}: ดึงสำเร็จล่าสุด ${hm(run.ran_at)} น. แต่ยังไม่มีค่าของวันนี้ก่อนเวลาตัด`;
-  };
+  const reasonOf = makeReasonOf(data.runs, data.releases, completeness);
   const fmt = (v: number, d: number) => Number(v).toLocaleString("th-TH", { maximumFractionDigits: d });
   const rows = data.metrics.map((m: any) => {
     const os = data.obs.filter((o) => o.metric_id === m.id);
