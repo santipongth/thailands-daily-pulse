@@ -365,6 +365,13 @@
       "when": 1791064862207,
       "tag": "0051_custom_sources_and_rule_versions",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1791065279556,
+      "tag": "0052_source_config_allow_custom_schedule",
+      "breakpoints": true
     }
   ]
 }

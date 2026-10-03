@@ -1,0 +1,2 @@
+ALTER TABLE public.source_config DROP CONSTRAINT source_config_schedule_check;
+ALTER TABLE public.source_config ADD CONSTRAINT source_config_schedule_check CHECK (schedule = ANY (ARRAY['default','hourly','3h','daily','manual','hourly_range','custom']));
