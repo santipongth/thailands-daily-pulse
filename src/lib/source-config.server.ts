@@ -13,6 +13,7 @@ const EXTRA: JobSpec[] = [
   { job_type: "news", source: "ข่าว RSS" },
   { job_type: "news_general", source: "ข่าวทั่วไป RSS" },
   { job_type: "rail", source: "รถไฟฟ้า BTS/MRT (X)" },
+  { job_type: "social", source: "FM91 Trafficpro (X)" },
 ];
 
 /** Every source the queue can run, with its job type. */

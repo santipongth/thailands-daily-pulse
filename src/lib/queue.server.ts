@@ -118,6 +118,12 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     const r = await refreshRail(admin);
     return { values: r.values, dates: r.dates, runs: [r.run] };
   },
+  // FM91 writes its own source_runs/history; used by "ดึงตอนนี้" and admin-set schedules.
+  social: async () => {
+    const { refreshSocial } = await import("./fm91.server");
+    await refreshSocial();
+    return { values: {}, runs: [] };
+  },
   news_general: async ({ admin }) => {
     const { collectGeneralNews, GENERAL_FEEDS, GENERAL_SOURCE } = await import("./news.server");
     const ran_at = new Date().toISOString();
