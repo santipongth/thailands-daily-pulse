@@ -57,10 +57,22 @@ function Row({ source, config, run, breaker }: { source: string; config: Partial
   return (
     <li className="py-4 text-sm">
       <div className="flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-2 font-semibold">
-          <input type="checkbox" checked={c.enabled} onChange={(e) => up({ enabled: e.target.checked })} className="accent-[var(--up)]" />
-          {source}
-        </label>
+        <button type="button" disabled={!!busy} aria-pressed={c.enabled}
+          className={`border px-3 py-1 text-xs font-semibold disabled:opacity-40 ${c.enabled ? "border-primary bg-primary text-primary-foreground" : "border-editorial-rule bg-muted text-muted-foreground"}`}
+          onClick={async () => {
+            const base = { ...DEF, ...(config ?? {}) };
+            const next = { ...base, enabled: !c.enabled };
+            setBusy("save"); setMsg(null);
+            try {
+              const r = await save({ data: { source, ...next, daily_hour: next.schedule === "daily" ? next.daily_hour ?? 5 : null, range_start: next.schedule === "hourly_range" ? next.range_start ?? 16 : null, range_end: next.schedule === "hourly_range" ? next.range_end ?? 8 : null } });
+              if (r.ok) { setC({ ...c, enabled: next.enabled }); setMsg(next.enabled ? "เปิดการดึงแล้ว" : "ปิดการดึงแล้ว — จะไม่ส่งคำขอจนกว่าจะเปิดใหม่"); qc.invalidateQueries({ queryKey: ["source-config"] }); }
+              else setMsg(r.error);
+            } catch { setMsg("เปลี่ยนสถานะไม่สำเร็จ"); } finally { setBusy(""); }
+          }}>
+          {c.enabled ? "เปิดอยู่ · กดเพื่อปิด" : "ปิดอยู่ · กดเพื่อเปิด"}
+        </button>
+        <span className={`font-semibold ${c.enabled ? "" : "text-muted-foreground line-through"}`}>{source}</span>
+        {/\(X\)|FM91/.test(source) && <span className="text-xs text-destructive">ใช้ Firecrawl ~30 เครดิต/ครั้ง</span>}
         <span className="ml-auto text-xs text-muted-foreground">
           {!run ? "ยังไม่เคยดึง" : run.ok ? `สำเร็จ ${run.rows} รายการ · ${dt(run.ran_at)}` : <span className="text-destructive">ล้มเหลว {dt(run.ran_at)}: {run.error}</span>}
         </span>
