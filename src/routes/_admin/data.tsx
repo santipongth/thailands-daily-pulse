@@ -123,8 +123,8 @@ function DataPage() {
           return (
             <section key={f.id} className="mt-8">
               <h2 className="section-heading text-2xl">{f.emoji} {f.name_th} <span className="font-editorial-body text-sm font-normal text-muted-foreground">· {f.source_name}</span></h2>
-              <table className="mt-2 w-full min-w-[820px] text-sm">
-                <thead><tr className="text-left text-muted-foreground"><th className="py-1">ตัวชี้วัด</th><th>ค่าล่าสุด</th><th>ก่อนหน้า</th><th>เปลี่ยน</th><th>วันที่ข้อมูล</th><th>บันทึกเมื่อ</th><th>ประเภท</th></tr></thead>
+              <div className="overflow-x-auto"><table className="mt-2 w-full min-w-[820px] text-sm">
+                <thead><tr className="text-left text-muted-foreground"><th className="py-1">ตัวชี้วัด</th><th>ค่าล่าสุด</th><th>ก่อนหน้า</th><th>เปลี่ยน</th><th>วันที่ข้อมูล</th><th>รับข้อมูลจริงเมื่อ</th><th>ประเภท</th></tr></thead>
                 <tbody>
                   {ms.map((m) => {
                     const [cur, prev] = byMetric.get(m.id) ?? [];
@@ -135,13 +135,22 @@ function DataPage() {
                         <td>{prev ? `${fmt(prev.value, m.decimals)} (${thaiDate(prev.observed_on, { day: "numeric", month: "short" })})` : "—"}</td>
                         <td className="tabular-nums">{cur && prev ? (() => { const d = cur.value - prev.value; return d === 0 ? "ไม่เปลี่ยน" : `${d > 0 ? "+" : ""}${fmt(d, m.decimals)}`; })() : "—"}</td>
                         <td>{cur ? thaiDate(cur.observed_on, { dateStyle: "medium" }) : "—"}</td>
-                        <td>{cur ? new Date(cur.created_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" }) : "—"}</td>
+                        <td>{cur ? new Date(cur.received_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "short", timeStyle: "short" }) : "—"}</td>
                         <td>{cur ? (cur.is_demo ? <span className="text-muted-foreground">ตัวอย่าง</span> : <span className="font-semibold text-primary">จริง</span>) : "—"}</td>
                       </tr>
                     );
                   })}
                 </tbody>
-              </table>
+              </table></div>
+              {(f.id === "oil" || f.id === "labour") && ms.map((m) => {
+                const points = (data.obs.filter((o) => o.metric_id === m.id && !o.is_demo).slice(0, 14)).reverse();
+                const max = Math.max(...points.map((p) => Number(p.value)), 1);
+                return <div key={m.id} className="mt-4 border-t border-editorial-rule pt-3 text-sm">
+                  <h3 className="font-semibold">{m.name_th} · ราคาหรืออัตราตามวันที่ประกาศจริง</h3>
+                  {points.length ? <div className="mt-2 flex min-h-28 items-end gap-1 overflow-x-auto border-b border-editorial-rule pb-1">{points.map((p) => <div key={`${p.observed_on}-${p.received_at}`} className="flex min-w-12 flex-1 flex-col items-center gap-1 text-xs" title={`วันที่ข้อมูล ${p.observed_on} · รับ ${new Date(p.received_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}`}><span className="tabular-nums">{fmt(p.value, m.decimals)}</span><span className="w-full bg-chart-1" style={{ height: `${Math.max(3, Number(p.value) / max * 64)}px` }} /><span className="text-muted-foreground">{p.observed_on.slice(5)}</span></div>)}</div> : <p className="mt-2 text-muted-foreground">ยังไม่มีราคาหรืออัตราที่ตรวจสอบวันที่ได้</p>}
+                  {!!points.length && <p className="mt-1 text-xs text-muted-foreground">{points.length} วันที่มีข้อมูลจริง · ไม่เติมวันว่าง · ชี้แท่งเพื่อดูวันรับข้อมูล</p>}
+                </div>;
+              })}
             </section>
           );
         })}
