@@ -4,12 +4,12 @@
 import { politeFetch } from "./http.server";
 
 type Run = { source: string; ok: boolean; rows: number; error: string | null; ran_at: string; kind?: string; url?: string; sample?: string | null };
-type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> | undefined };
+type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> | undefined; snaps?: import("./connectors.server").Snap[] | undefined };
 type Ctx = { admin: any; date: string };
 
 /** Station/road rows for the public tables, linked to the newest raw file of that source. */
-async function saveSnapshots(admin: any, source: string, rows: import("./connectors.server").Snap[]) {
-  const { data: ev } = await admin.from("raw_evidence").select("id").eq("source", source).order("id", { ascending: false }).limit(1).maybeSingle();
+async function saveSnapshots(admin: any, jobId: number, source: string, rows: import("./connectors.server").Snap[]) {
+  const { data: ev } = await admin.from("raw_evidence").select("id").or(`job_id.eq.${jobId},last_job_id.eq.${jobId}`).order("id", { ascending: false }).limit(1).maybeSingle();
   const received_at = new Date().toISOString();
   const { error } = await admin.from("station_snapshots").insert(rows.map((r) => ({ ...r, source, evidence_id: ev?.id ?? null, received_at })));
   if (error) console.error("station_snapshots insert failed", error.message);
@@ -23,8 +23,7 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     const ran_at = new Date().toISOString();
     try {
       const { values, dates, note, sample, rows } = normalizeOut(await c.run(date, { admin }));
-      if (rows?.length) await saveSnapshots(admin, source, rows);
-      return { values, dates, runs: [{ source, ok: true, rows: Object.keys(values).length, error: note ?? null, ran_at, kind: "api", sample: sample ?? null }] };
+      return { values, dates, snaps: rows, runs: [{ source, ok: true, rows: Object.keys(values).length, error: note ?? null, ran_at, kind: "api", sample: sample ?? null }] };
     } catch (e) {
       return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: "api" }] };
     }
@@ -132,6 +131,7 @@ export async function drain(admin: any, date: string, budgetMs = 240e3, maxJobs 
       setRequestMode(null, false);
     }
     const runs = res?.runs ?? [];
+    if (res?.snaps?.length) await saveSnapshots(admin, job.id, job.source, res.snaps);
     const allFailed = !!err || (runs.length > 0 && runs.every((r) => !r.ok));
     if (res && Object.keys(res.values).length) {
       // Four times per value: refers-to (observed_on/period), published (unknown here), received, effective.
