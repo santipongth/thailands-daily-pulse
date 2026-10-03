@@ -12,13 +12,14 @@ const tm = (iso: string) => (iso ? new Date(iso).toLocaleString("th-TH", { timeZ
 export function RailSignalChart({ s }: { s: Signal }) {
   const line = s.metric_id === "rail_mrt" ? "MRT" : "BTS";
   const day = s.signal_date;
-  const { data } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ["rail-signal", line, day],
     queryFn: async () => (await supabase.from("social_posts").select("text,posted_at,received_at,url,rail_status,rail_reason,rail_day").eq("source", `${line} (X)`)
-      .gte("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") - 14 * 86400e3).toISOString())
+      .gte("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") - 15 * 86400e3).toISOString())
       .lt("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") + 86400e3).toISOString()).order("posted_at")).data ?? [],
   });
-  if (!data) return null;
+  if (isPending) return <p className="mt-5 border-t border-editorial-rule pt-4 text-xs text-muted-foreground">กำลังโหลดข้อมูลรายสัปดาห์…</p>;
+  if (isError) return <p className="mt-5 border-t border-editorial-rule pt-4 text-xs text-muted-foreground">ข้อมูลไม่พอสำหรับเทียบ · โหลดประกาศย้อนหลังไม่ได้</p>;
   const alerts = data.filter((p) => isServiceAlert(p.text));
   const dayOf = (p: any) => p.rail_day ?? bkkDate(p.posted_at);
   const todays = alerts.filter((p: any) => dayOf(p) === day && (p.rail_status ?? "counted") === "counted");
@@ -36,9 +37,9 @@ export function RailSignalChart({ s }: { s: Signal }) {
   }));
   return (
     <WeeklyComparison weeks={[
-      { label: "7 วันก่อนหน้า", value: prevDays ? previousCount : null, coverage: `พบโพสต์ ${prevDays} วันจาก 7 วัน` },
-      { label: "7 วันล่าสุด", value: curDays ? latestCount : null, coverage: `พบโพสต์ ${curDays} วันจาก 7 วัน` },
-    ]} unit="ประกาศ" decimals={0} note="จำนวนประกาศผิดปกติที่นับเป็นสัญญาณในแต่ละช่วง · วันที่ไม่มีโพสต์ไม่ยืนยันว่าไม่มีเหตุ">
+      { label: "7 วันก่อนหน้า", value: prevDays === 7 ? previousCount : null, coverage: `พบโพสต์ ${prevDays} วันจาก 7 วัน` },
+      { label: "7 วันล่าสุด", value: curDays === 7 ? latestCount : null, coverage: `พบโพสต์ ${curDays} วันจาก 7 วัน` },
+    ]} unit="ประกาศ" decimals={0} note="จำนวนประกาศผิดปกติที่นับเป็นสัญญาณในแต่ละช่วง · เทียบจำนวนได้เมื่อมีโพสต์ครบทุกวันเท่านั้น; วันที่ไม่มีโพสต์ไม่ยืนยันว่าไม่มีเหตุ">
       <div className="mt-4 border-t border-editorial-rule pt-3 text-xs">
       <p className="mb-2 text-muted-foreground">วันนี้เทียบค่าเฉลี่ย 7 วันก่อน แยกทุก 3 ชั่วโมง</p>
       <div className="h-28"><ResponsiveContainer><BarChart data={rows}><XAxis dataKey="k" fontSize={9} /><YAxis hide allowDecimals={false} /><Tooltip /><Legend wrapperStyle={{ fontSize: 10 }} />
