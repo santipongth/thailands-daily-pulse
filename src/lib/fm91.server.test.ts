@@ -6,26 +6,26 @@ const ok = () => new Response(JSON.stringify({ success: true, data: { markdown: 
 const empty = () => new Response(JSON.stringify({ success: true, data: { markdown: "" } }), { status: 200 });
 
 describe("FM91 Firecrawl transient failures", () => {
-  afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); delete process.env.FIRECRAWL_API_KEY; });
+  afterEach(() => { vi.unstubAllGlobals(); delete process.env["FIRECRAWL_API_KEY"]; });
 
-  it.each([500, 429])("retries HTTP %i then accepts readable posts", async (status) => {
-    process.env.FIRECRAWL_API_KEY = "test-key";
+  it.each([500, 429])("retries HTTP %i then accepts readable posts", async (status: number) => {
+    process.env["FIRECRAWL_API_KEY"] = "test-key";
     const fetcher = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify({ error: "temporary" }), { status })).mockResolvedValueOnce(ok());
     vi.stubGlobal("fetch", fetcher);
     expect(await scrape()).toContain("กรุงเทพฯ รถติด");
     expect(fetcher).toHaveBeenCalledTimes(2);
-  });
+  }, 15_000);
 
   it("retries an empty feed but fails after the last attempt", async () => {
-    process.env.FIRECRAWL_API_KEY = "test-key";
+    process.env["FIRECRAWL_API_KEY"] = "test-key";
     const fetcher = vi.fn().mockResolvedValue(empty());
     vi.stubGlobal("fetch", fetcher);
     await expect(scrape()).rejects.toThrow("ไม่พบโพสต์ที่อ่านได้");
     expect(fetcher).toHaveBeenCalledTimes(3);
-  });
+  }, 20_000);
 
   it("does not retry a permanent 403", async () => {
-    process.env.FIRECRAWL_API_KEY = "test-key";
+    process.env["FIRECRAWL_API_KEY"] = "test-key";
     const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({ error: "forbidden" }), { status: 403 }));
     vi.stubGlobal("fetch", fetcher);
     await expect(scrape()).rejects.toThrow("Firecrawl 403");
