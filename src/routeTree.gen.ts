@@ -31,6 +31,7 @@ import { Route as AgenciesAgencyRouteImport } from './routes/agencies.$agency'
 import { Route as BriefIndexRouteImport } from './routes/brief.index'
 import { Route as BriefDateRouteImport } from './routes/brief.$date'
 import { Route as DayDateRouteImport } from './routes/day.$date'
+import { Route as DevelopersIndexRouteImport } from './routes/developers.index'
 import { Route as DevelopersApiRouteImport } from './routes/developers.api'
 import { Route as DevelopersMcpRouteImport } from './routes/developers.mcp'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
@@ -151,6 +152,11 @@ const DayDateRoute = DayDateRouteImport.update({
   path: '/day/$date',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevelopersIndexRoute = DevelopersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DevelopersRoute,
+} as any)
 const DevelopersApiRoute = DevelopersApiRouteImport.update({
   id: '/api',
   path: '/api',
@@ -224,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/brief/': typeof BriefIndexRoute
+  '/developers/': typeof DevelopersIndexRoute
   '/events/': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
@@ -235,7 +242,6 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
-  '/developers': typeof DevelopersRouteWithChildren
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
@@ -257,6 +263,7 @@ export interface FileRoutesByTo {
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies': typeof AgenciesIndexRoute
   '/brief': typeof BriefIndexRoute
+  '/developers': typeof DevelopersIndexRoute
   '/events': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
@@ -291,6 +298,7 @@ export interface FileRoutesById {
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/brief/': typeof BriefIndexRoute
+  '/developers/': typeof DevelopersIndexRoute
   '/events/': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
@@ -326,6 +334,7 @@ export interface FileRouteTypes {
     | '/signals/$family'
     | '/agencies/'
     | '/brief/'
+    | '/developers/'
     | '/events/'
     | '/api/public/brief'
     | '/api/public/ingest'
@@ -337,7 +346,6 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/data'
     | '/data-all'
-    | '/developers'
     | '/evidence'
     | '/failures'
     | '/impact'
@@ -359,6 +367,7 @@ export interface FileRouteTypes {
     | '/signals/$family'
     | '/agencies'
     | '/brief'
+    | '/developers'
     | '/events'
     | '/api/public/brief'
     | '/api/public/ingest'
@@ -392,6 +401,7 @@ export interface FileRouteTypes {
     | '/signals/$family'
     | '/agencies/'
     | '/brief/'
+    | '/developers/'
     | '/events/'
     | '/api/public/brief'
     | '/api/public/ingest'
@@ -587,6 +597,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DayDateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/developers/': {
+      id: '/developers/'
+      path: '/'
+      fullPath: '/developers/'
+      preLoaderRoute: typeof DevelopersIndexRouteImport
+      parentRoute: typeof DevelopersRoute
+    }
     '/developers/api': {
       id: '/developers/api'
       path: '/api'
@@ -656,11 +673,13 @@ declare module '@tanstack/react-router' {
 interface DevelopersRouteChildren {
   DevelopersApiRoute: typeof DevelopersApiRoute
   DevelopersMcpRoute: typeof DevelopersMcpRoute
+  DevelopersIndexRoute: typeof DevelopersIndexRoute
 }
 
 const DevelopersRouteChildren: DevelopersRouteChildren = {
   DevelopersApiRoute: DevelopersApiRoute,
   DevelopersMcpRoute: DevelopersMcpRoute,
+  DevelopersIndexRoute: DevelopersIndexRoute,
 }
 
 const DevelopersRouteWithChildren = DevelopersRoute._addFileChildren(
