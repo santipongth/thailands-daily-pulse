@@ -122,6 +122,13 @@ svg, canvas { max-width: 100%; }
   --accent-foreground: oklch(0.2 0.01 60);
   --destructive: oklch(0.52 0.17 35);
   --destructive-foreground: oklch(0.97 0.015 85);
+  /* Data-map scale (Thai AQI bands / water % of bank): good → very bad */
+  --map-1: oklch(0.7 0.13 220);
+  --map-2: oklch(0.72 0.17 145);
+  --map-3: oklch(0.86 0.17 95);
+  --map-4: oklch(0.72 0.18 55);
+  --map-5: oklch(0.55 0.21 25);
+  --map-ink: oklch(0.2 0.01 60);
   --border: oklch(0.82 0.02 80);
   --input: oklch(0.82 0.02 80);
   --ring: oklch(0.52 0.17 35);
