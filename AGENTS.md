@@ -13,7 +13,7 @@
 
 - Detection is SQL `detect_signals(date)`: per-metric kind delta/level/release, thresholds, `min_pct`/`max_gap_days`/`vol_k`×30-obs stddev, `families.trust` (medium 1.5x, demo capped medium); passed rules stored in `signals.checks` — consistent and explainable.
 - Ranking is SQL `rank_signals(date)`: severity × z/vol_k × trust × `reach` × evidence factor (1.0 if source raw file changed that Bangkok day, else 0.8; `family_evidence_source`); demo zeroed on real days; breakdown in `checks.score` — auditable, never news-driven.
-- Ingest: Postgres queue `ingest_jobs` (one job/source, `claim_ingest_job()` SKIP LOCKED, 3 attempts; `queue.server.ts`), hourly cron `/api/public/ingest` (staleness-gated), daily 05:30 `?mode=daily`, dams-only `?mode=dams` hourly :20 (10-min lease, independent of brief), `run_kind` hourly/daily/manual — isolated failures, daily official snapshot.
+- Ingest: Postgres queue `ingest_jobs` (one job/source, `claim_ingest_job()` SKIP LOCKED, 3 attempts; `queue.server.ts`), hourly cron `/api/public/ingest` (staleness-gated), daily 05:30 `?mode=daily`, gold/FX/RakaKaset only at 05:00 Bangkok daily (05:30 retries failures; `DAILY_05`), dams-only `?mode=dams` hourly :20 (10-min lease, independent of brief), `run_kind` hourly/daily/manual — isolated failures, daily official snapshot.
 - Sources: connectors `{metric_id: value}` in `connectors.server.ts`; CheckRaka/RakaKaset aggregators (trust medium); GLO lottery confirmed by 2nd endpoint; outcomes in `source_runs` + `source_run_history` (30d).
 - Every job fetch is archived as raw evidence (private `evidence` bucket, sha256 dedup, kept forever, `raw_evidence`, signed URLs); `/evidence` diffs vs previous file.
 - News RSS: keyword-tagged, tagged items only; never creates signals.
