@@ -67,7 +67,7 @@ function groupOf(s: string): (typeof GROUPS)[number][0] {
   return "calendar";
 }
 
-function Row({ source, config, run, breaker, info, dataDate }: { source: string; config: Partial<Cfg> | null; run: { ok: boolean; ran_at: string; rows: number; error: string | null; sample: string | null; last_ok_at?: string | null } | null; breaker: { fail_streak: number; open_until: string | null } | null; info?: { owner: string; url: string | null; cadence: string } | null; dataDate?: string | null }) {
+function Row({ source, config, run, breaker, info, dataDate }: { source: string; config: Partial<Cfg> | null; run: { ok: boolean; ran_at: string; rows: number; error: string | null; sample: string | null; last_ok_at?: string | null } | null; breaker: { fail_streak: number; open_until: string | null } | null; info?: { owner: string; url: string | null; cadence: string } | null; dataDate?: string | null | undefined }) {
   const qc = useQueryClient();
   const save = useServerFn(saveSourceConfig);
   const runNow = useServerFn(runSourceNow);
