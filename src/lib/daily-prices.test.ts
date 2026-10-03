@@ -9,6 +9,8 @@ describe("dated price sources", () => {
   it("requires a Bangkok rate and effective date from an accessible notice", () => {
     expect(() => parseBangkokWage("<html>Incapsula incident_id=123</html>", "2026-10-03")).toThrow(/ปิดกั้น/);
     expect(parseBangkokWage("กรุงเทพมหานคร อัตราค่าจ้างขั้นต่ำ 400 บาท มีผลใช้ 1 กรกฎาคม 2568", "2026-10-03")).toEqual({ price: 400, date: "2025-07-01" });
+    expect(parseBangkokWage("ประกาศคณะกรรมการค่าจ้าง เรื่องอัตราค่าจ้างขั้นต่ำ (ฉบับที่ 14) เพื่อให้มีผลบังคับใช้ตั้งแต่วันที่ 1 กรกฎาคม 2568 เป็นต้นไป สาระสำคัญ คือ การปรับอัตราค่าจ้างขั้นต่ำเป็นวันละ 400 บาท ใน 3 กลุ่ม ได้แก่ 1. กรุงเทพมหานคร ทุกประเภทกิจการ", "2026-10-03")).toEqual({ price: 400, date: "2025-07-01" });
+    expect(() => parseBangkokWage("กรุงเทพมหานคร อัตราค่าจ้างขั้นต่ำ 400 บาท มีผลใช้ 1 มกราคม 2570", "2026-10-03")).toThrow();
   });
   it("converts the oil announcement's Buddhist year", () => {
     expect(thaiPriceDate("4 ตุลาคม 2569")).toBe("2026-10-04");
