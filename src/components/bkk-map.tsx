@@ -1,10 +1,11 @@
-// Interactive Bangkok map on /data-all: summary bar, layer chips, value pins, tap-anywhere nearest readings,
+// Interactive Bangkok map on Today: summary bar, layer chips, value pins, tap-anywhere nearest readings,
 // search, near me, shareable link, full screen. Leaflet is imported after mount (browser only) so SSR never evaluates it.
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type * as Leaflet from "leaflet";
 import { LAYERS, isStale, layerLabel, loadMapData, nearestPerLayer, summarise, type LayerId, type Pt } from "@/lib/bkk-map-data";
+import { EditorialDataSection } from "@/components/editorial-data-section";
 
 const CENTER: [number, number] = [13.7563, 100.5018];
 const DEFAULT_ON: LayerId[] = ["pm25", "water", "road", "weather", "rail"];
@@ -14,12 +15,14 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 
 type Spot = { c: [number, number]; label: string };
 
-export function BkkMap() {
+export function BkkMap({ initialLayers, initialPoint }: { initialLayers: string | undefined; initialPoint: string | undefined }) {
   const { data, dataUpdatedAt } = useQuery({ queryKey: ["bkk-map"], queryFn: loadMapData, refetchInterval: 10 * 60e3 });
-  const [on, setOn] = useState<Set<LayerId>>(new Set(DEFAULT_ON));
+  const [on, setOn] = useState<Set<LayerId>>(() => initialLayers
+    ? new Set(initialLayers.split(",").filter((x): x is LayerId => LAYERS.some((l) => l.id === x)))
+    : new Set(DEFAULT_ON));
   const [allRoads, setAllRoads] = useState(false);
   const [q, setQ] = useState("");
-  const [sel, setSel] = useState<string | null>(null);
+  const [sel, setSel] = useState<string | null>(initialPoint ?? null);
   const [spot, setSpot] = useState<Spot | null>(null);
   const [geoErr, setGeoErr] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -33,13 +36,7 @@ export function BkkMap() {
   const sum = useMemo(() => summarise(pts), [pts]);
   const selPt = pts.find((p) => p.key === sel) ?? null;
 
-  // Shared link: ?layers=pm25,water&pt=<key>
-  useEffect(() => {
-    const u = new URL(window.location.href);
-    const ls = u.searchParams.get("layers");
-    if (ls) setOn(new Set(ls.split(",").filter((x): x is LayerId => LAYERS.some((l) => l.id === x))));
-    const pt = u.searchParams.get("pt"); if (pt) setSel(pt);
-  }, []);
+  // Shared link: ?layers=pm25,water&pt=<key>, validated by the Today route.
   useEffect(() => {
     const u = new URL(window.location.href);
     u.searchParams.set("layers", [...on].join(","));
@@ -86,7 +83,7 @@ export function BkkMap() {
   }, [visible, ready, sel, spot]);
 
   // Fly to a shared/selected point once the map is ready.
-  useEffect(() => { if (ready && selPt?.lat != null) map.current!.flyTo([selPt.lat, selPt.lng!], Math.max(map.current!.getZoom(), 13), { duration: 0.5 }); }, [ready, sel]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (ready && selPt?.lat != null) map.current!.flyTo([selPt.lat, selPt.lng!], Math.max(map.current!.getZoom(), 13), { duration: 0.5 }); }, [ready, selPt?.lat, selPt?.lng]);
 
   const pick = (p: Pt) => { setSpot(null); setSel(p.key); if (p.lat == null) return; if (!on.has(p.layer)) setOn((s) => new Set(s).add(p.layer)); };
   const toggle = (id: LayerId) => setOn((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
@@ -104,8 +101,7 @@ export function BkkMap() {
   const noCoord = visible.filter((p) => p.lat == null).length;
 
   return (
-    <section className="mt-8">
-      <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">แผนที่กรุงเทพฯ — อากาศ น้ำ และการเดินทาง (ค่าล่าสุด)</h2>
+    <EditorialDataSection eyebrow="กรุงเทพฯ ขณะนี้" title="แผนที่กรุงเทพฯ — อากาศ น้ำ และการเดินทาง">
 
       {/* ตอนนี้ในกรุงเทพฯ */}
       <div className="mt-3 grid grid-cols-2 gap-px border border-border bg-border text-sm md:grid-cols-4">
@@ -179,7 +175,7 @@ export function BkkMap() {
       </div>
       <p className="mt-1 text-xs text-muted-foreground">คลอง: สีตาม % ของตลิ่ง (แดง = ล้นตลิ่ง) · ถนน: แดง = น้ำท่วม · หมุดวงกลมขาว = สถานีอากาศ (°C) · หมุดเส้นประ = ตำแหน่งโดยประมาณจากชื่อถนน · จาง = ค่าเก่ากว่า 6 ชม.</p>
       <p className="mt-1 text-xs text-muted-foreground">ที่มา: กรมควบคุมมลพิษ, สสน. (ThaiWater), กทม. สำนักการระบายน้ำ, กรมอุตุนิยมวิทยา, บัญชี X ของ BTS/MRT · แผนที่ © OpenStreetMap · โหลดล่าสุด {dataUpdatedAt ? hm(new Date(dataUpdatedAt).toISOString()) : "—"} น. (รีเฟรชทุก 10 นาที) · ตำแหน่งของคุณใช้บนเครื่องนี้เท่านั้น ไม่ถูกบันทึก</p>
-    </section>
+    </EditorialDataSection>
   );
 }
 

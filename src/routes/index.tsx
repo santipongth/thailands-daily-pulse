@@ -17,10 +17,16 @@ import { BriefItems, type BriefItem } from "@/components/brief-items";
 import { BkkForecast } from "@/components/bkk-forecast";
 import { LatestLottery } from "@/components/latest-lottery";
 import { SocialFeed } from "@/components/social-feed";
+import { BkkMap } from "@/components/bkk-map";
+import { StationMap } from "@/components/station-map";
 
 export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
-  validateSearch: z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() }),
+  validateSearch: z.object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    layers: z.string().optional(),
+    pt: z.string().optional(),
+  }),
   loaderDeps: ({ search }) => ({ date: search.date }),
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(dayQuery(deps.date ?? bkkToday())),
   head: () => ({
@@ -39,7 +45,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Today() {
-  const { date: dParam } = Route.useSearch();
+  const { date: dParam, layers, pt } = Route.useSearch();
   const today = bkkToday();
   const date = dParam ?? today;
   const { data } = useSuspenseQuery(dayQuery(date));
@@ -133,9 +139,11 @@ function Today() {
         )}
 
         <section className="mt-9 border-t border-editorial-ink pt-5">
-          <div className="mb-4">
-            <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้</h2>
+          <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้ <span className="font-editorial-body text-sm font-normal text-muted-foreground">({moves.length})</span></h2>
+            <Link to="/data-all" className="text-sm underline">ดูตัวเลขทุกหมวด →</Link>
           </div>
+          <p className="mb-5 text-sm text-muted-foreground">เฉพาะข้อมูลที่เปลี่ยนเกินเกณฑ์ตรวจสอบในวันที่เลือก ตามระดับความสำคัญและแหล่งข้อมูลที่คุณเลือก · หมวดอื่นอาจไม่เปลี่ยน ยังไม่เกินเกณฑ์ หรือยังไม่มีค่าก่อนหน้าให้เทียบ</p>
           {moves.length === 0 ? (
             <p className="text-muted-foreground">ยังไม่มีการเปลี่ยนแปลงจากข้อมูลที่ตรวจสอบได้ที่เกินเกณฑ์ ส่วนแหล่งที่ตรวจไม่ได้ต้องดูสถานะแยกต่างหาก</p>
           ) : (
@@ -146,6 +154,13 @@ function Today() {
             </div>
           )}
         </section>
+
+        {date === today && (
+          <div className="mt-12 space-y-8">
+            <BkkMap initialLayers={layers} initialPoint={pt} />
+            <StationMap />
+          </div>
+        )}
 
         {date === today && <div className="mt-12"><SocialFeed limit={6} /></div>}
 

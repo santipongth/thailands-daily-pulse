@@ -6,8 +6,6 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
 import { makeReasonOf, srcOf, type Run, type Release } from "@/lib/missing-reason";
-import { StationMap } from "@/components/station-map";
-import { BkkMap } from "@/components/bkk-map";
 import { RailStatus } from "@/components/rail-status";
 import { DamsMonitor } from "@/components/dams-monitor";
 import { LatestLottery } from "@/components/latest-lottery";
@@ -60,8 +58,6 @@ function DataAll() {
       <main className="page-shell">
         <h1 className="font-editorial text-4xl sm:text-5xl">ข้อมูลทั้งหมดที่เก็บได้จริง</h1>
         <p className="mt-1 text-sm text-muted-foreground">ข้อมูลจริงเท่านั้น (ไม่รวมข้อมูลตัวอย่าง) · มีค่า {withData.size} จาก {data.metrics.length} ตัวชี้วัด · กดแถวเพื่อดูกราฟรายวันขนาดใหญ่</p>
-        <BkkMap />
-        <StationMap />
         <RailStatus />
         <DamsMonitor />
         <SocialDaily />
