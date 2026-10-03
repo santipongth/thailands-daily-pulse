@@ -7,14 +7,14 @@ type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<stri
 type Ctx = { admin: any; date: string };
 
 const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = {
-  connector: async ({ date }, source) => {
-    const { CONNECTORS } = await import("./connectors.server");
+  connector: async ({ admin, date }, source) => {
+    const { CONNECTORS, normalizeOut } = await import("./connectors.server");
     const c = CONNECTORS.find((x) => x.source === source);
     if (!c) throw new Error(`unknown connector ${source}`);
     const ran_at = new Date().toISOString();
     try {
-      const values = await c.run(date);
-      return { values, runs: [{ source, ok: true, rows: Object.keys(values).length, error: null, ran_at, kind: "api" }] };
+      const { values, dates } = normalizeOut(await c.run(date, { admin }));
+      return { values, dates, runs: [{ source, ok: true, rows: Object.keys(values).length, error: null, ran_at, kind: "api" }] };
     } catch (e) {
       return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: "api" }] };
     }

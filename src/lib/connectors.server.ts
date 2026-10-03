@@ -1,28 +1,16 @@
-// Server-only: one connector per real data source. Each returns { metric_id: value }.
+// Server-only: one connector per real data source. Each returns { metric_id: value } and may
+// return per-metric dates ({ values, dates }) when a value refers to a day other than the run date.
+import { politeFetch } from "./http.server";
 
 type Values = Record<string, number>;
-export type Connector = { source: string; run: (date: string) => Promise<Values> };
+export type ConnectorOut = Values | { values: Values; dates: Record<string, string> };
+export type Connector = { source: string; run: (date: string, ctx?: { admin?: any }) => Promise<ConnectorOut> };
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-/** Polite fetch: on 429 waits Retry-After (capped 20s; default 5s then 15s), max 3 tries. */
-async function get(url: string, ms = 12000) {
-  const waits = [5000, 15000];
-  for (let i = 0; ; i++) {
-    const res = await fetch(url, {
-      headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals", accept: "application/json, text/xml, */*" },
-      signal: AbortSignal.timeout(ms),
-    });
-    if (res.ok) return res;
-    if (res.status === 429 && i < waits.length) {
-      const ra = Number(res.headers.get("retry-after"));
-      await sleep(Number.isFinite(ra) && ra > 0 ? Math.min(ra * 1000, 20000) : waits[i]!);
-      continue;
-    }
-    throw new Error(`${res.status} ${url}`);
-  }
-}
-const json = async (url: string) => (await get(url)).json() as Promise<any>;
-const text = async (url: string) => (await get(url)).text();
+export const normalizeOut = (o: ConnectorOut): { values: Values; dates?: Record<string, string> } =>
+  o && typeof (o as any).values === "object" && typeof (o as any).dates === "object" ? (o as any) : { values: o as Values };
+
+const json = async (url: string) => (await politeFetch(url, { headers: { accept: "application/json, */*" } })).json() as Promise<any>;
+const text = async (url: string) => (await politeFetch(url)).text();
 const pos = (v: unknown) => {
   const n = Number(v);
   return Number.isFinite(n) && n > 0 ? n : undefined;
@@ -32,6 +20,7 @@ const put = (o: Values, k: string, v: number | undefined) => {
 };
 const blocks = (xml: string, tag: string) => xml.split(`<${tag}>`).slice(1).map((b) => b.split(`</${tag}>`)[0] ?? "");
 const field = (b: string, tag: string) => b.match(new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`))?.[1] ?? "";
+const prevDay = (d: string) => { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() - 1); return t.toISOString().slice(0, 10); };
 
 export const CONNECTORS: Connector[] = [
   {
@@ -72,19 +61,33 @@ export const CONNECTORS: Connector[] = [
     },
   },
   {
+    // Chao Phraya Dam release (station C.13 ท้ายเขื่อนเจ้าพระยา) only exists in ThaiWater's water-level list.
     source: "ThaiWater (สสน.)",
     run: async () => {
-      const o: Values = {};
       const d = await json("https://api-v3.thaiwater.net/api/v1/thaiwater30/public/thailand_main");
-      const dams: any[] = d?.dam?.data?.data ?? [];
-      let st = 0, cap = 0;
-      for (const x of dams) {
-        const s = Number(x.dam_storage), m = Number(x.dam?.max_storage);
-        if (Number.isFinite(s) && m > 0) { st += s; cap += m; }
-        if (x.dam?.dam_name?.th === "ภูมิพล") put(o, "dam_bhumibol", pos(x.dam_storage_percent));
-      }
-      if (cap > 0) o["dam_total"] = +((st / cap) * 100).toFixed(2);
-      return o;
+      const wl: any[] = d?.waterlevel?.data?.data ?? d?.waterlevel?.data ?? [];
+      const c13 = wl.find((x) => String(x?.station?.tele_station_oldcode ?? "").trim() === "C.13");
+      const q = pos(c13?.discharge);
+      if (q === undefined) throw new Error("ไม่พบค่าระบายน้ำสถานี C.13 ท้ายเขื่อนเจ้าพระยา ในไฟล์");
+      const day = String(c13.waterlevel_datetime ?? "").slice(0, 10);
+      return /^\d{4}-\d{2}-\d{2}$/.test(day) ? { values: { cp_dam_q: q }, dates: { cp_dam_q: day } } : { cp_dam_q: q };
+    },
+  },
+  {
+    // Dams around Bangkok, from the owning department (RID). Not blocked like ThaiWater.
+    source: "RID อ่างเก็บน้ำ (กรมชลประทาน)",
+    run: async () => {
+      const d = await json("https://app.rid.go.th/reservoir/api/dam/public");
+      const dams: any[] = (d?.data ?? []).flatMap((r: any) => r?.dam ?? []);
+      const find = (n: string) => dams.find((x) => String(x?.name ?? "").includes(n));
+      const pasak = find("ป่าสักชลสิทธิ์"), khundan = find("ขุนด่านปราการชล");
+      const o: Values = {};
+      put(o, "dam_pasak_pct", pos(pasak?.percent_storage));
+      if (Number.isFinite(Number(pasak?.outflow)) && pasak?.outflow != null) o["dam_pasak_out"] = Number(pasak.outflow);
+      put(o, "dam_khundan_pct", pos(khundan?.percent_storage));
+      if (!Object.keys(o).length) throw new Error("ไม่พบเขื่อนป่าสักชลสิทธิ์/ขุนด่านปราการชล ในไฟล์");
+      const day = String(d?.date ?? "");
+      return /^\d{4}-\d{2}-\d{2}$/.test(day) ? { values: o, dates: Object.fromEntries(Object.keys(o).map((k) => [k, day])) } : o;
     },
   },
   {
@@ -106,27 +109,42 @@ export const CONNECTORS: Connector[] = [
     },
   },
   {
+    // www.tmd.go.th has an incomplete certificate chain (hosting returns 526), so figures come from
+    // data.tmd.go.th WeatherForecast7Days — today's กรุงเทพมหานคร row.
     source: "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล",
-    run: async () => {
-      const { TMD_BKK_URL, parseBkkForecast } = await import("./tmd-forecast");
-      const f = parseBkkForecast(await text(TMD_BKK_URL));
-      const bkk = f.provinces.find((p) => p.name.includes("กรุงเทพ"));
+    run: async (date) => {
+      const { TMD7D_URL, parseTmd7d } = await import("./tmd7d");
+      const rows = parseTmd7d(await text(TMD7D_URL), date);
+      const bkk = rows.find((r) => r.province === "กรุงเทพมหานคร");
+      if (!bkk) throw new Error(`ไม่พบพยากรณ์ กรุงเทพมหานคร ของวันที่ ${date} ในไฟล์ 7 วัน`);
       const o: Values = {};
-      put(o, "fc_tmax_bkk", pos(bkk?.max ?? f.maxRange?.[1]));
-      put(o, "fc_tmin_bkk", pos(bkk?.min ?? f.minRange?.[0]));
+      put(o, "fc_tmax_bkk", pos(bkk.max));
+      put(o, "fc_tmin_bkk", pos(bkk.min));
       return o;
     },
   },
   {
+    // Rain = 24-h rainfall of the latest report (dated by the report). Temperature = yesterday's highest
+    // 3-hourly reading: a running max per day is kept in app_settings (key tmax3h:YYYY-MM-DD).
     source: "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)",
-    run: async () => {
+    run: async (date, ctx) => {
       const { TMD3H_URL, parseTmd3h } = await import("./tmd3h");
       const r = parseTmd3h(await text(TMD3H_URL));
-      if (!r.stationFound) throw new Error(r.stations ? "ไม่พบสถานี BANGKOK METROPOLIS ในไฟล์" : "กรมอุตุฯ ยังไม่มีรายการสถานีในรอบนี้ (ไฟล์ว่าง)");
-      const o: Values = {};
-      put(o, "tmax_bkk", r.maxTemp ?? r.temp);
-      if (r.rain24 !== undefined && r.rain24 >= 0) o["rain_bkk"] = r.rain24;
-      return o;
+      if (!r.stationFound) throw new Error(r.stations ? "ไม่พบสถานี 48455 BANGKOK METROPOLIS ในไฟล์" : "กรมอุตุฯ ยังไม่มีรายการสถานีในรอบนี้ (ไฟล์ว่าง)");
+      const day = r.date ?? date;
+      const values: Values = {}, dates: Record<string, string> = {};
+      if (r.rain24 !== undefined && r.rain24 >= 0) { values["rain_bkk"] = r.rain24; dates["rain_bkk"] = day; }
+      const admin = ctx?.admin;
+      if (admin && r.temp !== undefined) {
+        const key = `tmax3h:${day}`;
+        const { data: cur } = await admin.from("app_settings").select("value").eq("key", key).maybeSingle();
+        const best = Math.max(r.temp, Number(cur?.value ?? -Infinity));
+        if (!cur || best !== Number(cur.value)) await admin.from("app_settings").upsert({ key, value: String(best), updated_at: new Date().toISOString() });
+        const { data: y } = await admin.from("app_settings").select("value").eq("key", `tmax3h:${prevDay(day)}`).maybeSingle();
+        if (y && Number.isFinite(Number(y.value))) { values["tmax_bkk"] = Number(y.value); dates["tmax_bkk"] = day; }
+      }
+      if (!Object.keys(values).length) throw new Error("สถานี BANGKOK METROPOLIS ไม่มีค่าฝน และยังไม่มีอุณหภูมิสูงสุดของเมื่อวาน");
+      return { values, dates };
     },
   },
   {
@@ -171,8 +189,9 @@ export async function runConnectors(date: string) {
   const runs = results.map((r, i) => {
     const source = CONNECTORS[i]!.source;
     if (r.status === "fulfilled") {
-      for (const [k, v] of Object.entries(r.value)) if (!(k in values)) values[k] = v;
-      return { source, ok: true, rows: Object.keys(r.value).length, error: null as string | null, ran_at: new Date().toISOString() };
+      const v = normalizeOut(r.value).values;
+      for (const [k, x] of Object.entries(v)) if (!(k in values)) values[k] = x;
+      return { source, ok: true, rows: Object.keys(v).length, error: null as string | null, ran_at: new Date().toISOString() };
     }
     return { source, ok: false, rows: 0, error: String((r.reason as Error)?.message ?? r.reason).slice(0, 300), ran_at: new Date().toISOString() };
   });
