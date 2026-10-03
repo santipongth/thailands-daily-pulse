@@ -68,6 +68,10 @@ function Today() {
   const hist = (id: string) => data.obs.filter((o) => o.metric_id === id);
   const releases = data.signals.filter((s) => met.get(s.metric_id)?.kind === "release");
   const moves = data.signals.filter((s) => s.is_demo === false);
+  useEffect(() => { // one-time cleanup of retired reader-threshold settings
+    localStorage.removeItem("tds-sensitivity");
+    Object.keys(localStorage).filter((k) => k.startsWith("cost-threshold:")).forEach((k) => localStorage.removeItem(k));
+  }, []);
   const agencyNews = data.news.filter((n) => n.agency).slice(0, 6);
   const activeFams = new Set([...releases, ...moves].map((s) => s.family_id));
   const quiet = data.families.filter((f) => !activeFams.has(f.id));
