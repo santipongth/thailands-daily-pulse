@@ -314,3 +314,28 @@ export async function refreshDams(): Promise<{ processed: number }> {
   if (obs?.length) await admin.from("dam_readings").insert(obs.map((o) => ({ metric_id: o.metric_id, value: o.value, observed_on: o.observed_on })));
   return { processed };
 }
+
+/** 30-minute tick: run only sources an admin set to custom HH:MM times that are now due. */
+export async function runCustomDue(): Promise<{ queued: number }> {
+  const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
+  const { customDueSpecs } = await import("./source-config.server");
+  const specs = await customDueSpecs(admin);
+  if (!specs.length) return { queued: 0 };
+  const now = new Date();
+  const { data: lock } = await admin.from("job_locks").select("locked_until").eq("name", LOCK).maybeSingle();
+  if (lock && new Date(lock.locked_until) > now) return { queued: 0 };
+  await admin.from("job_locks").upsert({ name: LOCK, locked_until: new Date(now.getTime() + 5 * 60e3).toISOString() });
+  try {
+    const date = bangkokDate();
+    const { enqueue, drain } = await import("./queue.server");
+    await enqueue(admin, specs, "hourly");
+    if (await drain(admin, date)) {
+      await admin.rpc("detect_signals", { _d: date });
+      await admin.rpc("detect_received_signals", { _d: date });
+      await admin.rpc("rank_signals", { _d: date });
+    }
+    return { queued: specs.length };
+  } finally {
+    await admin.from("job_locks").upsert({ name: LOCK, locked_until: new Date(0).toISOString() });
+  }
+}
