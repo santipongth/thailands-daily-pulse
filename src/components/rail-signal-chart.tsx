@@ -3,6 +3,8 @@ import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } fro
 import { supabase } from "@/integrations/supabase/client";
 import type { Signal } from "@/lib/signals";
 import { BLOCK_TH, bkkBlock, bkkDate, isServiceAlert } from "@/lib/rail";
+import { WeeklyComparison } from "@/components/weekly-comparison";
+import { shiftDate } from "@/lib/signals";
 
 /** Train signal: delay/suspension notices per 3-hour block on the signal day vs the 7-day average per block + the notices. */
 const tm = (iso: string) => (iso ? new Date(iso).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + " น." : "—");
@@ -13,7 +15,7 @@ export function RailSignalChart({ s }: { s: Signal }) {
   const { data } = useQuery({
     queryKey: ["rail-signal", line, day],
     queryFn: async () => (await supabase.from("social_posts").select("text,posted_at,received_at,url,rail_status,rail_reason,rail_day").eq("source", `${line} (X)`)
-      .gte("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") - 7 * 86400e3).toISOString())
+      .gte("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") - 14 * 86400e3).toISOString())
       .lt("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") + 86400e3).toISOString()).order("posted_at")).data ?? [],
   });
   if (!data) return null;
@@ -21,13 +23,24 @@ export function RailSignalChart({ s }: { s: Signal }) {
   const dayOf = (p: any) => p.rail_day ?? bkkDate(p.posted_at);
   const todays = alerts.filter((p: any) => dayOf(p) === day && (p.rail_status ?? "counted") === "counted");
   const past = alerts.filter((p: any) => dayOf(p) < day && (p.rail_status ?? "counted") === "counted");
+  const previousStart = shiftDate(day, -13), latestStart = shiftDate(day, -6);
+  const previousCount = past.filter((p: any) => dayOf(p) >= previousStart && dayOf(p) < latestStart).length;
+  const latestCount = [...past, ...todays].filter((p: any) => dayOf(p) >= latestStart && dayOf(p) <= day).length;
+  const coveredDays = (from: string, to: string) => new Set(data.filter((p: any) => dayOf(p) >= from && dayOf(p) <= to).map(dayOf)).size;
+  const prevDays = coveredDays(previousStart, shiftDate(latestStart, -1));
+  const curDays = coveredDays(latestStart, day);
   const skipped = data.filter((p: any) => bkkDate(p.posted_at) === day && p.rail_status && p.rail_status !== "counted");
   const rows = BLOCK_TH.map((k, b) => ({
     k, today: todays.filter((p) => bkkBlock(p.posted_at) === b).length,
     avg: +(past.filter((p) => bkkBlock(p.posted_at) === b).length / 7).toFixed(2),
   }));
   return (
-    <div className="mt-3 border-t border-editorial-rule pt-2 text-xs">
+    <WeeklyComparison weeks={[
+      { label: "7 วันก่อนหน้า", value: prevDays ? previousCount : null, coverage: `พบโพสต์ ${prevDays} วันจาก 7 วัน` },
+      { label: "7 วันล่าสุด", value: curDays ? latestCount : null, coverage: `พบโพสต์ ${curDays} วันจาก 7 วัน` },
+    ]} unit="ประกาศ" decimals={0} note="จำนวนประกาศผิดปกติที่นับเป็นสัญญาณในแต่ละช่วง · วันที่ไม่มีโพสต์ไม่ยืนยันว่าไม่มีเหตุ">
+      <div className="mt-4 border-t border-editorial-rule pt-3 text-xs">
+      <p className="mb-2 text-muted-foreground">วันนี้เทียบค่าเฉลี่ย 7 วันก่อน แยกทุก 3 ชั่วโมง</p>
       <div className="h-28"><ResponsiveContainer><BarChart data={rows}><XAxis dataKey="k" fontSize={9} /><YAxis hide allowDecimals={false} /><Tooltip /><Legend wrapperStyle={{ fontSize: 10 }} />
         <Bar dataKey="today" name="วันนี้" fill="var(--map-5)" /><Bar dataKey="avg" name="เฉลี่ย 7 วันก่อน" fill="var(--map-2)" /></BarChart></ResponsiveContainer></div>
       <p className="mt-1 text-muted-foreground">นับเฉพาะประกาศ “ล่าช้า/ขัดข้อง/หยุดให้บริการ” จากบัญชีทางการ {line} (ประกาศเป็นรายสาย ไม่ใช่รายสถานี) · 1 ครั้ง = น่าจับตา, 3 ครั้งขึ้นไป = สำคัญมาก</p>
@@ -37,6 +50,7 @@ export function RailSignalChart({ s }: { s: Signal }) {
       ))}</ul>
       {skipped.length > 0 && <><p className="mt-2 font-semibold">ไม่นับในสัญญาณ ({skipped.length})</p><ul className="space-y-1 text-muted-foreground">{skipped.map((p: any) => (
         <li key={p.url}><a href={p.url} target="_blank" rel="noreferrer" className="underline">ประกาศ {tm(p.posted_at)}</a> — {p.rail_reason}<p className="whitespace-pre-line">{p.text}</p></li>))}</ul></>}
-    </div>
+      </div>
+    </WeeklyComparison>
   );
 }
