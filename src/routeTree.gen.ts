@@ -26,6 +26,8 @@ import { Route as StationsRouteImport } from './routes/stations'
 import { Route as UnchangedRouteImport } from './routes/unchanged'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AdminCalendarRouteImport } from './routes/_admin/calendar'
+import { Route as AdminCustomSignalsRouteImport } from './routes/_admin/custom-signals'
+import { Route as AdminCustomSourcesRouteImport } from './routes/_admin/custom-sources'
 import { Route as AdminDataRouteImport } from './routes/_admin/data'
 import { Route as AdminEvidenceRouteImport } from './routes/_admin/evidence'
 import { Route as AdminImpactRouteImport } from './routes/_admin/impact'
@@ -138,6 +140,16 @@ const AdminAdminRoute = AdminAdminRouteImport.update({
 const AdminCalendarRoute = AdminCalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminCustomSignalsRoute = AdminCustomSignalsRouteImport.update({
+  id: '/custom-signals',
+  path: '/custom-signals',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminCustomSourcesRoute = AdminCustomSourcesRouteImport.update({
+  id: '/custom-sources',
+  path: '/custom-sources',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminDataRoute = AdminDataRouteImport.update({
@@ -303,6 +315,8 @@ export interface FileRoutesByFullPath {
   '/unchanged': typeof UnchangedRoute
   '/admin': typeof AdminAdminRoute
   '/calendar': typeof AdminCalendarRoute
+  '/custom-signals': typeof AdminCustomSignalsRoute
+  '/custom-sources': typeof AdminCustomSourcesRoute
   '/data': typeof AdminDataRoute
   '/evidence': typeof AdminEvidenceRoute
   '/impact': typeof AdminImpactRoute
@@ -349,6 +363,8 @@ export interface FileRoutesByTo {
   '/unchanged': typeof UnchangedRoute
   '/admin': typeof AdminAdminRoute
   '/calendar': typeof AdminCalendarRoute
+  '/custom-signals': typeof AdminCustomSignalsRoute
+  '/custom-sources': typeof AdminCustomSourcesRoute
   '/data': typeof AdminDataRoute
   '/evidence': typeof AdminEvidenceRoute
   '/impact': typeof AdminImpactRoute
@@ -398,6 +414,8 @@ export interface FileRoutesById {
   '/unchanged': typeof UnchangedRoute
   '/_admin/admin': typeof AdminAdminRoute
   '/_admin/calendar': typeof AdminCalendarRoute
+  '/_admin/custom-signals': typeof AdminCustomSignalsRoute
+  '/_admin/custom-sources': typeof AdminCustomSourcesRoute
   '/_admin/data': typeof AdminDataRoute
   '/_admin/evidence': typeof AdminEvidenceRoute
   '/_admin/impact': typeof AdminImpactRoute
@@ -447,6 +465,8 @@ export interface FileRouteTypes {
     | '/unchanged'
     | '/admin'
     | '/calendar'
+    | '/custom-signals'
+    | '/custom-sources'
     | '/data'
     | '/evidence'
     | '/impact'
@@ -493,6 +513,8 @@ export interface FileRouteTypes {
     | '/unchanged'
     | '/admin'
     | '/calendar'
+    | '/custom-signals'
+    | '/custom-sources'
     | '/data'
     | '/evidence'
     | '/impact'
@@ -541,6 +563,8 @@ export interface FileRouteTypes {
     | '/unchanged'
     | '/_admin/admin'
     | '/_admin/calendar'
+    | '/_admin/custom-signals'
+    | '/_admin/custom-sources'
     | '/_admin/data'
     | '/_admin/evidence'
     | '/_admin/impact'
@@ -723,6 +747,20 @@ declare module '@tanstack/react-router' {
       path: '/calendar'
       fullPath: '/calendar'
       preLoaderRoute: typeof AdminCalendarRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/custom-signals': {
+      id: '/_admin/custom-signals'
+      path: '/custom-signals'
+      fullPath: '/custom-signals'
+      preLoaderRoute: typeof AdminCustomSignalsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/custom-sources': {
+      id: '/_admin/custom-sources'
+      path: '/custom-sources'
+      fullPath: '/custom-sources'
+      preLoaderRoute: typeof AdminCustomSourcesRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/_admin/data': {
@@ -934,6 +972,8 @@ declare module '@tanstack/react-router' {
 interface AdminRouteRouteChildren {
   AdminAdminRoute: typeof AdminAdminRoute
   AdminCalendarRoute: typeof AdminCalendarRoute
+  AdminCustomSignalsRoute: typeof AdminCustomSignalsRoute
+  AdminCustomSourcesRoute: typeof AdminCustomSourcesRoute
   AdminDataRoute: typeof AdminDataRoute
   AdminEvidenceRoute: typeof AdminEvidenceRoute
   AdminImpactRoute: typeof AdminImpactRoute
@@ -951,6 +991,8 @@ interface AdminRouteRouteChildren {
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminAdminRoute: AdminAdminRoute,
   AdminCalendarRoute: AdminCalendarRoute,
+  AdminCustomSignalsRoute: AdminCustomSignalsRoute,
+  AdminCustomSourcesRoute: AdminCustomSourcesRoute,
   AdminDataRoute: AdminDataRoute,
   AdminEvidenceRoute: AdminEvidenceRoute,
   AdminImpactRoute: AdminImpactRoute,
