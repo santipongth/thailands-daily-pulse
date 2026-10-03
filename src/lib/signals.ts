@@ -5,7 +5,7 @@ export type Family = { id: string; name_th: string; emoji: string; description: 
 export type Metric = { id: string; family_id: string; name_th: string; unit: string; kind: string; decimals: number; sort: number; threshold_abs: number | null; threshold_pct: number | null; bands: number[] | null };
 export type Signal = { id: string; family_id: string; metric_id: string; signal_date: string; severity: string; title: string; prev_value: number | null; new_value: number; change_abs: number | null; change_pct: number | null; is_demo: boolean; created_at: string; checks?: any; score?: number | null };
 export type News = { id: number; source: string; title: string; link: string; published_at: string; agency: string | null; family_id: string | null };
-export type Obs = { metric_id: string; observed_on: string; value: number; is_demo: boolean };
+export type Obs = { metric_id: string; observed_on: string; value: number; is_demo: boolean; received_at: string };
 
 export function bkkToday() {
   return new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
@@ -38,7 +38,7 @@ export const dayQuery = (date: string) =>
         throwing<Family[]>(supabase.from("families").select("*").order("sort")),
         throwing<Metric[]>(supabase.from("metrics").select("id,family_id,name_th,unit,kind,decimals,sort,threshold_abs,threshold_pct,bands").order("sort")),
         throwing<Signal[]>(supabase.from("signals").select("*").eq("signal_date", date)),
-        throwing<Obs[]>(supabase.from("observations").select("metric_id,observed_on,value,is_demo").gte("observed_on", from).lte("observed_on", date).order("observed_on").limit(1000)),
+        throwing<Obs[]>(supabase.from("observations").select("metric_id,observed_on,value,is_demo,received_at").gte("observed_on", from).lte("observed_on", date).order("observed_on").limit(1000)),
         throwing<{ body: string; generated_at: string; published_at: string | null; items: any } | null>(supabase.from("daily_briefs").select("body,generated_at,published_at,items").eq("brief_date", date).maybeSingle()),
         throwing<{ id: number; family_id: string; title: string; release_date: string }[]>(
           supabase.from("release_calendar").select("*").gt("release_date", date).order("release_date").limit(6),
@@ -61,7 +61,7 @@ export const familyQuery = (id: string) =>
       const metrics = await throwing<Metric[]>(supabase.from("metrics").select("id,family_id,name_th,unit,kind,decimals,sort,threshold_abs,threshold_pct,bands").eq("family_id", id).order("sort"));
       const ids = metrics.map((m) => m.id);
       const [obs, signals, news] = await Promise.all([
-        throwing<Obs[]>(supabase.from("observations").select("metric_id,observed_on,value,is_demo").in("metric_id", ids).order("observed_on")),
+        throwing<Obs[]>(supabase.from("observations").select("metric_id,observed_on,value,is_demo,received_at").in("metric_id", ids).order("observed_on")),
         throwing<Signal[]>(supabase.from("signals").select("*").eq("family_id", id).order("signal_date", { ascending: false }).limit(50)),
         throwing<News[]>(supabase.from("news_items").select("*").eq("family_id", id).order("published_at", { ascending: false }).limit(10)),
       ]);
