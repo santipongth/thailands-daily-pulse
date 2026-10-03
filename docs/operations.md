@@ -40,6 +40,11 @@ Use the admin source manager (`/admin` → จัดการแหล่งข�
 
 Fetches from X/Twitter go through Firecrawl at about 30 credits each. Turn those sources off if you have no Firecrawl budget.
 
+## Your own sources and signals (no code)
+- **แหล่งข้อมูลของฉัน** (`/custom-sources`): add a JSON, CSV or text URL, give the value path (e.g. `rates.THB`), optional date path or row filter, press test, then save. It gets its own metric (`c_…`), registry row and schedule in the source manager. Disabling keeps readings and evidence.
+- **สัญญาณของฉัน** (`/custom-signals`): add a rule (delta / level / release, thresholds) with an effective date of today or later; preview shows how it would have fired on stored readings. Past days and published briefs are never re-scored.
+
+
 ## Retention and backups
 - Raw evidence, signals, signal versions, briefs and daily performance stats are **kept forever**. Operational rows are deleted after 90 days.
 - Back up with `pg_dump "$DATABASE_URL" -Fc > backup.dump`, and copy the `evidence` storage bucket as well.
