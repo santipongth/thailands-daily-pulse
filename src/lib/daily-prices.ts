@@ -43,3 +43,24 @@ export function parseBangkokWage(page: string, today: string) {
   if (iso > today || price < 300 || price > 1500) throw new Error("ข้อมูลค่าแรงหรือวันมีผลไม่สมเหตุสมผล");
   return { price, date: iso };
 }
+export const EPPO_LPG_PAGE = "https://www.eppo.go.th/energy-price/lpg-retail-price-today/%E0%B8%A3%E0%B8%B2%E0%B8%84%E0%B8%B2%E0%B8%81%E0%B9%8A%E0%B8%B2%E0%B8%8B-lpg/";
+export type LpgAi = { price_15kg: number; effective_date: string | null; as_of_date: string | null; price_quote: string; date_quote: string };
+const EN_MON: Record<string, string> = { Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06", Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12" };
+/** "1 Mar 2023" → 2023-03-01 (used to cross-check AI dates against the page text). */
+export const enDate = (s: string) => { const m = s.match(/(\d{1,2})\s+([A-Z][a-z]{2})\s+(20\d{2})/); return m && EN_MON[m[2]!] ? `${m[3]}-${EN_MON[m[2]!]}-${m[1]!.padStart(2, "0")}` : null; };
+const squash = (s: string) => s.replace(/[\s\\|*]+/g, "");
+
+/** AI output is accepted only if its quotes are really on the page and agree with its numbers. */
+export function parseLpgAiResult(ai: LpgAi, page: string, today: string) {
+  const price = Number(ai.price_15kg);
+  if (!Number.isFinite(price) || price < 300 || price > 700) throw new Error(`AI อ่านราคาถัง 15 กก. ได้ ${ai.price_15kg} — นอกช่วง 300–700 บาท ไม่บันทึก`);
+  const p = squash(page);
+  if (!ai.price_quote || !p.includes(squash(ai.price_quote)) || !ai.price_quote.includes(String(price))) throw new Error("ข้อความราคาที่ AI อ้างไม่พบในหน้า สนพ. — ไม่บันทึก");
+  if (ai.effective_date) {
+    if (!ai.date_quote || !p.includes(squash(ai.date_quote)) || enDate(ai.date_quote) !== ai.effective_date) throw new Error("วันที่มีผลที่ AI อ้างไม่พบในหน้า สนพ. — ไม่บันทึก");
+    if (ai.effective_date > today) throw new Error(`วันที่มีผล ${ai.effective_date} อยู่ในอนาคต`);
+  }
+  const asOfOk = ai.as_of_date && ai.as_of_date <= today && ai.as_of_date >= shift(today, -3);
+  return { price, effective: ai.effective_date, asOf: asOfOk ? ai.as_of_date! : today };
+}
+const shift = (d: string, n: number) => { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
