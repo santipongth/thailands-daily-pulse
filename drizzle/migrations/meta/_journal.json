@@ -274,6 +274,13 @@
       "when": 1791049155025,
       "tag": "0038_prune_old_data",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1791050508387,
+      "tag": "0039_weekly_cost_signals",
+      "breakpoints": true
     }
   ]
 }
