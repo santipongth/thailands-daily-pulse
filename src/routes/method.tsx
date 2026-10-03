@@ -77,7 +77,7 @@ function Method() {
             <li>ข่าวหนังสือพิมพ์ไม่สร้างและไม่เพิ่มคะแนนสัญญาณ · วันที่มีข้อมูลจริง สัญญาณตัวอย่างได้คะแนน 0</li>
           </ul>
           <div className="overflow-x-auto"><table className="mt-4 min-w-[560px] w-full text-sm">
-            <thead><tr className="border-b-2 border-foreground text-left"><th className="py-1">กลุ่ม</th><th>ความน่าเชื่อถือ</th><th>ผลต่อครัวเรือน</th></tr></thead>
+            <thead><tr className="border-b-2 border-editorial-ink text-left"><th className="py-1">กลุ่ม</th><th>ความน่าเชื่อถือ</th><th>ผลต่อครัวเรือน</th></tr></thead>
             <tbody>{data.families.map((f) => <tr key={f.id} className="border-b border-border"><td className="py-1">{f.emoji} {f.name_th}</td><td>{f.trust}</td><td>{n(f.reach)}</td></tr>)}</tbody>
           </table></div>
         </section>
@@ -120,7 +120,7 @@ function Method() {
           <h2 className="section-heading text-2xl">4. เกณฑ์ของแต่ละตัวชี้วัด</h2>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-sm">
-              <thead><tr className="border-b-2 border-foreground text-left"><th className="py-1">ตัวชี้วัด</th><th>กลุ่ม</th><th>กฎ</th><th>เกณฑ์สัมบูรณ์</th><th>ความน่าเชื่อถือ</th><th>เกณฑ์ %</th><th>min %</th><th>vol_k</th><th>max gap</th><th>bands</th></tr></thead>
+              <thead><tr className="border-b-2 border-editorial-ink text-left"><th className="py-1">ตัวชี้วัด</th><th>กลุ่ม</th><th>กฎ</th><th>เกณฑ์สัมบูรณ์</th><th>ความน่าเชื่อถือ</th><th>เกณฑ์ %</th><th>min %</th><th>vol_k</th><th>max gap</th><th>bands</th></tr></thead>
               <tbody>{data.metrics.map((m) => (
                 <tr key={m.id} className="border-b border-border">
                   <td className="py-1">{m.name_th}</td><td>{fam[m.family_id]?.emoji}</td><td>{m.kind}</td>

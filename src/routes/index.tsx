@@ -128,7 +128,7 @@ function Today() {
             <p className="text-xs font-semibold uppercase tracking-widest opacity-70">ประกาศใหม่วันนี้</p>
             <ul className="mt-2 space-y-1">
               {releases.map((s) => (
-                <li key={s.id} className="flex flex-wrap items-baseline gap-x-3 font-display text-xl">
+                <li key={s.id} className="flex flex-wrap items-baseline gap-x-3 font-editorial text-xl">
                   <Link to="/signals/$family" params={{ family: s.family_id }} className="hover:underline">
                     {fam.get(s.family_id)?.emoji} {s.title}
                   </Link>
