@@ -1,3 +1,4 @@
+import { SITE } from "@/lib/openapi";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Masthead } from "@/components/masthead";
@@ -53,8 +54,8 @@ export const Route = createFileRoute("/brief/$date")({
       { property: "og:description", content: "4 คำถามที่คนไทยควรรู้ทุกเช้า" },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: `https://thailands-daily-pulse.lovable.app/api/public/og/brief/${params.date}` },
-      { name: "twitter:image", content: `https://thailands-daily-pulse.lovable.app/api/public/og/brief/${params.date}` },
+      { property: "og:image", content: `${SITE}/api/public/og/brief/${params.date}` },
+      { name: "twitter:image", content: `${SITE}/api/public/og/brief/${params.date}` },
     ],
   }),
   component: BriefPage,

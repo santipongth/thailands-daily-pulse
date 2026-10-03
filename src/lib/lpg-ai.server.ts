@@ -1,5 +1,6 @@
 // Server-only: EPPO renders LPG prices client-side, so the page is opened via Firecrawl and an AI
 // reads the PTT 15 kg cooking gas price + effective date; parseLpgAiResult verifies the quotes.
+import { aiUrl } from "./ai-endpoint";
 import { firecrawlMarkdown } from "./http.server";
 import { EPPO_LPG_PAGE, parseLpgAiResult, type LpgAi } from "./daily-prices";
 
@@ -13,7 +14,7 @@ async function askAi(page: string): Promise<LpgAi> {
 ห้ามเดา ถ้าไม่พบให้ใส่ null
 หน้าเว็บ:
 ${page}`;
-  const r = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+  const r = await fetch(aiUrl("/responses"), {
     method: "POST",
     headers: { "Content-Type": "application/json", "Lovable-API-Key": key, Authorization: `Bearer ${key}`, "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({ model: MODEL, input: prompt, stream: true, store: false, reasoning: { effort: "low" } }),

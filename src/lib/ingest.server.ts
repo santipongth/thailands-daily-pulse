@@ -9,7 +9,7 @@ const STALE_MS = 3 * 3600e3;
 const LOCK = "ingest";
 
 async function streamBrief(prompt: string, apiKey: string): Promise<string> {
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+  const res = await fetch(aiUrl("/responses"), {
     method: "POST",
     headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({

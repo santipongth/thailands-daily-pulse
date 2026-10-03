@@ -1,6 +1,7 @@
 // Server-only: FM91 Trafficpro posts from X (Facebook is refused by Firecrawl),
 // fetched every 30 min, then classified by AI for Bangkok + vicinity relevance.
 // Social posts never create or boost signals.
+import { aiUrl } from "./ai-endpoint";
 import { withEvidence } from "./evidence.server";
 
 export const FM91_SOURCE = "FM91 Trafficpro (X)";
@@ -69,7 +70,7 @@ async function classify(posts: RawPost[]): Promise<Verdict[]> {
 ตอบเป็น JSON อย่างเดียว: {"items":[{"id":"...","is_bkk":true|false,"area":"ชื่อถนน/เขต/จังหวัด หรือ ''","summary":"สรุปภาษาไทยไม่เกิน 1 ประโยค ห้ามใส่ตัวเลขที่ไม่มีในโพสต์","reason":"เหตุผลสั้น ๆ"}]}
 โพสต์:
 ${posts.map((p) => `id=${p.post_id}\n${p.text}`).join("\n---\n")}`;
-  const r = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+  const r = await fetch(aiUrl("/responses"), {
     method: "POST",
     headers: { "Content-Type": "application/json", "Lovable-API-Key": key, Authorization: `Bearer ${key}`, "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({ model: MODEL, input: prompt, stream: true, store: false, reasoning: { effort: "low" } }),

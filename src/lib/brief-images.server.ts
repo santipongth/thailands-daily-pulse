@@ -22,7 +22,7 @@ const prompt = (fam: string) =>
 
 async function generate(p: string, key: string): Promise<Uint8Array> {
   for (let attempt = 0; attempt < 2; attempt++) {
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+    const res = await fetch(aiUrl("/images/generations"), {
       method: "POST",
       headers: { "Content-Type": "application/json", "Lovable-API-Key": key, Authorization: `Bearer ${key}`, "X-Lovable-AIG-SDK": "fetch" },
       body: JSON.stringify({ model: MODEL, prompt: p, size: "1536x1024", quality: "medium" }),

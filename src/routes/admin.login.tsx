@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 /** Username "admin" maps to the admin account email; any full email also works. */
-export const ADMIN_EMAIL = "admin@thailanddailysignals.app";
+export const ADMIN_EMAIL: string = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined) || "admin@thailanddailysignals.app";
 
 export const Route = createFileRoute("/admin/login")({
   staticData: { sitemap: false },
