@@ -103,7 +103,6 @@ function Row({ source, config, run, breaker, info, dataDate }: { source: string;
         {info ? <>{info.owner} · รอบปกติ: {info.cadence}{info.url && <> · <a href={info.url} target="_blank" rel="noreferrer" className="underline">ลิงก์แหล่ง</a></>}</> : "ไม่มีข้อมูลทะเบียนแหล่ง"}
         {" · "}<span className="font-medium text-foreground">ข้อมูลล่าสุด: {dataDate ?? (dataDate === null ? "ยังไม่มี" : "ไม่ใช่แหล่งตัวเลข")}</span>
         {" · "}สำเร็จล่าสุด: {run?.last_ok_at ? dt(run.last_ok_at) : run?.ok ? dt(run.ran_at) : "ยังไม่เคย"}
-        {run?.sample && <> · {run.sample}</>}
       </p>
       <BreakerNote source={source} breaker={breaker} />
       {run?.sample && <div className="mt-1 text-xs text-muted-foreground">{run.sample}</div>}
