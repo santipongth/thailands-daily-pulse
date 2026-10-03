@@ -8,7 +8,7 @@ export function MetricSignalChart({ s, metric, history }: { s: Signal; metric: M
   const makeWeek = (label: string, from: string, to: string): WeekSummary => {
     const found = rows.filter((o) => o.metric_id === s.metric_id && o.observed_on >= from && o.observed_on <= to);
     const values = found.map((o) => Number(o.value));
-    return { label, value: values.length ? values.reduce((a, b) => a + b, 0) / values.length : null, coverage: `มีข้อมูล ${values.length} วันจาก 7 วัน`, arrivals: found.map((o) => ({ date: o.observed_on, effective: o.effective_from ?? null, received: o.received_at })) };
+    return { label, value: values.length ? values.reduce((a, b) => a + b, 0) / values.length : null, coverage: `มีข้อมูล ${values.length} วันจาก 7 วัน` };
   };
   return <WeeklyComparison weeks={[
     makeWeek("7 วันก่อนหน้า", shiftDate(end, -13), shiftDate(end, -7)),
