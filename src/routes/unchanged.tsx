@@ -37,9 +37,9 @@ const unchangedQuery = queryOptions({
       const checked = obs.reduce((a, r) => (r.received_at > a ? r.received_at : a), latest.received_at);
       const staleAfter = Math.max(2, (x.lag_days ?? 0) + 1, x.late_window_days ?? 0);
       const status: Row["status"] = dayDiff(latest.observed_on, today) > staleAfter ? "stale" : "same";
-      if (status === "same" && obs.length < 2) continue; // no previous reading to compare yet
+      if (status === "same" && obs.length < 2 && !(latest.effective_from && latest.effective_from < latest.observed_on)) continue; // nothing to compare and no source effective date
       if (status === "same" && dayDiff(sinceDay, today) < 7) continue; // moved within the last week → not "unchanged"
-      rows.push({ ...base, value: Number(latest.value), since: sinceDay, effective: latest.effective_from, days: dayDiff(sinceDay, today), checked, latest: latest.observed_on, status });
+      rows.push({ ...base, value: Number(latest.value), since: sinceDay, effective: latest.effective_from && latest.effective_from < latest.observed_on ? latest.effective_from : null, days: dayDiff(sinceDay, today), checked, latest: latest.observed_on, status });
     }
     return rows.sort((a, b) => (b.days ?? -1) - (a.days ?? -1));
   },
@@ -99,7 +99,7 @@ function Unchanged() {
                       {r.status === "same" && <div className="font-semibold text-foreground">นิ่งมา {r.days?.toLocaleString("th-TH")} วัน</div>}
                       {r.status === "stale" && <div className="font-semibold text-destructive">ค่าล่าสุด {thD(r.latest)}</div>}
                       {r.status !== "none" && <>
-                        <div>มีผลตั้งแต่ {r.effective ? thD(r.effective) : thD(r.since)}{!r.effective && " (แหล่งไม่ระบุ)"}</div>
+                        <div>{r.effective ? `มีผลตั้งแต่ ${thD(r.effective)} (ตามแหล่ง)` : `ค่าเท่านี้ตั้งแต่ ${thD(r.since)}`}</div>
                         <div>ตรวจล่าสุด {thT(r.checked)}</div>
                       </>}
                     </div>
