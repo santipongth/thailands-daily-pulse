@@ -253,6 +253,13 @@
       "when": 1791039533059,
       "tag": "0035_station_locations",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1791045009617,
+      "tag": "0036_news_items_kind",
+      "breakpoints": true
     }
   ]
 }

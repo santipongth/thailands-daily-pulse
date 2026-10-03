@@ -18,7 +18,7 @@ export const LAYERS: { id: LayerId; label: string; agency: string; url: string }
 ];
 export const layerLabel = (l: LayerId) => LAYERS.find((x) => x.id === l)!.label;
 
-const SRC: Record<string, LayerId> = {
+export const SRC: Record<string, LayerId> = {
   "Air4Thai PM2.5 (กรมควบคุมมลพิษ)": "pm25", "ThaiWater สถานี กทม.และปริมณฑล": "water", "กทม. ระบายน้ำ (น้ำท่วมถนน)": "road",
 };
 // TMD 3-hour stations near Bangkok (fixed coordinates).

@@ -7,6 +7,14 @@ const FEEDS = [
   { source: "ข่าวสด", url: "https://www.khaosod.co.th/feed" },
 ];
 
+/** General-news feeds: every item kept (kind 'general'), tagged with a family when keywords match. Context only. */
+export const GENERAL_FEEDS = [
+  { source: "Thai PBS", url: "https://news.thaipbs.or.th/rss/news" },
+  { source: "ข่าวสด (ข่าวด่วน)", url: "https://www.khaosod.co.th/breaking-news/feed" },
+  { source: "ประชาไท", url: "https://www.prachatai.com/rss.xml" },
+];
+export const GENERAL_SOURCE = "ข่าวทั่วไป RSS";
+
 const AGENCIES: [RegExp, string, string | null][] = [
   [/กรมทางหลวง|ทางด่วน|กทพ\.|มอเตอร์เวย์/, "กรมทางหลวง / กทพ.", "traffic"],
   [/กรมการข้าว|กรมส่งเสริมการเกษตร|กระทรวงเกษตร/, "กระทรวงเกษตรฯ", "farm"],
@@ -41,6 +49,33 @@ const tag = (block: string, name: string) => {
   const m = block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`));
   return m ? decode(m[1] ?? "") : "";
 };
+
+export async function collectGeneralNews() {
+  const rows: { source: string; title: string; link: string; published_at: string; agency: string | null; family_id: string | null; kind: string }[] = [];
+  const errs: string[] = [];
+  const results = await Promise.allSettled(GENERAL_FEEDS.map(async (f) => {
+    const res = await politeFetch(f.url, { timeoutMs: 30000, tries: 2 });
+    if (!res.ok) throw new Error(`${f.source} HTTP ${res.status}`);
+    return { f, xml: await res.text() };
+  }));
+  const per: string[] = [];
+  for (const [i, r] of results.entries()) {
+    if (r.status !== "fulfilled") { errs.push(String((r.reason as Error)?.message ?? r.reason).slice(0, 100)); continue; }
+    let n = 0;
+    for (const it of r.value.xml.split(/<item[ >]/).slice(1, 30)) {
+      const title = tag(it, "title"); const link = tag(it, "link") || (it.match(/<guid[^>]*>([^<]+)</)?.[1] ?? "");
+      const pub = new Date(tag(it, "pubDate"));
+      if (!title || !/^https?:/.test(link) || isNaN(pub.getTime())) continue;
+      const text = `${title} ${tag(it, "category")}`;
+      let agency: string | null = null, family: string | null = null;
+      for (const [re, a, fam] of AGENCIES) if (re.test(text)) { agency = a; family = fam; break; }
+      if (!family) for (const [re, fam] of FAMILY_WORDS) if (re.test(text)) { family = fam; break; }
+      rows.push({ source: r.value.f.source, title, link, published_at: pub.toISOString(), agency, family_id: family, kind: "general" }); n++;
+    }
+    per.push(`${GENERAL_FEEDS[i]!.source} ${n}`);
+  }
+  return { rows, errs, per };
+}
 
 export async function collectNews() {
   const rows: { source: string; title: string; link: string; published_at: string; agency: string | null; family_id: string | null }[] = [];

@@ -20,6 +20,7 @@ import { SocialFeed } from "@/components/social-feed";
 import { BkkMap } from "@/components/bkk-map";
 import { StationMap } from "@/components/station-map";
 import { RailStatus } from "@/components/rail-status";
+import { GeneralNews } from "@/components/general-news";
 
 export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
@@ -161,10 +162,13 @@ function Today() {
             <BkkMap initialLayers={layers} initialPoint={pt} />
             <StationMap />
             <RailStatus />
+            <p className="text-sm"><Link to="/stations" className="underline">ดูข้อมูลรายสถานีและกราฟแนวโน้มทั้งหมด →</Link></p>
           </div>
         )}
 
         {date === today && <div className="mt-12"><SocialFeed limit={6} /></div>}
+
+        {date === today && <div className="mt-12"><GeneralNews /></div>}
 
         {agencyNews.length > 0 && (
           <section className="mt-12 border-t border-editorial-ink pt-5">

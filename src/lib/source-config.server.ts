@@ -11,6 +11,7 @@ const EXTRA: JobSpec[] = [
   { job_type: "rdtax", source: "กรมสรรพากร (ปฏิทินภาษี)" },
   { job_type: "lottery", source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)" },
   { job_type: "news", source: "ข่าว RSS" },
+  { job_type: "news_general", source: "ข่าวทั่วไป RSS" },
   { job_type: "rail", source: "รถไฟฟ้า BTS/MRT (X)" },
 ];
 

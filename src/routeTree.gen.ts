@@ -21,6 +21,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as StationsRouteImport } from './routes/stations'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AdminCalendarRouteImport } from './routes/_admin/calendar'
 import { Route as AdminDataRouteImport } from './routes/_admin/data'
@@ -46,6 +47,7 @@ import { Route as AdminEventsIdRouteImport } from './routes/_admin/events.$id'
 import { Route as ApiPublicBriefRouteImport } from './routes/api/public/brief'
 import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
 import { Route as ApiPublicOpenapiDotjsonRouteImport } from './routes/api/public/openapi[.]json'
+import { Route as StationKindIdRouteImport } from './routes/station.$kind.$id'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as ApiPublicOgBriefDateRouteImport } from './routes/api/public/og/brief.$date'
 
@@ -106,6 +108,11 @@ const SitemapRoute = SitemapRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StationsRoute = StationsRouteImport.update({
+  id: '/stations',
+  path: '/stations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAdminRoute = AdminAdminRouteImport.update({
@@ -233,6 +240,11 @@ const ApiPublicOpenapiDotjsonRoute = ApiPublicOpenapiDotjsonRouteImport.update({
   path: '/api/public/openapi.json',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StationKindIdRoute = StationKindIdRouteImport.update({
+  id: '/station/$kind/$id',
+  path: '/station/$kind/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
   id: '/api/public/v1/$',
   path: '/api/public/v1/$',
@@ -256,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stations': typeof StationsRoute
   '/admin': typeof AdminAdminRoute
   '/calendar': typeof AdminCalendarRoute
   '/data': typeof AdminDataRoute
@@ -279,6 +292,7 @@ export interface FileRoutesByFullPath {
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/station/$kind/$id': typeof StationKindIdRoute
   '/agencies/': typeof AdminAgenciesIndexRoute
   '/events/': typeof AdminEventsIndexRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
@@ -295,6 +309,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stations': typeof StationsRoute
   '/admin': typeof AdminAdminRoute
   '/calendar': typeof AdminCalendarRoute
   '/data': typeof AdminDataRoute
@@ -318,6 +333,7 @@ export interface FileRoutesByTo {
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/station/$kind/$id': typeof StationKindIdRoute
   '/agencies': typeof AdminAgenciesIndexRoute
   '/events': typeof AdminEventsIndexRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
@@ -337,6 +353,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/stations': typeof StationsRoute
   '/_admin/admin': typeof AdminAdminRoute
   '/_admin/calendar': typeof AdminCalendarRoute
   '/_admin/data': typeof AdminDataRoute
@@ -360,6 +377,7 @@ export interface FileRoutesById {
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/station/$kind/$id': typeof StationKindIdRoute
   '/_admin/agencies/': typeof AdminAgenciesIndexRoute
   '/_admin/events/': typeof AdminEventsIndexRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
@@ -379,6 +397,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap'
     | '/sitemap.xml'
+    | '/stations'
     | '/admin'
     | '/calendar'
     | '/data'
@@ -402,6 +421,7 @@ export interface FileRouteTypes {
     | '/api/public/brief'
     | '/api/public/ingest'
     | '/api/public/openapi.json'
+    | '/station/$kind/$id'
     | '/agencies/'
     | '/events/'
     | '/api/public/v1/$'
@@ -418,6 +438,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap'
     | '/sitemap.xml'
+    | '/stations'
     | '/admin'
     | '/calendar'
     | '/data'
@@ -441,6 +462,7 @@ export interface FileRouteTypes {
     | '/api/public/brief'
     | '/api/public/ingest'
     | '/api/public/openapi.json'
+    | '/station/$kind/$id'
     | '/agencies'
     | '/events'
     | '/api/public/v1/$'
@@ -459,6 +481,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap'
     | '/sitemap.xml'
+    | '/stations'
     | '/_admin/admin'
     | '/_admin/calendar'
     | '/_admin/data'
@@ -482,6 +505,7 @@ export interface FileRouteTypes {
     | '/api/public/brief'
     | '/api/public/ingest'
     | '/api/public/openapi.json'
+    | '/station/$kind/$id'
     | '/_admin/agencies/'
     | '/_admin/events/'
     | '/api/public/v1/$'
@@ -501,6 +525,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SitemapRoute: typeof SitemapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  StationsRoute: typeof StationsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   BriefDateRoute: typeof BriefDateRoute
   DayDateRoute: typeof DayDateRoute
@@ -509,6 +534,7 @@ export interface RootRouteChildren {
   ApiPublicBriefRoute: typeof ApiPublicBriefRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
   ApiPublicOpenapiDotjsonRoute: typeof ApiPublicOpenapiDotjsonRoute
+  StationKindIdRoute: typeof StationKindIdRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
   ApiPublicOgBriefDateRoute: typeof ApiPublicOgBriefDateRoute
 }
@@ -597,6 +623,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stations': {
+      id: '/stations'
+      path: '/stations'
+      fullPath: '/stations'
+      preLoaderRoute: typeof StationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin/admin': {
@@ -774,6 +807,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOpenapiDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/station/$kind/$id': {
+      id: '/station/$kind/$id'
+      path: '/station/$kind/$id'
+      fullPath: '/station/$kind/$id'
+      preLoaderRoute: typeof StationKindIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/$': {
       id: '/api/public/v1/$'
       path: '/api/public/v1/$'
@@ -858,6 +898,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SitemapRoute: SitemapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  StationsRoute: StationsRoute,
   AdminLoginRoute: AdminLoginRoute,
   BriefDateRoute: BriefDateRoute,
   DayDateRoute: DayDateRoute,
@@ -866,6 +907,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicBriefRoute: ApiPublicBriefRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
   ApiPublicOpenapiDotjsonRoute: ApiPublicOpenapiDotjsonRoute,
+  StationKindIdRoute: StationKindIdRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
   ApiPublicOgBriefDateRoute: ApiPublicOgBriefDateRoute,
 }

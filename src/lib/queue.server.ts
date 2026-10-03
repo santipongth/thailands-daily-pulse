@@ -117,6 +117,18 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     const { refreshRail } = await import("./rail.server");
     return { values: {}, runs: [await refreshRail(admin)] };
   },
+  news_general: async ({ admin }) => {
+    const { collectGeneralNews, GENERAL_FEEDS, GENERAL_SOURCE } = await import("./news.server");
+    const ran_at = new Date().toISOString();
+    const base = { source: GENERAL_SOURCE, kind: "rss", url: GENERAL_FEEDS.map((f) => f.url).join(" , "), ran_at };
+    const { rows, errs, per } = await collectGeneralNews();
+    if (rows.length) {
+      const { error } = await admin.from("news_items").upsert(rows, { onConflict: "link", ignoreDuplicates: true });
+      if (error) errs.push(error.message);
+    }
+    const ok = rows.length > 0;
+    return { values: {}, runs: [{ ...base, ok, rows: rows.length, error: errs.length ? errs.join(" · ").slice(0, 300) : null, sample: ok ? `อ่านข่าว ${rows.length} รายการ (${per.join(", ")})` : null }] };
+  },
   news: async ({ admin }) => {
     const { collectNews } = await import("./news.server");
     const news = await collectNews();
@@ -132,7 +144,9 @@ export type JobSpec = { job_type: string; source: string; max_attempts?: number 
 /** Queue one job per source for a new batch. */
 export async function enqueue(admin: any, specs: JobSpec[], runKind: string) {
   const batch_id = crypto.randomUUID();
-  await admin.from("ingest_jobs").insert(specs.map((s) => ({ ...s, batch_id, run_kind: runKind })));
+  // Every row carries max_attempts: PostgREST bulk insert fills missing keys with NULL (NOT NULL column → whole batch rejected).
+  const { error } = await admin.from("ingest_jobs").insert(specs.map((s) => ({ job_type: s.job_type, source: s.source, max_attempts: s.max_attempts ?? 3, batch_id, run_kind: runKind })));
+  if (error) console.error("enqueue failed", error);
   return batch_id;
 }
 
