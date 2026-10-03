@@ -13,9 +13,13 @@ export function RailSignalChart({ s }: { s: Signal }) {
   const day = s.signal_date;
   const { data, isPending, isError } = useQuery({
     queryKey: ["rail-signal", line, day],
-    queryFn: async () => (await supabase.from("social_posts").select("text,posted_at,received_at,url,rail_status,rail_reason,rail_day").eq("source", `${line} (X)`)
+    queryFn: async () => {
+      const { data, error } = await supabase.from("social_posts").select("text,posted_at,received_at,url,rail_status,rail_reason,rail_day").eq("source", `${line} (X)`)
       .gte("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") - 15 * 86400e3).toISOString())
-      .lt("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") + 86400e3).toISOString()).order("posted_at")).data ?? [],
+      .lt("posted_at", new Date(Date.parse(day + "T00:00:00+07:00") + 86400e3).toISOString()).order("posted_at");
+      if (error) throw error;
+      return data ?? [];
+    },
   });
   if (isPending) return <p className="mt-5 border-t border-editorial-rule pt-4 text-xs text-muted-foreground">กำลังโหลดข้อมูลรายสัปดาห์…</p>;
   if (isError) return <p className="mt-5 border-t border-editorial-rule pt-4 text-xs text-muted-foreground">ข้อมูลไม่พอสำหรับเทียบ · โหลดประกาศย้อนหลังไม่ได้</p>;
