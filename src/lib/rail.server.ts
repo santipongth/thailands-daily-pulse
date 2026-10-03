@@ -14,7 +14,7 @@ export async function refreshRail(admin: any) {
   let read = 0, kept = 0;
   const notes: string[] = [];
   const okLines: string[] = [];
-  // Allowed lag = real gap since the previous successful check (min 1h, max 6h).
+  // Retain the real check gap for the audit reason; late notices still count on arrival.
   const { data: prev } = await admin.from("source_run_history").select("ran_at").eq("source", RAIL_SOURCE).eq("ok", true).order("ran_at", { ascending: false }).limit(1);
   const gapMs = Math.min(6 * 3600e3, Math.max(3600e3, prev?.[0] ? Date.parse(ran_at) - Date.parse(prev[0].ran_at) : 3 * 3600e3));
   for (const a of RAIL_ACCOUNTS) {

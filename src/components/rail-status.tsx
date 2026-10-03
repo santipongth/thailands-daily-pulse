@@ -30,7 +30,7 @@ export function RailStatus() {
             <ul className="divide-y divide-border border-y border-border">
               {data.posts.map((p) => (
                 <li key={p.url} className="py-2"><span className="text-xs text-muted-foreground">{p.source.replace(" (X)", "")} · ประกาศ {t(p.posted_at)} · ได้รับ {t(p.received_at)} · <b className={p.rail_status === "counted" ? "text-destructive" : ""}>{p.rail_status === "counted" ? `นับในสัญญาณ ${p.rail_day}` : p.rail_status === "late" ? "ไม่นับ (มาช้า)" : p.rail_status === "context" ? "บริบท" : "บันทึกก่อนมีสถานะ"}</b></span>
-                  <a href={p.url} target="_blank" rel="noopener" className="block hover:underline">{p.text.slice(0, 160)}</a>{p.rail_reason && p.rail_status !== "counted" && <span className="block text-xs text-muted-foreground">เหตุผล: {p.rail_reason}</span>}</li>
+                  <a href={p.url} target="_blank" rel="noopener" className="block hover:underline">{p.text.slice(0, 160)}</a>{p.rail_reason && <span className="block text-xs text-muted-foreground">เหตุผล: {p.rail_reason}</span>}</li>
               ))}
             </ul>
           )}

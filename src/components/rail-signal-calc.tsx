@@ -1,7 +1,7 @@
 // Fetch-log box: how today's train signal was calculated per line (arrival window, counted vs not counted + reasons).
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { bkkDate } from "@/lib/rail";
+import { bkkDate, incidentPosts } from "@/lib/rail";
 
 const t = (iso: string) => new Date(iso).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
@@ -22,9 +22,9 @@ export function RailSignalCalc() {
   return (
     <section className="border border-border p-3 text-sm">
       <h3 className="font-display text-lg">การคำนวณสัญญาณรถไฟฟ้า ({today})</h3>
-      <p className="text-xs text-muted-foreground">นับประกาศล่าช้า/ขัดข้อง/หยุดให้บริการตามวันที่ประกาศ หรือวันที่ได้รับ ถ้าประกาศก่อนเที่ยงคืนไม่เกินช่วงห่างของรอบตรวจจริง · 1 = น่าจับตา, 3+ = สำคัญมาก · รอบล่าสุด: {data?.run ? `${t(data.run.ran_at)} — ${data.run.sample ?? ""}` : "—"}</p>
+      <p className="text-xs text-muted-foreground">นับเหตุล่าช้า/ขัดข้อง/หยุดให้บริการตามวันที่ได้รับเมื่อประกาศข้ามวัน · โพสต์ติดตามจากสายเดียวกันใน 2 ชั่วโมงนับเป็นเหตุเดียว · 1 = น่าจับตา, 3+ = สำคัญมาก · รอบล่าสุด: {data?.run ? `${t(data.run.ran_at)} — ${data.run.sample ?? ""}` : "—"}</p>
       <table className="mt-2 w-full text-xs"><thead><tr className="text-left"><th>สาย</th><th>อ่านแล้ว</th><th>นับวันนี้</th><th>ไม่นับ</th><th>ผล</th></tr></thead><tbody>
-        {["BTS", "MRT"].map((l) => { const mine = posts.filter((p) => p.source === `${l} (X)`); const n = mine.filter((p) => p.rail_status === "counted" && p.rail_day === today).length;
+        {["BTS", "MRT"].map((l) => { const mine = posts.filter((p) => p.source === `${l} (X)`); const n = incidentPosts(mine.filter((p) => p.rail_status === "counted" && p.rail_day === today)).length;
           return <tr key={l}><td>{l}</td><td>{mine.length}</td><td>{n}</td><td>{mine.filter((p) => p.rail_status && p.rail_status !== "counted").length}</td><td>{n >= 3 ? "สำคัญมาก" : n >= 1 ? "น่าจับตา" : "ไม่มีสัญญาณ"}</td></tr>; })}
       </tbody></table>
       <ul className="mt-2 space-y-1 text-xs">{posts.map((p) => (

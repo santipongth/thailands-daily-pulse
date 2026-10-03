@@ -53,8 +53,8 @@ export function RailSignalChart({ s }: { s: Signal }) {
         </div>)}
       </div>
       <p className="mt-1 text-muted-foreground">■ วันนี้ · ▧ เฉลี่ย 7 วันก่อน (ดูจำนวนแต่ละช่วงโดยแตะ/ชี้กราฟ)</p>
-      <p className="mt-1 text-muted-foreground">นับเฉพาะประกาศ “ล่าช้า/ขัดข้อง/หยุดให้บริการ” จากบัญชีทางการ {line} (ประกาศเป็นรายสาย ไม่ใช่รายสถานี) · 1 ครั้ง = น่าจับตา, 3 ครั้งขึ้นไป = สำคัญมาก</p>
-      <ul className="mt-1 space-y-1">{[...todays].reverse().map((p: any) => (
+      <p className="mt-1 text-muted-foreground">นับเฉพาะเหตุ “ล่าช้า/ขัดข้อง/หยุดให้บริการ” จากบัญชีทางการ {line} (โพสต์ติดตามใน 2 ชั่วโมงเป็นเหตุเดียว; ประกาศเป็นรายสาย ไม่ใช่รายสถานี) · 1 เหตุ = น่าจับตา, 3 เหตุขึ้นไป = สำคัญมาก</p>
+      <ul className="mt-1 space-y-1">{[...alerts.filter((p: any) => dayOf(p) === day && (p.rail_status ?? "counted") === "counted")].reverse().map((p: any) => (
         <li key={p.url} className="border-t border-editorial-rule pt-1"><span className="text-muted-foreground">ประกาศ {tm(p.posted_at)} · ได้รับ {tm(p.received_at)} · </span><a href={p.url} target="_blank" rel="noreferrer" className="underline">ดูโพสต์ต้นฉบับ</a>
           <p className="whitespace-pre-line text-foreground">{p.text}</p></li>
       ))}</ul>
