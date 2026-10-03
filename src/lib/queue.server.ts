@@ -1,6 +1,7 @@
 // Server-only: Postgres-backed worker queue. One job per source; jobs are claimed with
 // FOR UPDATE SKIP LOCKED (claim_ingest_job), retried with backoff, and every fetch a job
 // makes is kept as raw evidence.
+import { politeFetch } from "./http.server";
 
 type Run = { source: string; ok: boolean; rows: number; error: string | null; ran_at: string; kind?: string; url?: string; sample?: string | null };
 type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> };
@@ -46,7 +47,7 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     const base = { source: "Kapook ปฏิทินวันหยุด", kind: "crawler", url, ran_at: new Date().toISOString() };
     try {
       const { parseKapook } = await import("./kapook");
-      const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals" }, signal: AbortSignal.timeout(15000) });
+      const res = await politeFetch(url);
       if (!res.ok) throw new Error(`${res.status} ${url}`);
       const rows = parseKapook(await res.text());
       if (!rows.length) throw new Error("ไม่พบรายการวันหยุดในหน้า (รูปแบบหน้าอาจเปลี่ยน)");
@@ -61,7 +62,7 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     const { RD_TAX_URL, parseRdTax } = await import("./rdtax");
     const base = { source: "กรมสรรพากร (ปฏิทินภาษี)", kind: "crawler", url: RD_TAX_URL, ran_at: new Date().toISOString() };
     try {
-      const res = await fetch(RD_TAX_URL, { headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals" }, signal: AbortSignal.timeout(15000) });
+      const res = await politeFetch(RD_TAX_URL);
       if (!res.ok) throw new Error(`${res.status} ${RD_TAX_URL}`);
       const rows = parseRdTax(await res.text(), date);
       if (!rows.length) throw new Error("ไม่พบกำหนดยื่นภาษีในหน้า (รูปแบบหน้าอาจเปลี่ยน)");
