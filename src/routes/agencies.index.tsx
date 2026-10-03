@@ -12,7 +12,7 @@ const agenciesQuery = queryOptions({
     const [runs, metrics, obs, sig] = await Promise.all([
       supabase.from("source_runs").select("source,ok,ran_at,rows,error"),
       supabase.from("metrics").select("*"),
-      supabase.from("observations").select("metric_id,observed_on,value,is_demo").eq("is_demo", false).gte("observed_on", today),
+      supabase.from("observations").select("metric_id,observed_on,value,is_demo").eq("is_demo", false).order("observed_on", { ascending: false }).limit(5000),
       supabase.from("signals").select("metric_id").eq("signal_date", today),
     ]);
     return {
@@ -48,14 +48,16 @@ function Agencies() {
     <div className="min-h-screen">
       <Masthead />
       <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="font-display text-4xl">ข้อมูลจริงแยกตามหน่วยงาน</h1>
-        <p className="mt-2 text-muted-foreground">ทุกค่าที่นี่ดึงจากแหล่งโดยตรง ไม่ใช่จากข่าว กดเข้าไปดูไทม์ไลน์การเปลี่ยนแปลงรายวัน</p>
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {AGENCIES.map((a) => {
+        <h1 className="font-display text-4xl">ข้อมูลจริงแยกตามแหล่ง</h1>
+        <p className="mt-2 text-muted-foreground">ตัวเลขดึงจากแหล่งโดยตรง ไม่ใช่จากข่าว · ตรวจสอบค่าล่าสุดและไทม์ไลน์รายวันของแต่ละแหล่ง</p>
+        {(["government", "other"] as const).map((category) => <section key={category} className="mt-10">
+          <h2 className="border-b-2 border-foreground pb-2 font-display text-2xl">{category === "government" ? "หน่วยงานรัฐ" : "แหล่งข้อมูลอื่น"}</h2>
+          <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {AGENCIES.filter((a) => a.category === category).map((a) => {
             const runs = data.runs.filter((r) => a.sources.includes(r.source));
             const okCount = runs.filter((r) => r.ok).length;
             const mids = agencyMetrics(a);
-            const latest = mids.map((id) => ({ m: met.get(id), o: data.obs.filter((o) => o.metric_id === id).at(-1) })).filter((x) => x.m && x.o);
+            const latest = mids.map((id) => ({ m: met.get(id), o: data.obs.find((o) => o.metric_id === id) })).filter((x) => x.m && x.o);
             const nSig = data.signals.filter((s) => mids.includes(s.metric_id)).length;
             return (
               <Link key={a.key} to="/agencies/$agency" params={{ agency: a.key }} className="block border-2 border-foreground p-4 hover:bg-card">
@@ -65,10 +67,11 @@ function Agencies() {
                     {runs.length ? `ดึงได้ ${okCount}/${runs.length} แหล่ง` : "ยังไม่เคยดึง"}
                   </span>
                 </div>
-                <ul className="mt-3 space-y-1 text-sm tabular-nums">
+                  <ul className="mt-3 space-y-1 text-sm tabular-nums">
                   {latest.slice(0, 3).map(({ m, o }) => (
                     <li key={m!.id} className="flex justify-between gap-2"><span className="truncate text-muted-foreground">{m!.name_th}</span><span>{fmt(Number(o!.value), m!.decimals)} {m!.unit}</span></li>
                   ))}
+                  {!latest.length && <li className="break-words text-muted-foreground">{runs.find((r) => !r.ok)?.error ?? (runs.some((r) => r.ok) ? "แหล่งนี้ไม่มีตัวเลขรายวัน" : "ยังไม่มีค่าจริง · ดูสถานะการดึงในหน้ารายละเอียด")}</li>}
                 </ul>
                 <p className="mt-3 text-xs">
                   วันนี้: สัญญาณ {nSig}
@@ -76,7 +79,8 @@ function Agencies() {
               </Link>
             );
           })}
-        </div>
+          </div>
+        </section>)}
       </main>
     </div>
   );

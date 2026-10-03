@@ -21,16 +21,15 @@
 - Every observation keeps refers-to (`observed_on`/period), published, `received_at` and `effective_from`; connectors may return per-metric dates; unchanged re-fetches are not rewritten so `received_at` stays honest for replay.
 - `source_registry` holds owner/channel/licence/cadence/unit/area/`stale_after_days`; `completeness.ts` marks sources ok/stale/unverifiable — never treated as no change.
 - Signals are versioned by trigger `record_signal_version` into `signal_events`/`signal_versions` (event_id = metric:date; new version only on content change; delete = withdrawal); detection logic is `detect_core(date, cutoff)`, reused by `replay_signals` (data received by 05:45).
-- Household cost = fixed `BASKET` × real price changes (`impact.ts`, `HouseholdBasket`) — code-only math.
 - No accounts: all preferences (sources, sensitivity, interval, update `times`, seen state) are per-device localStorage; `ScheduledRefresh` and `BriefAlert` in __root run in the browser.
 - Public reads via browser client under anon SELECT RLS; writes server-side with admin client. `is_demo`/`is_live` label real vs illustrative data.
 - Backfill (`backfill.server.ts`, `/api/public/ingest?mode=backfill`, cron-secret) only for sources that publish history (none now); real rows replace demo rows, never real ones; then detect/rank/brief replayed oldest→newest, briefs left unpublished (archive editions).
 - Household impact per signal = `impactFor` in impact.ts: `USAGE` holds per-metric usage with source/method/official flag (official = gov per-person or national figure converted per household; else labelled example); user overrides only on /impact via localStorage, briefs always use official — one formula, recomputable.
 - Brief data window = 00:00 → 05:45 Bangkok on the brief day (forced `?mode=early` runs 00:10/03:00/05:00 + 05:30 daily); on freeze/publish signals whose observation `received_at` is after it are excluded (become brief_updates); window stored in `daily_briefs.data_window` (first/last received, excluded with reason) and shown on brief, /events and /impact — honest cutoff.
 - The masthead ticker reads today's ranked signals directly and links each item to its family page; it never creates fallback numbers or changes detection logic .
-- /tracking: read-only per-source window/missing/cut reasons.
 
 - Source-specific fetch rules live in `src/lib/AGENTS.md`.
 - Social: FM91 Trafficpro from X via Firecrawl (Facebook refused by Firecrawl), `fm91.server.ts`, cron every 30 min `?mode=social`, AI (Responses, streamed) tags is_bkk/area/summary in `social_posts`; summaries with new numbers dropped; 402/403 pauses via app_settings `social_ai_paused`; never creates signals; shown on home, brief (data window) and ticker as labelled FM91 items.
 - `dam_readings`: each dams run snapshots today's dam values (even if unchanged) for the 48h hourly chart on /data-all; observations stay one row/day.
 - Brief front page (`brief-frontpage.tsx`): numbers only from brief items/real rows; AI illustrations (`brief-images.server.ts`, private bucket `brief-images`, signed URLs via `getBriefImages`) generated after publish, no text in images, labelled AI; 402/403 pause via app_settings `brief_images_paused`.
+

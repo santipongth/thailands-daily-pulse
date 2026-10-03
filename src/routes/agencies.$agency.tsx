@@ -13,13 +13,14 @@ const agencyQuery = (key: string) =>
       if (!a) return null;
       const since = shiftDate(bkkToday(), -13);
       const mids = agencyMetrics(a);
-      const [metrics, obs, history, news] = await Promise.all([
+      const [metrics, obs, history, news, runs] = await Promise.all([
         supabase.from("metrics").select("*").in("id", mids.length ? mids : ["-"]),
         supabase.from("observations").select("metric_id,observed_on,value,is_demo").in("metric_id", mids.length ? mids : ["-"]).eq("is_demo", false).gte("observed_on", shiftDate(since, -1)).order("observed_on"),
         supabase.from("source_run_history").select("source,ran_at,ok,rows,error").in("source", a.sources).order("ran_at", { ascending: false }).limit(20),
         a.newsAgency ? supabase.from("news_items").select("id,title,link,source,published_at").eq("agency", a.newsAgency).gte("published_at", since).order("published_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] }),
+        supabase.from("source_runs").select("source,ok,ran_at,rows,error").in("source", a.sources),
       ]);
-      return { a, metrics: (metrics.data ?? []) as Metric[], obs: obs.data ?? [], history: history.data ?? [], news: (news.data ?? []) as any[], since };
+      return { a, metrics: (metrics.data ?? []) as Metric[], obs: obs.data ?? [], history: history.data ?? [], news: (news.data ?? []) as any[], runs: runs.data ?? [], since };
     },
   });
 
@@ -75,6 +76,14 @@ function AgencyPage() {
       <main className="mx-auto max-w-5xl px-4 py-8">
         <Link to="/agencies" className="text-sm hover:underline">← ทุกหน่วยงาน</Link>
         <h1 className="mt-3 font-display text-4xl">{data.a.label}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{data.a.category === "government" ? "หน่วยงานรัฐ" : "แหล่งข้อมูลอื่น"}</p>
+        <section className="mt-6">
+          <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">สถานะแหล่งข้อมูล</h2>
+          <ul className="mt-2 text-sm">{data.a.sources.map((source) => {
+            const run = data.runs.find((r) => r.source === source);
+            return <li key={source} className="border-b border-border py-2"><strong>{source}</strong><span className="block text-muted-foreground">{!run ? "ยังไม่เคยดึงข้อมูล" : `${run.ok ? `ดึงสำเร็จ ${run.rows} รายการ` : `ดึงไม่สำเร็จ: ${run.error ?? "ไม่ทราบสาเหตุ"}`} · ${new Date(run.ran_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium", timeStyle: "short" })}`}</span></li>;
+          })}</ul>
+        </section>
         <section className="mt-6">
           <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">ไทม์ไลน์สิ่งที่เปลี่ยนจริง (14 วัน)</h2>
           {days.map((d) => {
@@ -102,7 +111,7 @@ function AgencyPage() {
             <ul className="mt-2 text-sm">
               {data.metrics.map((m) => {
                 const o = data.obs.filter((x) => x.metric_id === m.id).at(-1);
-                return <li key={m.id} className="flex justify-between border-b border-border py-1.5"><span>{met.get(m.id)?.name_th}</span><span className="tabular-nums">{o ? `${fmt(Number(o.value), m.decimals)} ${m.unit} · ${thaiDate(o.observed_on, { day: "numeric", month: "short" })}` : "—"}</span></li>;
+                return <li key={m.id} className="flex flex-wrap justify-between gap-2 border-b border-border py-1.5"><span>{met.get(m.id)?.name_th}</span><span className="tabular-nums">{o ? `${fmt(Number(o.value), m.decimals)} ${m.unit} · ${thaiDate(o.observed_on, { day: "numeric", month: "short" })}` : "ยังไม่มีค่าจริง · ตรวจสอบสถานะแหล่งข้อมูลด้านบน"}</span></li>;
               })}
             </ul>
           </section>
