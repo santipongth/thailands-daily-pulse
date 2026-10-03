@@ -23,7 +23,7 @@ export type DitRow = { date: string; min: number; max: number; avg: number };
 /** Rows "01 ก.ย. 2569 170 - 180 175.00" from the report table, plus the unit (e.g. บาท/กก.). */
 export function parseDit(html: string): { unit: string | null; rows: DitRow[] } {
   const t = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ");
-  const unit = t.match(/สินค้า : .*? (บาท\/[^\s]+)/)?.[1] ?? null;
+  const unit = t.match(/สินค้า : .*? (บาท\/(?:\d+ )?[^\s]+)/)?.[1] ?? null;
   const rows: DitRow[] = [];
   for (const m of t.matchAll(/(\d{1,2}) (\S+\.) (\d{4}) ([\d.,]+) - ([\d.,]+) ([\d.,]+)/g)) {
     const mon = TH_MONTH[m[2]!]; if (!mon) continue;
