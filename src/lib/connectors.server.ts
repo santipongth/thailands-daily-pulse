@@ -83,7 +83,7 @@ export const CONNECTORS: Connector[] = [
       }
       if (!Object.keys(values).length) throw new Error(`ดึงราคากรมการค้าภายในไม่ได้ — ${miss.join("; ")}`.slice(0, 280));
       const d = Object.values(dates).sort().at(-1);
-      return { values, dates, note: miss.length ? miss.join("; ").slice(0, 280) : undefined, sample: `ราคาวันที่ ${d}: หมู ${values.dit_pork ?? "—"} · ไข่ ${values.dit_egg ?? "—"} · ไก่ ${values.dit_chicken ?? "—"}` };
+      return { values, dates, ...(miss.length ? { note: miss.join("; ").slice(0, 280) } : {}), sample: `ราคาวันที่ ${d}: หมู ${values["dit_pork"] ?? "—"} · ไข่ ${values["dit_egg"] ?? "—"} · ไก่ ${values["dit_chicken"] ?? "—"}` };
     },
   },
   {
