@@ -27,19 +27,30 @@ const sign = (n: number) => (n > 0.005 ? `+${b2(n)}` : n < -0.005 ? `−${b2(-n)
 const bkkToday = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
 
 function CostTrend() {
-  const [days, setDays] = useState<7 | 30>(30);
+  const [days, setDays] = useState<7 | 30 | 90 | 365>(30);
   const end = bkkToday();
   const { data: obs, isLoading } = useQuery({
     queryKey: ["cost-trend-obs"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("observations").select("metric_id,observed_on,value")
-        .in("metric_id", BASKET.map((b) => b.metric_id)).eq("is_demo", false).lte("observed_on", end)
-        .order("observed_on", { ascending: false }).limit(1000);
-      if (error) throw error;
-      return data ?? [];
+      const out: { metric_id: string; observed_on: string; value: number }[] = [];
+      const since = new Date(Date.parse(end) - 760 * 86400e3).toISOString().slice(0, 10);
+      for (let from = 0; ; from += 1000) {
+        const { data, error } = await supabase.from("observations").select("metric_id,observed_on,value")
+          .in("metric_id", BASKET.map((b) => b.metric_id)).eq("is_demo", false).lte("observed_on", end).gte("observed_on", since)
+          .order("observed_on", { ascending: false }).range(from, from + 999);
+        if (error) throw error;
+        out.push(...(data ?? [])); if ((data ?? []).length < 1000) break;
+      }
+      return out;
     },
   });
   const r = obs ? costTrend(obs, end, days) : null;
+  // Last year's same window: average of complete days, only if at least half the days are complete. Never estimated.
+  const prevEnd = new Date(Date.parse(end) - 365 * 86400e3).toISOString().slice(0, 10);
+  const py = obs ? costTrend(obs, prevEnd, days).series.filter((d) => d.complete) : [];
+  const prevYearAvg = py.length >= days * 0.5 ? py.reduce((a, d) => a + d.total, 0) / py.length : null;
+  const done = r?.series.filter((d) => d.complete) ?? [];
+  const spanAvg = done.length ? done.reduce((a, d) => a + d.total, 0) / done.length : null;
   const first = r?.series.find((d) => d.complete) ?? r?.series[0];
   const last = r?.series[r.series.length - 1];
   // Incomplete days (some basket prices not yet collected) are left blank instead of drawn as a low/zero total.
@@ -52,8 +63,8 @@ function CostTrend() {
         <p className="mt-1 text-sm"><Link to="/cost-signals/$item" params={{ item: "dit_pork" }} className="underline">วิเคราะห์สัญญาณรายสินค้า (ตั้งเกณฑ์เอง) →</Link> · <Link to="/cost-trend/$item" params={{ item: "elec_unit" }} className="underline">ค่าไฟฟ้า →</Link></p>
         <p className="mt-2 text-sm text-muted-foreground">ตะกร้าครัวเรือนเดียวกับฉบับเช้า × ราคาจริงแต่ละวัน — ไม่มีการเดาค่า</p>
         <div className="mt-4 flex gap-2">
-          {([7, 30] as const).map((n) => (
-            <button key={n} onClick={() => setDays(n)} className={`border px-3 py-1 text-sm ${days === n ? "border-editorial-ink font-semibold" : "border-editorial-rule"}`}>{n} วัน</button>
+          {([7, 30, 90, 365] as const).map((n) => (
+            <button key={n} onClick={() => setDays(n)} className={`border px-3 py-1 text-sm ${days === n ? "border-editorial-ink font-semibold" : "border-editorial-rule"}`}>{n === 365 ? "1 ปี" : `${n} วัน`}</button>
           ))}
         </div>
         {isLoading || !r ? <p className="mt-6 text-sm text-muted-foreground">กำลังคำนวณ…</p> : <>
@@ -63,7 +74,11 @@ function CostTrend() {
             <div><div className="text-xs text-muted-foreground">เปลี่ยนสุทธิ</div><div className={`font-editorial text-2xl tabular-nums ${r.netDay > 0.005 ? "text-destructive" : r.netDay < -0.005 ? "text-primary" : ""}`}>{sign(r.netDay)} ฿/วัน</div><div className="text-xs text-muted-foreground">≈ {sign(r.netMonth)} ฿/เดือน</div></div>
           </section>
           <h2 className="mt-8 font-editorial text-2xl text-editorial-red">ค่าใช้จ่ายตะกร้ารวมต่อวัน</h2>
-          <div className="mt-2 h-64"><ResponsiveContainer><LineChart data={chart}><CartesianGrid stroke="var(--border)" strokeDasharray="3 3" /><XAxis dataKey="label" fontSize={11} /><YAxis fontSize={11} domain={["auto", "auto"]} /><Tooltip formatter={(v: number) => `${b2(v)} ฿`} /><Line dataKey="total" name="รวม" stroke="var(--editorial-ink, currentColor)" dot={false} strokeWidth={2} /></LineChart></ResponsiveContainer></div>
+          <div className="mt-2 h-64"><ResponsiveContainer><LineChart data={chart}><CartesianGrid stroke="var(--border)" strokeDasharray="3 3" /><XAxis dataKey="label" fontSize={11} /><YAxis fontSize={11} domain={["auto", "auto"]} /><Tooltip formatter={(v: number) => `${b2(v)} ฿`} /><Line dataKey="total" name="รวม" stroke="var(--editorial-ink, currentColor)" dot={false} strokeWidth={2} />
+            {prevYearAvg != null && <ReferenceLine y={prevYearAvg} stroke="var(--map-4)" strokeDasharray="6 4" label={{ value: `เฉลี่ยปีก่อน ${b2(prevYearAvg)}`, fontSize: 10, position: "insideTopRight" }} />}
+            {prevYearAvg == null && days === 365 && spanAvg != null && <ReferenceLine y={spanAvg} stroke="var(--map-2)" strokeDasharray="2 3" label={{ value: `เฉลี่ยทั้งช่วงที่มีข้อมูล ${b2(spanAvg)}`, fontSize: 10, position: "insideBottomRight" }} />}
+          </LineChart></ResponsiveContainer></div>
+          <p className="mt-1 text-xs text-muted-foreground">{prevYearAvg != null ? `เส้นประ = ค่าเฉลี่ยช่วงเดียวกันของปีก่อน ${b2(prevYearAvg)} ฿/วัน` : "ยังไม่มีข้อมูลปีก่อนหน้า — เส้นเปรียบเทียบจะแสดงเองเมื่อมีราคาจริงครบช่วง"}</p>
           <h2 className="mt-8 font-editorial text-2xl text-editorial-red">แยกตามกลุ่ม</h2>
           <div className="mt-2 h-64"><ResponsiveContainer><LineChart data={chart}><CartesianGrid stroke="var(--border)" strokeDasharray="3 3" /><XAxis dataKey="label" fontSize={11} /><YAxis fontSize={11} domain={["auto", "auto"]} /><Tooltip formatter={(v: number) => `${b2(v)} ฿`} /><Legend />
             <Line dataKey="fuel" name={GROUP_TH.fuel} stroke="var(--map-4)" dot={false} />
