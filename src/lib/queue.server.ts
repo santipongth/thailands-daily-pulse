@@ -115,7 +115,8 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
   },
   rail: async ({ admin }) => {
     const { refreshRail } = await import("./rail.server");
-    return { values: {}, runs: [await refreshRail(admin)] };
+    const r = await refreshRail(admin);
+    return { values: r.values, dates: r.dates, runs: [r.run] };
   },
   news_general: async ({ admin }) => {
     const { collectGeneralNews, GENERAL_FEEDS, GENERAL_SOURCE } = await import("./news.server");
