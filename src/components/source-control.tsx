@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listSourceConfig, runSourceNow, saveSourceConfig } from "@/lib/source-config.functions";
+import { listSourceConfig, resetBreaker, runSourceNow, saveSourceConfig } from "@/lib/source-config.functions";
 
 type Cfg = { enabled: boolean; schedule: string; daily_hour: number | null; fetch_mode: string; max_attempts: number; retry_delay_min: number | null; range_start: number | null; range_end: number | null; extra_hours: number[] };
 const DEF: Cfg = { enabled: true, schedule: "default", daily_hour: 5, fetch_mode: "default", max_attempts: 3, retry_delay_min: null, range_start: 16, range_end: 8, extra_hours: [] };
@@ -26,13 +26,26 @@ export function SourceControl() {
       {isLoading && <p className="mt-4 text-sm text-muted-foreground">กำลังโหลด…</p>}
       {error && <p className="mt-4 text-sm text-destructive">โหลดไม่สำเร็จ (ต้องเข้าสู่ระบบผู้ดูแล)</p>}
       <ul className="mt-6 divide-y divide-editorial-rule border-y-2 border-editorial-ink">
-        {(data ?? []).map((s) => <Row key={s.source} source={s.source} config={s.config} run={s.run} />)}
+        {(data ?? []).map((s) => <Row key={s.source} source={s.source} config={s.config} run={s.run} breaker={s.breaker} />)}
       </ul>
     </section>
   );
 }
 
-function Row({ source, config, run }: { source: string; config: Partial<Cfg> | null; run: { ok: boolean; ran_at: string; rows: number; error: string | null; sample: string | null } | null }) {
+function BreakerNote({ source, breaker }: { source: string; breaker: { fail_streak: number; open_until: string | null } | null }) {
+  const qc = useQueryClient();
+  const reset = useServerFn(resetBreaker);
+  if (!breaker?.open_until || Date.parse(breaker.open_until) <= Date.now()) return null;
+  const t = new Date(breaker.open_until).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" });
+  return (
+    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-destructive">
+      พักถึง {t} น. (ล้มเหลว {breaker.fail_streak} ครั้งติด) — ไม่ส่งคำขอระหว่างพัก ครบเวลาแล้วจะลองใหม่ 1 ครั้ง
+      <button className="border border-editorial-rule px-2 py-0.5 text-foreground" onClick={async () => { await reset({ data: { source } }); qc.invalidateQueries({ queryKey: ["source-config"] }); }}>ปลดพัก</button>
+    </div>
+  );
+}
+
+function Row({ source, config, run, breaker }: { source: string; config: Partial<Cfg> | null; run: { ok: boolean; ran_at: string; rows: number; error: string | null; sample: string | null } | null; breaker: { fail_streak: number; open_until: string | null } | null }) {
   const qc = useQueryClient();
   const save = useServerFn(saveSourceConfig);
   const runNow = useServerFn(runSourceNow);
@@ -52,6 +65,7 @@ function Row({ source, config, run }: { source: string; config: Partial<Cfg> | n
           {!run ? "ยังไม่เคยดึง" : run.ok ? `สำเร็จ ${run.rows} รายการ · ${dt(run.ran_at)}` : <span className="text-destructive">ล้มเหลว {dt(run.ran_at)}: {run.error}</span>}
         </span>
       </div>
+      <BreakerNote source={source} breaker={breaker} />
       {run?.sample && <div className="mt-1 text-xs text-muted-foreground">{run.sample}</div>}
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <select aria-label="ช่วงเวลาอัปเดต" className={sel} value={c.schedule} onChange={(e) => up({ schedule: e.target.value })}>
