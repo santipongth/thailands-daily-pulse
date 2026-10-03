@@ -288,7 +288,7 @@ export async function refreshDams(): Promise<{ processed: number }> {
   // Hourly snapshot of the latest real dam values (feeds the 48h chart on /data-all).
   const { data: obs } = await admin.from("observations").select("metric_id,value,observed_on")
     .in("metric_id", ["cp_dam_q", "dam_pasak_pct", "dam_pasak_out", "dam_khundan_pct"])
-    .eq("is_demo", false).gte("received_at", new Date(Date.now() - 15 * 60e3).toISOString());
+    .eq("is_demo", false).eq("observed_on", date);
   if (obs?.length) await admin.from("dam_readings").insert(obs.map((o) => ({ metric_id: o.metric_id, value: o.value, observed_on: o.observed_on })));
   return { processed };
 }
