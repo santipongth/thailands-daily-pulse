@@ -97,10 +97,11 @@ svg, canvas { max-width: 100%; }
   --color-editorial-ink: var(--editorial-ink);
   --color-editorial-red: var(--editorial-red);
   --color-editorial-rule: var(--editorial-rule);
+  --color-editorial-surface: var(--editorial-surface);
   --font-editorial: "Instrument Serif", "Noto Serif Thai", serif;
-  --font-editorial-body: "Work Sans", "Noto Sans Thai", sans-serif;
+  --font-editorial-body: "IBM Plex Sans Thai", "Noto Sans Thai", sans-serif;
   --font-sans: "IBM Plex Sans Thai", system-ui, sans-serif;
-  --font-display: "Noto Serif Thai", Georgia, serif;
+  --font-display: "Instrument Serif", "Noto Serif Thai", serif;
 }
 
 :root {
@@ -135,6 +136,8 @@ svg, canvas { max-width: 100%; }
   --editorial-ink: oklch(0.263 0 0);
   --editorial-red: oklch(0.495 0.18 27);
   --editorial-rule: oklch(0.893 0.014 80);
+  --editorial-surface: oklch(0.975 0.017 84);
+  --shadow-editorial: 0 1px 0 color-mix(in oklab, var(--editorial-ink) 12%, transparent), 0 12px 30px -24px color-mix(in oklab, var(--editorial-ink) 45%, transparent);
   --down: oklch(0.48 0.08 150);
   --live: oklch(0.48 0.08 150);
   --live-foreground: oklch(0.97 0.015 85);
@@ -167,6 +170,7 @@ svg, canvas { max-width: 100%; }
   --editorial-ink: oklch(0.94 0.01 85);
   --editorial-red: oklch(0.75 0.12 27);
   --editorial-rule: oklch(0.42 0.01 75);
+  --editorial-surface: oklch(0.23 0.01 60);
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
@@ -263,7 +267,45 @@ svg, canvas { max-width: 100%; }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-editorial-body);
+    letter-spacing: 0;
   }
+
+  main { font-family: var(--font-editorial-body); }
+  main h1, main h2, main h3 { letter-spacing: 0; }
+  main h1 { font-family: var(--font-editorial); color: var(--editorial-ink); }
+  main h2 { color: var(--editorial-ink); }
+  main table { font-variant-numeric: tabular-nums; }
+  main thead { border-color: var(--editorial-ink); }
+  main tbody tr { border-color: var(--editorial-rule); }
+}
+
+@utility page-shell {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  padding-block: 2rem;
+  font-family: var(--font-editorial-body);
+}
+
+@utility section-heading {
+  border-bottom: 1px solid var(--editorial-rule);
+  padding-bottom: 0.75rem;
+  font-family: var(--font-editorial);
+  color: var(--editorial-red);
+}
+
+.editorial-data-section {
+  border-top: 2px solid var(--editorial-ink);
+  border-bottom: 1px solid var(--editorial-rule);
+  background: var(--editorial-surface);
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  box-shadow: var(--shadow-editorial);
+}
+
+@media (min-width: 640px) {
+  .editorial-data-section { padding: 1.5rem; }
 }
 
 @utility tds-grid {

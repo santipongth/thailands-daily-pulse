@@ -63,10 +63,10 @@ function DayCompare() {
 
   const Group = ({ title, list, note, showPrev }: { title: string; list: Signal[]; note: string; showPrev?: boolean }) => (
     <section className="mt-8">
-      <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">{title} <span className="text-base font-normal text-muted-foreground">({list.length})</span></h2>
+      <h2 className="section-heading text-2xl">{title} <span className="font-editorial-body text-base font-normal text-muted-foreground">({list.length})</span></h2>
       <p className="mt-1 text-xs text-muted-foreground">{note}</p>
       {list.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">ไม่มี</p> : (
-        <table className="mt-3 w-full text-sm">
+        <table className="mt-3 w-full min-w-[640px] text-sm">
           <thead><tr className="text-left text-muted-foreground"><th className="py-1">สัญญาณ</th><th>ก่อน</th><th>หลัง</th>{showPrev && <th>เมื่อวาน</th>}<th>ประเภท</th></tr></thead>
           <tbody>
             {list.map((s) => (
@@ -87,16 +87,16 @@ function DayCompare() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <div className="flex items-center justify-between border-b border-foreground py-2 text-sm">
+      <main className="page-shell">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 border-b border-editorial-rule py-2 text-sm sm:grid-cols-[1fr_auto_1fr]">
           <Link to="/day/$date" params={{ date: shiftDate(date, -1) }} className="hover:underline">← วันก่อน</Link>
-          <span className="font-semibold">{thaiDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
-          {date < bkkToday() ? <Link to="/day/$date" params={{ date: shiftDate(date, 1) }} className="hover:underline">วันถัดไป →</Link> : <span className="text-muted-foreground">ล่าสุด</span>}
+          <span className="col-span-2 row-start-2 text-center font-semibold sm:col-span-1 sm:row-start-auto">{thaiDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
+          {date < bkkToday() ? <Link to="/day/$date" params={{ date: shiftDate(date, 1) }} className="text-right hover:underline">วันถัดไป →</Link> : <span className="text-right text-muted-foreground">ล่าสุด</span>}
         </div>
-        <h1 className="mt-6 font-display text-4xl">สัญญาณรายวัน เทียบกับ {thaiDate(data.prev, { day: "numeric", month: "short" })}</h1>
+        <h1 className="mt-6 font-editorial text-4xl sm:text-5xl">สัญญาณรายวัน เทียบกับ {thaiDate(data.prev, { day: "numeric", month: "short" })}</h1>
         <p className="mt-2 text-muted-foreground">วันนี้ {today.length} สัญญาณ · เมื่อวาน {before.length} สัญญาณ</p>
         <section className="mt-8">
-          <h2 className="border-b-2 border-foreground pb-1 font-display text-2xl">อันดับสัญญาณวันนี้</h2>
+          <h2 className="section-heading text-2xl">อันดับสัญญาณวันนี้</h2>
           <p className="mt-1 text-xs text-muted-foreground">คะแนน = น้ำหนักความรุนแรง × ตัวคูณความแรง (z ÷ vol_k, 1–2) × ความน่าเชื่อถือแหล่ง × ผลต่อครัวเรือน · <Link to="/method" className="underline">ดูวิธีคำนวณ</Link></p>
           {ranked.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">ไม่มีสิ่งใดเปลี่ยนเกินเกณฑ์</p> : (
             <ol className="mt-3 space-y-3">
@@ -107,7 +107,7 @@ function DayCompare() {
                 const imp = householdImpact(s);
                 return (
                   <li key={s.id} className="grid grid-cols-[3rem_1fr] gap-3 border-b border-border pb-3">
-                    <div className="font-display text-3xl tabular-nums">{i + 1}</div>
+                    <div className="font-editorial text-3xl tabular-nums text-editorial-red">{i + 1}</div>
                     <div>
                       <div className="flex flex-wrap items-baseline justify-between gap-2">
                         <Link to="/signals/$family" params={{ family: s.family_id }} className="font-semibold hover:underline">{fam.get(s.family_id)?.emoji} {s.title}</Link>

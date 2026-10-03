@@ -52,8 +52,8 @@ function EventsPage() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="font-display text-3xl">เหตุการณ์ที่ผ่านมา</h1>
+      <main className="page-shell">
+        <h1 className="font-editorial text-4xl sm:text-5xl">เหตุการณ์ที่ผ่านมา</h1>
         <p className="text-sm text-muted-foreground">ทุกเหตุการณ์ในทะเบียน — "วันที่ข้อมูล" คือวันที่ค่าเปลี่ยนจริง ไม่ใช่วันที่ระบบดึง</p>
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
           {FILTERS.map((x) => (
@@ -67,7 +67,7 @@ function EventsPage() {
           </select>
         </div>
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[720px] text-sm">
             <thead><tr className="text-left text-muted-foreground"><th className="py-1">เหตุการณ์</th><th>วันที่ข้อมูล</th><th>พบครั้งแรก</th><th>รุ่น</th><th>สถานะ</th><th>คุณภาพ</th></tr></thead>
             <tbody>
               {rows.map((e: any) => (

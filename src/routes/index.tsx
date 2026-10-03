@@ -128,7 +128,7 @@ function Today() {
             <p className="text-xs font-semibold uppercase tracking-widest opacity-70">ประกาศใหม่วันนี้</p>
             <ul className="mt-2 space-y-1">
               {releases.map((s) => (
-                <li key={s.id} className="flex flex-wrap items-baseline gap-x-3 font-display text-xl">
+                <li key={s.id} className="flex flex-wrap items-baseline gap-x-3 font-editorial text-xl">
                   <Link to="/signals/$family" params={{ family: s.family_id }} className="hover:underline">
                     {fam.get(s.family_id)?.emoji} {s.title}
                   </Link>
@@ -160,7 +160,7 @@ function Today() {
           )}
         </section>
 
-        <div className="mt-8"><HouseholdBasket date={date} /></div>
+        <div className="mt-10"><HouseholdBasket date={date} /></div>
         {date === today && <div className="mt-12"><SocialFeed limit={6} /></div>}
 
         {agencyNews.length > 0 && (
@@ -182,9 +182,9 @@ function Today() {
           </section>
         )}
 
-        {date === today && <div className="mt-12"><LatestLottery /></div>}
+        {date === today && <div className="mt-10"><LatestLottery /></div>}
 
-        <section className="mt-14 border-t border-foreground pt-4">
+        <section className="mt-14 border-t border-editorial-ink pt-4">
            <h2 className="font-editorial text-2xl text-editorial-red">หมวดที่ยังไม่มีสัญญาณ <span className="font-editorial-body text-sm font-normal text-muted-foreground">— แหล่งที่ตรวจไม่ได้ไม่ถือว่าไม่มีการเปลี่ยนแปลง</span></h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {quiet.map((f) => {

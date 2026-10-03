@@ -58,16 +58,16 @@ function Tracking() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="font-display text-4xl">ติดตามการเก็บข้อมูลวันนี้</h1>
+      <main className="page-shell">
+        <h1 className="font-editorial text-4xl sm:text-5xl">ติดตามการเก็บข้อมูลวันนี้</h1>
         <p className="mt-2 text-muted-foreground">วันที่ {today} · ได้ข้อมูลจริง {totalMetrics - totalMissing} จาก {totalMetrics} ตัวชี้วัด · ขาด {totalMissing} · ตัดออกจาก Brief {cuts.length}</p>
         {data.window ? (
           <p className="mt-1 text-sm">ช่วงนับเข้า Brief 06:00: {hm(data.window.from)} – {hm(data.window.to)} · ได้รับจริงครั้งแรก {hm(data.window.first_received)} · ครั้งสุดท้าย {hm(data.window.last_received)} · <Link to="/brief/$date" params={{ date: today }} className="underline">เปิด Brief</Link></p>
         ) : <p className="mt-1 text-sm text-muted-foreground">Brief วันนี้ยังไม่ปิดรอบ (ปิดรอบ 05:45 น.)</p>}
         <div className="mt-6 overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[900px] text-sm">
             <thead>
-              <tr className="border-b-2 border-foreground text-left align-bottom">
+              <tr className="border-b-2 border-editorial-ink text-left align-bottom">
                 <th className="py-2 pr-3">แหล่งข้อมูล</th><th className="pr-3">ช่วงเวลาที่เก็บวันนี้</th><th className="pr-3">ข้อมูลที่ขาด</th><th className="pr-3">สถานะ</th><th>เหตุผลที่ตัด / ขาด</th>
               </tr>
             </thead>

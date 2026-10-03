@@ -35,17 +35,18 @@ function Settings() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-2xl px-4 py-8">
+      <main className="page-shell">
+        <div className="mx-auto max-w-4xl">
         <Link to="/" className="text-sm hover:underline">← กลับหน้าวันนี้</Link>
-        <h1 className="mt-4 font-display text-4xl">ความไวของสัญญาณ</h1>
+        <h1 className="mt-4 font-editorial text-4xl sm:text-5xl">ความไวของสัญญาณ</h1>
         <p className="mt-2 text-muted-foreground">เลือกว่าอยากให้หน้าแรกแจ้งเรื่องแค่ไหน การตั้งค่านี้เก็บไว้ในเครื่องของคุณ</p>
         <fieldset className="mt-8 space-y-3">
           <legend className="sr-only">ระดับความไว</legend>
           {OPTIONS.map((o) => (
-            <label key={o.v} className={`flex cursor-pointer gap-4 border-2 p-4 transition-colors ${sens === o.v ? "border-foreground bg-card" : "border-border hover:border-foreground/50"}`}>
+            <label key={o.v} className={`flex cursor-pointer gap-4 border-t-2 p-4 shadow-[var(--shadow-editorial)] transition-colors ${sens === o.v ? "border-editorial-red bg-editorial-surface" : "border-editorial-ink bg-background hover:bg-editorial-surface"}`}>
               <input type="radio" name="sens" value={o.v} checked={sens === o.v} onChange={() => setSens(o.v)} className="mt-1.5 accent-[var(--up)]" />
               <span>
-                <span className="font-display text-xl">{o.label}</span>
+                <span className="font-editorial text-xl">{o.label}</span>
                 <span className="mt-1 block text-sm text-muted-foreground">{o.desc}</span>
               </span>
             </label>
@@ -53,6 +54,7 @@ function Settings() {
         </fieldset>
         <p className="mt-6 text-sm text-muted-foreground">ตัวเลขที่ประกาศเป็นรอบ เช่น ผลสลาก จะแสดงเสมอในวันที่ประกาศ</p>
         <SourceSettings />
+        </div>
       </main>
     </div>
   );
@@ -85,11 +87,11 @@ function SourceSettings() {
     setPrefs({ ...prefs, disabled: prefs.disabled.includes(src) ? prefs.disabled.filter((x) => x !== src) : [...prefs.disabled, src] });
   return (
     <section className="mt-12">
-      <h2 className="font-display text-3xl">หน่วยงานและเวลาอัปเดต</h2>
+      <h2 className="section-heading text-3xl">หน่วยงานและเวลาอัปเดต</h2>
       <p className="mt-2 text-sm text-muted-foreground">เลือกหน่วยงานที่ต้องการให้สัญญาณแสดง และเลือกเวลาที่ต้องการให้อัปเดตข้อมูลรัฐเอง (ระบบยังเก็บข้อมูลให้ทุกคนทุกวัน 05:30 น. และตรวจทุกชั่วโมง) การตั้งค่าเก็บในเครื่องของคุณ</p>
       <UpdateTimes />
       <NotifyToggle />
-      <ul className="mt-6 divide-y divide-border border-y-2 border-foreground">
+      <ul className="mt-6 divide-y divide-editorial-rule border-y-2 border-editorial-ink">
         {SOURCES.filter((x) => x.metrics.length).map((x) => {
           const r = byName.get(x.source);
           return (
@@ -126,7 +128,7 @@ function UpdateTimes() {
     return Number(next.slice(0, 2)) * 60 + Number(next.slice(3, 5)) - (d.getUTCHours() * 60 + d.getUTCMinutes());
   })();
   return (
-    <div className="mt-6 border-2 border-foreground p-4 text-sm">
+    <div className="mt-6 border-t-2 border-editorial-ink bg-editorial-surface p-4 shadow-[var(--shadow-editorial)] text-sm">
       <div className="font-semibold">เวลาอัปเดตข้อมูลรัฐ (เวลาไทย)</div>
       <div className="mt-3 flex flex-wrap gap-2">
         {prefs.times.length === 0 && <span className="text-muted-foreground">ยังไม่ได้เลือกเวลา</span>}

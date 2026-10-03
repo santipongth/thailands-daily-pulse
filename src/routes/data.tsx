@@ -56,12 +56,12 @@ function DataPage() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="font-display text-4xl">ข้อมูลดิบรายวัน</h1>
+      <main className="page-shell">
+        <h1 className="font-editorial text-4xl sm:text-5xl">ข้อมูลดิบรายวัน</h1>
         <p className="mt-2 text-muted-foreground">ค่าที่เข้ามาจริงทุกตัว ก่อนเทียบเกณฑ์ — ค่าที่ไม่ผ่านเกณฑ์จะไม่กลายเป็นสัญญาณ</p>
         <section className="mt-6">
-          <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">สถานะการดึงข้อมูลแต่ละแหล่ง</h2>
-          <table className="mt-2 w-full text-sm">
+          <h2 className="section-heading text-2xl">สถานะการดึงข้อมูลแต่ละแหล่ง</h2>
+          <table className="mt-2 w-full min-w-[640px] text-sm">
             <thead><tr className="text-left text-muted-foreground"><th className="py-1">แหล่ง</th><th>สถานะ</th><th>ค่าที่ได้</th><th>รอบ</th><th>ดึงล่าสุด</th></tr></thead>
             <tbody>
               {data.runs.length === 0 && <tr><td colSpan={4} className="py-2 text-muted-foreground">ยังไม่มีการดึงข้อมูลรอบใหม่</td></tr>}
@@ -79,9 +79,9 @@ function DataPage() {
         </section>
         <DailyArrival obs={data.obs} />
         <section className="mt-6">
-          <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">คิวงานดึงข้อมูล (1 งานต่อ 1 แหล่ง)</h2>
+          <h2 className="section-heading text-2xl">คิวงานดึงข้อมูล (1 งานต่อ 1 แหล่ง)</h2>
           <p className="mt-1 text-xs text-muted-foreground">แต่ละแหล่งเป็นงานแยกกัน ถ้าล้มเหลวจะลองใหม่อัตโนมัติสูงสุด 3 ครั้ง (เว้น 20 / 40 นาที)</p>
-          <table className="mt-2 w-full text-sm">
+          <table className="mt-2 w-full min-w-[640px] text-sm">
             <thead><tr className="text-left text-muted-foreground"><th className="py-1">งาน</th><th>สถานะ</th><th>ครั้งที่</th><th>ค่าที่ได้</th><th>เวลา</th></tr></thead>
             <tbody>
               {data.jobs.length === 0 && <tr><td colSpan={5} className="py-2 text-muted-foreground">ยังไม่มีงานในคิว</td></tr>}
@@ -98,9 +98,9 @@ function DataPage() {
           </table>
         </section>
         <section className="mt-6">
-          <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">หลักฐานดิบ (ไฟล์ต้นฉบับที่ดึงมา) <Link to="/evidence" className="text-sm font-normal underline">ดูทั้งหมดและเทียบไฟล์ก่อนหน้า →</Link></h2>
+          <h2 className="section-heading text-2xl">หลักฐานดิบ (ไฟล์ต้นฉบับที่ดึงมา) <Link to="/evidence" className="font-editorial-body text-sm font-normal underline">ดูทั้งหมดและเทียบไฟล์ก่อนหน้า →</Link></h2>
           <p className="mt-1 text-xs text-muted-foreground">เก็บไฟล์ต้นฉบับทุกครั้งที่ดึงไว้ถาวร พร้อมรหัส SHA-256 เพื่อพิสูจน์ว่าข้อมูลที่เห็นมาจากแหล่งจริง ไฟล์ที่เนื้อหาเหมือนเดิมเก็บครั้งเดียว</p>
-          <table className="mt-2 w-full text-sm">
+          <table className="mt-2 w-full min-w-[760px] text-sm">
             <thead><tr className="text-left text-muted-foreground"><th className="py-1">แหล่ง</th><th>URL</th><th>ขนาด</th><th>SHA-256</th><th>ดึงเมื่อ</th><th></th></tr></thead>
             <tbody>
               {data.evidence.length === 0 && <tr><td colSpan={6} className="py-2 text-muted-foreground">ยังไม่มีหลักฐาน — จะเริ่มเก็บในรอบดึงข้อมูลถัดไป</td></tr>}
@@ -122,8 +122,8 @@ function DataPage() {
           if (!ms.length) return null;
           return (
             <section key={f.id} className="mt-8">
-              <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">{f.emoji} {f.name_th} <span className="text-sm font-normal text-muted-foreground">· {f.source_name}</span></h2>
-              <table className="mt-2 w-full text-sm">
+              <h2 className="section-heading text-2xl">{f.emoji} {f.name_th} <span className="font-editorial-body text-sm font-normal text-muted-foreground">· {f.source_name}</span></h2>
+              <table className="mt-2 w-full min-w-[820px] text-sm">
                 <thead><tr className="text-left text-muted-foreground"><th className="py-1">ตัวชี้วัด</th><th>ค่าล่าสุด</th><th>ก่อนหน้า</th><th>เปลี่ยน</th><th>วันที่ข้อมูล</th><th>บันทึกเมื่อ</th><th>ประเภท</th></tr></thead>
                 <tbody>
                   {ms.map((m) => {
@@ -146,7 +146,7 @@ function DataPage() {
           );
         })}
         <section className="mt-10">
-          <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">ข่าวหน่วยงานที่เข้ามาล่าสุด</h2>
+          <h2 className="section-heading text-2xl">ข่าวหน่วยงานที่เข้ามาล่าสุด</h2>
           <ul className="mt-2 divide-y divide-border text-sm">
             {data.news.map((n) => (
               <li key={n.id} className="py-2">
@@ -166,9 +166,9 @@ function DailyArrival({ obs }: { obs: Row[] }) {
   const days = Array.from({ length: 7 }, (_, i) => new Date(Date.now() + 7 * 3600e3 - i * 86400e3).toISOString().slice(0, 10)).reverse();
   return (
     <section className="mt-6">
-      <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">ข้อมูลรายวัน 7 วันล่าสุด</h2>
+      <h2 className="section-heading text-2xl">ข้อมูลรายวัน 7 วันล่าสุด</h2>
       <p className="mt-1 text-xs text-muted-foreground">✓ = มีค่าจริงเข้ามาในวันนั้น (จำนวนตัวชี้วัด) · — = ไม่มีค่า</p>
-      <table className="mt-2 w-full text-sm">
+      <table className="mt-2 w-full min-w-[680px] text-sm">
         <thead><tr className="text-left text-muted-foreground"><th className="py-1">แหล่ง</th>{days.map((d) => <th key={d}>{d.slice(8)}/{d.slice(5, 7)}</th>)}</tr></thead>
         <tbody>
           {TRACKED.map((name) => {

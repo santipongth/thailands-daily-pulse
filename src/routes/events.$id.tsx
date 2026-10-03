@@ -49,9 +49,10 @@ function EventPage() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-3xl px-4 py-8">
+      <main className="page-shell">
+        <article className="mx-auto max-w-4xl">
         <p className="text-xs uppercase tracking-widest text-muted-foreground">ทะเบียนเหตุการณ์</p>
-        <h1 className="font-display text-3xl">{data.versions[0]?.title ?? id}</h1>
+        <h1 className="font-editorial text-3xl sm:text-4xl">{data.versions[0]?.title ?? id}</h1>
         <dl className="mt-4 grid gap-1 text-sm sm:grid-cols-[10rem_1fr]">
           <dt className="font-semibold">event_id</dt><dd className="font-mono">{e.event_id}</dd>
           <dt className="font-semibold">รุ่นปัจจุบัน</dt><dd>{e.current_version} · {STATUS_TH[e.status] ?? e.status}</dd>
@@ -60,13 +61,13 @@ function EventPage() {
           <dt className="font-semibold">วันที่ข้อมูล</dt><dd><Link to="/day/$date" params={{ date: e.signal_date }} className="underline">{e.signal_date}</Link></dd>
           <dt className="font-semibold">พบครั้งแรก</dt><dd>{dt(e.first_seen_at)}</dd>
         </dl>
-        <h2 className="mt-8 border-b-2 border-foreground pb-1 font-display text-xl">ทุกรุ่น (ใหม่สุดก่อน)</h2>
+        <h2 className="section-heading mt-8 text-2xl">ทุกรุ่น (ใหม่สุดก่อน)</h2>
         <ol className="mt-2 space-y-4">
           {data.versions.map((v) => {
             const inputs = v.impact?.inputs;
             const recomputed = inputs ? householdImpact(inputs) : null;
             return (
-              <li key={v.id} className="border-l-4 border-foreground pl-4 text-sm">
+              <li key={v.id} className="border-l-4 border-editorial-red pl-4 text-sm">
                 <p className="font-semibold">รุ่น {v.version} · {KIND_TH[v.change_kind] ?? v.change_kind} · {dt(v.created_at)}</p>
                 {v.reason && <p className="text-muted-foreground">{v.reason}</p>}
                 <dl className="mt-1 grid gap-1 sm:grid-cols-[10rem_1fr]">
@@ -85,6 +86,7 @@ function EventPage() {
             );
           })}
         </ol>
+        </article>
       </main>
     </div>
   );

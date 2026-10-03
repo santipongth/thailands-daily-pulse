@@ -44,8 +44,8 @@ function ImpactPage() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="font-display text-4xl">ติดตามสูตรผลกระทบ</h1>
+      <main className="page-shell">
+        <h1 className="font-editorial text-4xl sm:text-5xl">ติดตามสูตรผลกระทบ</h1>
         <p className="mt-2 text-muted-foreground">สูตร: (ราคาวันนี้ − ราคาก่อนหน้า) × ตัวเลขการใช้ = บาท/วัน แล้ว × 30 = บาท/เดือน (ทอง/เงินตรา = ต่อครั้ง). Daily Brief ใช้ตัวเลขทางการเสมอ — ตัวเลขที่คุณแก้เก็บเฉพาะเครื่องนี้</p>
         <button className="mt-3 border border-foreground px-3 py-1 text-sm" onClick={() => save({})}>คืนค่าทางการทั้งหมด</button>
         <div className="mt-6 space-y-4">
@@ -56,9 +56,9 @@ function ImpactPage() {
             const mine = over[id];
             const c = cur ? impactFor({ metric_id: id, prev_value: prev ? Number(prev.value) : null, new_value: Number(cur.value) }, mine) : null;
             return (
-              <section key={id} className="border border-border p-4">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h2 className="text-lg font-semibold">{u.label}</h2>
+              <section key={id} className="border-t-2 border-editorial-ink bg-editorial-surface p-4 shadow-[var(--shadow-editorial)]">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-2">
+                  <h2 className="min-w-0 font-editorial text-xl">{u.label}</h2>
                   <span className={`text-xs ${u.official ? "" : "text-muted-foreground"}`}>{u.official ? "ตัวเลขอ้างอิงหน่วยงานรัฐ" : "ตัวเลขตัวอย่าง"}</span>
                 </div>
                 {(() => { const c = cutOf(id); return c ? <p className="text-sm font-semibold">ไม่อยู่ใน Brief วันที่ {c.date} — {c.reason}</p> : null; })()}

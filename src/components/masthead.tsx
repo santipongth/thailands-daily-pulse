@@ -13,9 +13,9 @@ function MobileLink({ to, children }: { to: string; children: ReactNode }) {
 
 export function Masthead() {
   return (
-    <header className="border-b-4 border-double border-foreground">
+    <header className="border-b-4 border-double border-editorial-ink bg-editorial-paper font-editorial-body">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 pb-3 pt-5 md:items-end md:pt-6">
-        <Link to="/" search={{}} className="min-w-0 font-display text-2xl font-bold leading-none sm:text-4xl lg:text-5xl">
+        <Link to="/" search={{}} className="min-w-0 font-editorial text-2xl leading-none text-editorial-ink sm:text-4xl lg:text-5xl">
           Thailand Daily Signals
         </Link>
         <nav className="hidden flex-wrap justify-end gap-x-4 gap-y-1 text-sm md:flex">
@@ -38,7 +38,7 @@ export function Masthead() {
         <Sheet>
           <SheetTrigger asChild><Button variant="outline" size="icon" className="shrink-0 md:hidden" aria-label="เปิดเมนู"><Menu /></Button></SheetTrigger>
           <SheetContent side="right" className="w-[88vw] overflow-y-auto p-5 sm:max-w-sm">
-            <SheetHeader className="pr-8 text-left"><SheetTitle className="font-display text-2xl">เมนู</SheetTitle></SheetHeader>
+            <SheetHeader className="pr-8 text-left"><SheetTitle className="font-editorial text-2xl">เมนู</SheetTitle></SheetHeader>
             <nav className="mt-5 flex flex-col" aria-label="เมนูมือถือ">
               <MobileLink to="/">วันนี้</MobileLink><MobileLink to="/brief">Brief</MobileLink><MobileLink to="/key-data">ข้อมูลสำคัญ</MobileLink><MobileLink to="/data-all">ข้อมูลทั้งหมด</MobileLink><MobileLink to={`/day/${bkkToday()}`}>รายวัน</MobileLink><MobileLink to="/agencies">หน่วยงาน</MobileLink><MobileLink to="/events">เหตุการณ์</MobileLink><MobileLink to="/impact">สูตรผลกระทบ</MobileLink><MobileLink to="/calendar">วันหยุด/ภาษี</MobileLink><MobileLink to="/data">ข้อมูลดิบ</MobileLink><MobileLink to="/evidence">ไฟล์ดิบ</MobileLink><MobileLink to="/method">วิธีคำนวณ</MobileLink><MobileLink to="/sources">แหล่งข้อมูล</MobileLink><MobileLink to="/tracking">ติดตามข้อมูล</MobileLink><MobileLink to="/settings">ตั้งค่า</MobileLink><MobileLink to="/developers">สำหรับนักพัฒนา</MobileLink>
             </nav>

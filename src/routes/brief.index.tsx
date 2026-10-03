@@ -43,16 +43,17 @@ function Archive() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-3xl px-4 py-8">
-        <h1 className="border-y-4 border-double border-foreground py-4 text-center font-display text-4xl">Daily Brief</h1>
+      <main className="page-shell">
+        <div className="mx-auto max-w-4xl">
+        <h1 className="border-y-4 border-double border-editorial-ink py-4 text-center font-editorial text-4xl sm:text-5xl">Daily Brief</h1>
         <p className="mt-2 text-muted-foreground">เผยแพร่ทุกเช้า 06:00 น. จากข้อมูลจริงของหน่วยงานทางการเท่านั้น</p>
         <p className="mt-5 text-sm text-muted-foreground">{data.count} ฉบับ · หน้า {page} จาก {totalPages || 1}</p>
-        <ul className="mt-8 divide-y divide-border border-y-2 border-foreground">
+        <ul className="mt-8 divide-y divide-editorial-rule border-y-2 border-editorial-ink">
           {data.rows.map((b) => (
             <li key={b.brief_date} className="py-4">
               <Link to="/brief/$date" params={{ date: b.brief_date }} className="group block">
                  <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-2">
-                  <span className="font-display text-xl group-hover:underline">{thaiDate(b.brief_date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
+                  <span className="font-editorial text-xl group-hover:underline">{thaiDate(b.brief_date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
                   <span className="text-xs text-muted-foreground">{b.published_at ? "ฉบับ 06:00" : "ฉบับระหว่างวัน"} · {Array.isArray(b.items) ? b.items.length : 0} เรื่อง</span>
                 </div>
                 <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{b.body}</p>
@@ -61,7 +62,7 @@ function Archive() {
           ))}
         </ul>
         {!data.rows.length && <p className="py-8 text-center text-muted-foreground">{page > totalPages && totalPages > 0 ? <><span>ไม่มีฉบับในหน้านี้</span> <Link to="/brief" search={{ page: totalPages }} className="underline">ไปหน้าสุดท้าย →</Link></> : "ยังไม่มี Daily Brief"}</p>}
-        {totalPages > 1 && <nav aria-label="หน้าคลัง Daily Brief" className="mt-8 flex flex-wrap items-center justify-center gap-2 border-t border-foreground pt-5 text-sm">
+        {totalPages > 1 && <nav aria-label="หน้าคลัง Daily Brief" className="mt-8 flex flex-wrap items-center justify-center gap-2 border-t border-editorial-rule pt-5 text-sm">
           {page > 1 && <Link to="/brief" search={{ page: page - 1 }} className="border border-border px-3 py-2 hover:bg-card">← ก่อนหน้า</Link>}
           {pages.map((n, i) => <span key={n} className="contents">
             {i > 0 && n - (pages[i - 1] ?? n) > 1 && <span aria-hidden="true" className="px-1 text-muted-foreground">…</span>}
@@ -69,6 +70,7 @@ function Archive() {
           </span>)}
           {page < totalPages && <Link to="/brief" search={{ page: page + 1 }} className="border border-border px-3 py-2 hover:bg-card">ถัดไป →</Link>}
         </nav>}
+        </div>
       </main>
     </div>
   );

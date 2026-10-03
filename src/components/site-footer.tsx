@@ -2,10 +2,10 @@ import { Link } from "@tanstack/react-router";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-16 border-t-4 border-double border-foreground bg-muted/40">
+    <footer className="mt-16 border-t-4 border-double border-editorial-ink bg-editorial-surface font-editorial-body">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-[1.5fr_1fr_1fr]">
         <div>
-          <p className="font-display text-2xl">Thailand Daily Signals</p>
+          <p className="font-editorial text-2xl text-editorial-ink">Thailand Daily Signals</p>
           <p className="mt-2 max-w-md text-sm text-muted-foreground">ข้อมูลสาธารณะเพื่อช่วยติดตามสิ่งที่เปลี่ยนไปในประเทศไทย ไม่ใช่คำแนะนำทางการเงิน สุขภาพ หรือกฎหมายส่วนบุคคล</p>
           <p className="mt-4 text-xs text-muted-foreground">© {new Date().getFullYear()} Thailand Daily Signals</p>
         </div>

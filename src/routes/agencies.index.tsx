@@ -47,11 +47,11 @@ function Agencies() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="font-display text-4xl">ข้อมูลจริงแยกตามแหล่ง</h1>
+      <main className="page-shell">
+        <h1 className="font-editorial text-4xl sm:text-5xl">ข้อมูลจริงแยกตามแหล่ง</h1>
         <p className="mt-2 text-muted-foreground">ตัวเลขดึงจากแหล่งโดยตรง ไม่ใช่จากข่าว · ตรวจสอบค่าล่าสุดและไทม์ไลน์รายวันของแต่ละแหล่ง</p>
         {(["government", "other"] as const).map((category) => <section key={category} className="mt-10">
-          <h2 className="border-b-2 border-foreground pb-2 font-display text-2xl">{category === "government" ? "หน่วยงานรัฐ" : "แหล่งข้อมูลอื่น"}</h2>
+          <h2 className="section-heading text-2xl">{category === "government" ? "หน่วยงานรัฐ" : "แหล่งข้อมูลอื่น"}</h2>
           <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {AGENCIES.filter((a) => a.category === category).map((a) => {
             const runs = data.runs.filter((r) => a.sources.includes(r.source));
@@ -60,9 +60,9 @@ function Agencies() {
             const latest = mids.map((id) => ({ m: met.get(id), o: data.obs.find((o) => o.metric_id === id) })).filter((x) => x.m && x.o);
             const nSig = data.signals.filter((s) => mids.includes(s.metric_id)).length;
             return (
-              <Link key={a.key} to="/agencies/$agency" params={{ agency: a.key }} className="block border-2 border-foreground p-4 hover:bg-card">
-                <div className="flex items-baseline justify-between gap-2">
-                  <h2 className="font-display text-xl">{a.label}</h2>
+              <Link key={a.key} to="/agencies/$agency" params={{ agency: a.key }} className="block border-t-2 border-editorial-ink bg-editorial-surface p-4 shadow-[var(--shadow-editorial)] transition-colors hover:bg-card">
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-2">
+                   <h2 className="min-w-0 font-editorial text-xl">{a.label}</h2>
                   <span className={`text-xs ${runs.length && okCount === runs.length ? "text-primary" : "text-destructive"}`}>
                     {runs.length ? `ดึงได้ ${okCount}/${runs.length} แหล่ง` : "ยังไม่เคยดึง"}
                   </span>

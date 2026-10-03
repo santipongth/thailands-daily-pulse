@@ -47,13 +47,13 @@ function CalendarPage() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="font-display text-3xl">วันหยุดและกำหนดยื่นภาษี</h1>
+      <main className="page-shell">
+        <h1 className="font-editorial text-4xl sm:text-5xl">วันหยุดและกำหนดยื่นภาษี</h1>
         <div className="mt-8 grid gap-10 md:grid-cols-2">
           <section>
-            <h2 className="font-display text-xl">วันหยุดราชการและวันหยุดธนาคาร</h2>
+            <h2 className="section-heading text-2xl">วันหยุดราชการและวันหยุดธนาคาร</h2>
             <p className="mt-1 text-xs text-muted-foreground">จาก {data?.holidayUrl ? <a href={data.holidayUrl} target="_blank" rel="noreferrer" className="underline">ปฏิทินวันหยุด Kapook</a> : "Kapook"} · อ่านวันละครั้ง</p>
-            <ul className="mt-4 divide-y divide-foreground/20 border-y border-foreground/20">
+            <ul className="mt-4 divide-y divide-editorial-rule border-y border-editorial-rule">
               {(data?.holidays ?? []).map((h) => (
                 <li key={h.id} className="flex items-baseline gap-3 py-2 text-sm">
                   <span className="w-28 shrink-0 tabular-nums">{thaiDate(h.holiday_date, { day: "numeric", month: "short", year: "numeric" })}</span>
@@ -63,7 +63,7 @@ function CalendarPage() {
               ))}
               {data && !data.holidays.length && <li className="py-3 text-sm text-muted-foreground">ไม่มีวันหยุดที่เหลือในปีของลิงก์นี้ — เปลี่ยนเป็นลิงก์ปีถัดไปด้านล่าง</li>}
             </ul>
-            <form onSubmit={submit} className="mt-6 space-y-3 border border-foreground/30 p-4 text-sm">
+            <form onSubmit={submit} className="mt-6 space-y-3 border-t-2 border-editorial-ink bg-editorial-surface p-4 shadow-[var(--shadow-editorial)] text-sm">
               <p className="font-semibold">ลิงก์แหล่งวันหยุด</p>
               <label className="block">ลิงก์ (เปลี่ยนปีได้ เช่น …/2570/holiday)<input required value={url} onChange={(e) => setUrl(e.target.value)} className="mt-1 block w-full border border-foreground/30 bg-background px-2 py-1" placeholder="https://calendar.kapook.com/2570/holiday" /></label>
               <button disabled={busy} className="bg-foreground px-4 py-2 text-background disabled:opacity-50">{busy ? "กำลังดึง…" : "บันทึกและดึงทันที"}</button>
@@ -72,9 +72,9 @@ function CalendarPage() {
             </form>
           </section>
           <section>
-            <h2 className="font-display text-xl">กำหนดยื่น/ชำระภาษี</h2>
+            <h2 className="section-heading text-2xl">กำหนดยื่น/ชำระภาษี</h2>
             <p className="mt-1 text-xs text-muted-foreground">จาก <a href={RD_TAX_URL} target="_blank" rel="noreferrer" className="underline">ปฏิทินภาษีอากร กรมสรรพากร</a> · อ่านวันละครั้ง</p>
-            <ul className="mt-4 divide-y divide-foreground/20 border-y border-foreground/20">
+            <ul className="mt-4 divide-y divide-editorial-rule border-y border-editorial-rule">
               {(data?.tax ?? []).map((t) => (
                 <li key={t.id} className="py-3 text-sm">
                   <p><b className="tabular-nums">{thaiDate(t.due_date, { day: "numeric", month: "short", year: "numeric" })}</b> · {t.channel.includes("อินเทอร์เน็ต") ? "วันสุดท้ายยื่นทางอินเทอร์เน็ต" : "วันสุดท้ายยื่นแบบที่สำนักงาน"}</p>
