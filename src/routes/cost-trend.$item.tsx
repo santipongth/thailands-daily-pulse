@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Legend, Line, ReferenceLine, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
 import { BASKET } from "@/lib/impact";
@@ -31,22 +32,35 @@ function Item() {
     queryKey: ["cost-item", ids.join(",")],
     enabled: ids.length > 0,
     queryFn: async () => {
-      const [{ data: obs }, { data: mets }] = await Promise.all([
-        supabase.from("observations").select("metric_id,observed_on,value,received_at").in("metric_id", ids).eq("is_demo", false).gte("observed_on", shiftDays(today(), -75)).order("observed_on"),
-        supabase.from("metrics").select("id,name_th,unit").in("id", ids),
-      ]);
-      return { obs: obs ?? [], mets: mets ?? [] };
+      const obs: { metric_id: string; observed_on: string; value: number; received_at: string }[] = [];
+      for (let from = 0; ; from += 1000) { // 2 years for the 1-year view + last year's average
+        const { data: page, error } = await supabase.from("observations").select("metric_id,observed_on,value,received_at").in("metric_id", ids).eq("is_demo", false).gte("observed_on", shiftDays(today(), -730)).order("observed_on").range(from, from + 999);
+        if (error) throw error;
+        obs.push(...(page ?? [])); if ((page ?? []).length < 1000) break;
+      }
+      const { data: mets } = await supabase.from("metrics").select("id,name_th,unit").in("id", ids);
+      return { obs, mets: mets ?? [] };
     },
   });
   const end = today();
+  const [span, setSpan] = useState<7 | 30 | 90 | 365>(90);
   if (!ids.length) return <Shell><p className="mt-6">ไม่พบสินค้านี้ · <Link to="/cost-trend" className="underline">กลับหน้าค่าครองชีพ</Link></p></Shell>;
   const ranges = [
     { label: "สัปดาห์นี้ vs สัปดาห์ก่อน", cur: [shiftDays(end, -6), end], prev: [shiftDays(end, -13), shiftDays(end, -7)] },
     { label: "30 วันนี้ vs 30 วันก่อน", cur: [shiftDays(end, -29), end], prev: [shiftDays(end, -59), shiftDays(end, -30)] },
   ] as const;
   const srcName = (id: string) => (id.startsWith("dit_") ? "กรมการค้าภายใน (ราคาขายปลีก กทม.)" : id.startsWith("elec_") ? "การไฟฟ้า (ค่า Ft × อัตราบ้านอยู่อาศัย)" : "CheckRaka (รวบรวมหลายแหล่ง)");
-  const first = (data?.obs ?? []).map((o) => o.observed_on).sort()[0];
+  const spanStart = shiftDays(end, -(span - 1));
+  const first0 = (data?.obs ?? []).map((o) => o.observed_on).sort()[0];
+  const first = first0 && first0 > spanStart ? first0 : first0 ? spanStart : undefined;
   const dates: string[] = [];
+  // Last year's average for the same window — only when last year has at least half the real readings this window has.
+  const prevAvg = (id: string) => {
+    const rows = (data?.obs ?? []).filter((o) => o.metric_id === id);
+    const cur = periodStats(rows, spanStart, end), prev = periodStats(rows, shiftDays(spanStart, -365), shiftDays(end, -365));
+    return prev.avg != null && cur.days > 0 && prev.days >= cur.days * 0.5 ? prev.avg : null;
+  };
+  const allAvg = (id: string) => { const r = (data?.obs ?? []).filter((o) => o.metric_id === id); return r.length ? r.reduce((a, o) => a + Number(o.value), 0) / r.length : null; };
   if (first) for (let d = first; d <= end; d = shiftDays(d, 1)) dates.push(d); // every calendar day so missing days show as gaps
   const chart = dates.map((d) => Object.fromEntries([["date", d.slice(5)], ...ids.map((id) => [id, data!.obs.find((o) => o.metric_id === id && o.observed_on === d)?.value ?? null])]));
   return (
@@ -79,11 +93,14 @@ function Item() {
         );
       })}
       {chart.length > 0 && <>
-        <h2 className="mt-8 font-editorial text-2xl text-editorial-red">ราคาจริงรายวัน (75 วัน)</h2>
+        <h2 className="mt-8 font-editorial text-2xl text-editorial-red">ราคาจริงรายวัน</h2>
+        <div className="mt-2 flex gap-2">{([7, 30, 90, 365] as const).map((n) => <button key={n} onClick={() => setSpan(n)} className={`border px-3 py-1 text-sm ${span === n ? "border-editorial-ink font-semibold" : "border-editorial-rule"}`}>{n === 365 ? "1 ปี" : `${n} วัน`}</button>)}</div>
         <div className="mt-2 h-72"><ResponsiveContainer><LineChart data={chart}><CartesianGrid stroke="var(--border)" strokeDasharray="3 3" /><XAxis dataKey="date" fontSize={11} /><YAxis fontSize={11} domain={["auto", "auto"]} /><Tooltip /><Legend />
           {ids.map((id, i) => <Line key={id} dataKey={id} name={srcName(id)} stroke={i ? "var(--map-4)" : "var(--map-2)"} dot={{ r: 2 }} connectNulls={false} />)}
+          {ids.map((id, i) => { const v = prevAvg(id); return v == null ? null : <ReferenceLine key={"p" + id} y={v} stroke={i ? "var(--map-4)" : "var(--map-2)"} strokeDasharray="6 4" label={{ value: "เฉลี่ยปีก่อน", fontSize: 10, position: "insideTopRight" }} />; })}
+          {span === 365 && ids.map((id, i) => { const v = allAvg(id); return v == null || prevAvg(id) != null ? null : <ReferenceLine key={"a" + id} y={v} stroke={i ? "var(--map-4)" : "var(--map-2)"} strokeDasharray="2 3" label={{ value: "เฉลี่ยทั้งช่วงที่มีข้อมูล", fontSize: 10, position: "insideBottomRight" }} />; })}
         </LineChart></ResponsiveContainer></div>
-        <p className="mt-2 text-xs text-muted-foreground">จุด = วันที่มีราคาจริง · เส้นขาด = วันที่ไม่มีข้อมูล (เช่น วันหยุด) ไม่มีการเติมค่า · หน่วยของแต่ละแหล่งอาจต่างกัน</p>
+        <p className="mt-2 text-xs text-muted-foreground">จุด = วันที่มีราคาจริง · เส้นขาด = วันที่ไม่มีข้อมูล (เช่น วันหยุด) ไม่มีการเติมค่า · หน่วยของแต่ละแหล่งอาจต่างกัน · {ids.some((id) => prevAvg(id) != null) ? "เส้นประ = ค่าเฉลี่ยช่วงเดียวกันของปีก่อน" : `ยังไม่มีข้อมูลปีก่อนหน้า (เก็บราคาจริงตั้งแต่ ${first0 ?? "—"})`}{span === 365 && ids.some((id) => prevAvg(id) == null) ? " · เส้นจุด = ค่าเฉลี่ยทั้งช่วงที่มีข้อมูล" : ""}</p>
       </>}
     </Shell>
   );
