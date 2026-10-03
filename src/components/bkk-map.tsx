@@ -83,7 +83,7 @@ export function BkkMap({ initialLayers, initialPoint }: { initialLayers: string 
   }, [visible, ready, sel, spot]);
 
   // Fly to a shared/selected point once the map is ready.
-  useEffect(() => { if (ready && selPt?.lat != null) map.current!.flyTo([selPt.lat, selPt.lng!], Math.max(map.current!.getZoom(), 13), { duration: 0.5 }); }, [ready, sel]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (ready && selPt?.lat != null) map.current!.flyTo([selPt.lat, selPt.lng!], Math.max(map.current!.getZoom(), 13), { duration: 0.5 }); }, [ready, selPt?.lat, selPt?.lng]);
 
   const pick = (p: Pt) => { setSpot(null); setSel(p.key); if (p.lat == null) return; if (!on.has(p.layer)) setOn((s) => new Set(s).add(p.layer)); };
   const toggle = (id: LayerId) => setOn((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
