@@ -827,6 +827,9 @@ export type Database = {
           is_bkk: boolean | null
           post_id: string
           posted_at: string
+          rail_day: string | null
+          rail_reason: string | null
+          rail_status: string | null
           received_at: string
           source: string
           summary: string | null
@@ -841,6 +844,9 @@ export type Database = {
           is_bkk?: boolean | null
           post_id: string
           posted_at: string
+          rail_day?: string | null
+          rail_reason?: string | null
+          rail_status?: string | null
           received_at?: string
           source: string
           summary?: string | null
@@ -855,6 +861,9 @@ export type Database = {
           is_bkk?: boolean | null
           post_id?: string
           posted_at?: string
+          rail_day?: string | null
+          rail_reason?: string | null
+          rail_status?: string | null
           received_at?: string
           source?: string
           summary?: string | null

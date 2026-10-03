@@ -1,0 +1,2 @@
+ALTER TABLE public.social_posts ADD COLUMN IF NOT EXISTS rail_status text, ADD COLUMN IF NOT EXISTS rail_reason text, ADD COLUMN IF NOT EXISTS rail_day date;
+CREATE INDEX IF NOT EXISTS social_posts_rail_day_idx ON public.social_posts (source, rail_day);
