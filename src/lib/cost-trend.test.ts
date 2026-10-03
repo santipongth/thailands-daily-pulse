@@ -14,3 +14,12 @@ describe("costTrend", () => {
     expect(r.series[0]!.complete).toBe(false);
   });
 });
+
+import { periodStats, pctChange } from "./cost-trend";
+describe("periodStats", () => {
+  it("uses only real readings in range", () => {
+    const s = periodStats([{ observed_on: "2026-10-01", value: 10 }, { observed_on: "2026-10-03", value: 20 }, { observed_on: "2026-09-01", value: 99 }], "2026-09-28", "2026-10-04");
+    expect(s).toEqual({ avg: 15, min: 10, max: 20, days: 2 });
+    expect(pctChange(110, 100)).toBeCloseTo(10);
+  });
+});
