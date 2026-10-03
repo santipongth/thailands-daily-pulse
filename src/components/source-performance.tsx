@@ -94,3 +94,29 @@ function PerfRow({ p }: { p: Perf & { config: any; trend: Day[]; dataAgeMin: num
     </li>
   );
 }
+
+/** Flood / local-water summary: success rate, main failure cause and whether a suggestion is waiting. */
+function FloodCard({ ps }: { ps: Perf[] }) {
+  if (!ps.length) return null;
+  return (
+    <div className="mt-4 border-2 border-editorial-ink p-3">
+      <h3 className="font-semibold">สรุปน้ำท่วม / น้ำท้องถิ่น</h3>
+      <table className="mt-2 w-full text-sm">
+        <thead><tr className="text-left text-xs text-muted-foreground"><th>แหล่ง</th><th>สำเร็จ</th><th>สาเหตุหลักที่ล้มเหลว</th><th>คำแนะนำ</th></tr></thead>
+        <tbody>
+          {ps.map((p) => {
+            const top = (Object.entries(p.causes) as [Cause, number][]).sort((a, b) => b[1] - a[1])[0];
+            return (
+              <tr key={p.source} className="border-t border-border">
+                <td className="py-1 pr-2">{p.source}</td>
+                <td className={p.rate < 0.8 ? "text-destructive" : ""}>{p.ok}/{p.runs} ({Math.round(p.rate * 100)}%)</td>
+                <td>{top ? `${CAUSE_TH[top[0]]} ×${top[1]}` : "—"}</td>
+                <td className="text-xs">{p.rec?.reasons.length ? "มี — ดูด้านล่าง" : "ไม่ต้องปรับ"}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
