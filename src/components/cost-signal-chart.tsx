@@ -9,8 +9,7 @@ import { WeeklyComparison } from "@/components/weekly-comparison";
 /** Cost-of-living signal: last week vs this week (real prices only) + 14-day daily line with gaps. */
 export function CostSignalChart({ s, metric, history }: { s: Signal; metric: Metric; history: Obs[] }) {
   const end: string = s.checks?.price_date ?? s.signal_date;
-  const rows = history.filter((o) => o.metric_id === s.metric_id && o.is_demo === s.is_demo && o.observed_on >= shiftDays(end, -13) && o.observed_on <= end).map((o) => ({ observed_on: o.observed_on, value: Number(o.value), received_at: o.received_at, effective_from: o.effective_from ?? null }));
-  const arrivals = (from: string, to: string) => rows.filter((r) => r.observed_on >= from && r.observed_on <= to).map((r) => ({ date: r.observed_on, effective: r.effective_from, received: r.received_at }));
+  const rows = history.filter((o) => o.metric_id === s.metric_id && o.is_demo === s.is_demo && o.observed_on >= shiftDays(end, -13) && o.observed_on <= end).map((o) => ({ observed_on: o.observed_on, value: Number(o.value), received_at: o.received_at }));
   const cur = periodStats(rows, shiftDays(end, -6), end), prev = periodStats(rows, shiftDays(end, -13), shiftDays(end, -7));
   const line: { d: string; v: number | null }[] = [];
   for (let d = shiftDays(end, -13); d <= end; d = shiftDays(d, 1)) line.push({ d: d.slice(5), v: rows.find((r) => r.observed_on === d)?.value ?? null });
