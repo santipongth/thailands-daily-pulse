@@ -5,8 +5,9 @@ import { DailyTicker } from "@/components/daily-ticker";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import type { ReactNode } from "react";
 
-function MobileLink({ to, children }: { to: string; children: React.ReactNode }) {
+function MobileLink({ to, children }: { to: string; children: ReactNode }) {
   return <SheetClose asChild><a href={to} className="border-b border-border py-3 text-base">{children}</a></SheetClose>;
 }
 

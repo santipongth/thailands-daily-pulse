@@ -8,6 +8,10 @@ const tables = [
 ] as const;
 export type PublicTable = (typeof tables)[number];
 export const PUBLIC_TABLES = new Set<string>(tables);
+const SAFE_COLUMNS: Partial<Record<PublicTable, string>> = {
+  raw_evidence: "id,source,url,http_status,content_type,bytes,sha256,fetched_at",
+  holidays: "id,holiday_date,name,kind,note,created_at",
+};
 
 type RuntimeGlobals = typeof globalThis & {
   Deno?: { env?: { get?: (name: string) => string | undefined } };
@@ -60,7 +64,7 @@ export function bkkDate() {
 export async function readPublicRows(table: PublicTable, options: {
   limit?: number; order?: string; ascending?: boolean; filters?: Record<string, string | boolean>;
 } = {}) {
-  let query = publicDatabase().from(table).select("*");
+  let query = publicDatabase().from(table).select(SAFE_COLUMNS[table] ?? "*");
   for (const [key, value] of Object.entries(options.filters ?? {})) query = query.eq(key, value);
   if (options.order) query = query.order(options.order, { ascending: options.ascending ?? false });
   const { data, error } = await query.limit(boundedLimit(options.limit));

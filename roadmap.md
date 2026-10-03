@@ -24,3 +24,5 @@
 - [ ] Real headless browser (Playwright) collection — not possible in the hosting runtime; option: Firecrawl connector
 
 - [x] Brief archive pagination, Daily Brief reading order, active agency coverage, and Today section reorder
+- [x] Responsive site shell, mobile navigation, shared footer, and human sitemap
+- [x] Public read-only API v1, OpenAPI 3.1, 17-tool MCP server, llms.txt, and developer documents
