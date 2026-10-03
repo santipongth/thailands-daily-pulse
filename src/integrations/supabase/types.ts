@@ -377,9 +377,11 @@ export type Database = {
         Row: {
           bands: number[] | null
           decimals: number
+          expected_days: number
           family_id: string
           id: string
           kind: string
+          lag_days: number
           max_gap_days: number
           min_pct: number | null
           name_th: string
@@ -393,9 +395,11 @@ export type Database = {
         Insert: {
           bands?: number[] | null
           decimals?: number
+          expected_days?: number
           family_id: string
           id: string
           kind?: string
+          lag_days?: number
           max_gap_days?: number
           min_pct?: number | null
           name_th: string
@@ -409,9 +413,11 @@ export type Database = {
         Update: {
           bands?: number[] | null
           decimals?: number
+          expected_days?: number
           family_id?: string
           id?: string
           kind?: string
+          lag_days?: number
           max_gap_days?: number
           min_pct?: number | null
           name_th?: string

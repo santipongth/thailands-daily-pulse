@@ -281,6 +281,13 @@
       "when": 1791050508387,
       "tag": "0039_weekly_cost_signals",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1791051228936,
+      "tag": "0040_cost_lag_rail_electricity_signals",
+      "breakpoints": true
     }
   ]
 }
