@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BASKET } from "@/lib/impact";
 import { costTrend, GROUP_TH } from "@/lib/cost-trend";
 
-export const Route = createFileRoute("/cost-trend")({
+export const Route = createFileRoute("/cost-trend/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
