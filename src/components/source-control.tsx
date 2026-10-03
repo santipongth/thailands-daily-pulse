@@ -25,9 +25,19 @@ export function SourceControl() {
       <p className="mt-2 text-sm text-muted-foreground">ตั้งค่าแต่ละแหล่งได้เอง มีผลกับทุกคนทั้งเว็บไซต์ แหล่งที่เลือก "ตามรอบเดิมของระบบ" จะทำงานเหมือนเดิม เวลาตัดและเผยแพร่สรุปข่าว 05:45/05:55 ไม่เปลี่ยน</p>
       {isLoading && <p className="mt-4 text-sm text-muted-foreground">กำลังโหลด…</p>}
       {error && <p className="mt-4 text-sm text-destructive">โหลดไม่สำเร็จ (ต้องเข้าสู่ระบบผู้ดูแล)</p>}
-      <ul className="mt-6 divide-y divide-editorial-rule border-y-2 border-editorial-ink">
-        {(data ?? []).map((s) => <Row key={s.source} source={s.source} config={s.config} run={s.run} breaker={s.breaker} />)}
-      </ul>
+            <p className="mt-2 text-xs text-muted-foreground">ทั้งหมด {(data ?? []).length} แหล่ง</p>
+      {GROUPS.map(([g, label]) => {
+        const items = (data ?? []).filter((s) => groupOf(s.source) === g);
+        if (!items.length) return null;
+        return (
+          <div key={g} className="mt-6">
+            <h3 className="font-display text-xl">{label} <span className="text-sm text-muted-foreground">({items.length})</span></h3>
+            <ul className="mt-2 divide-y divide-editorial-rule border-y-2 border-editorial-ink">
+              {items.map((s) => <Row key={s.source} source={s.source} config={s.config} run={s.run} breaker={s.breaker} info={s.info} />)}
+            </ul>
+          </div>
+        );
+      })}
     </section>
   );
 }
@@ -45,7 +55,16 @@ function BreakerNote({ source, breaker }: { source: string; breaker: { fail_stre
   );
 }
 
-function Row({ source, config, run, breaker }: { source: string; config: Partial<Cfg> | null; run: { ok: boolean; ran_at: string; rows: number; error: string | null; sample: string | null } | null; breaker: { fail_streak: number; open_until: string | null } | null }) {
+const GROUPS = [["weather", "อากาศ น้ำ และภัยพิบัติ"], ["air", "คุณภาพอากาศ"], ["traffic", "จราจรและรถไฟฟ้า"], ["prices", "ราคาและค่าครองชีพ"], ["calendar", "ปฏิทิน ข่าว และอื่น ๆ"]] as const;
+function groupOf(s: string): (typeof GROUPS)[number][0] {
+  if (/PM2\.5|Air4Thai/.test(s)) return "air";
+  if (/อุตุ|ThaiWater|RID|ระบายน้ำ|ปภ\./.test(s)) return "weather";
+  if (/Longdo|FM91|BTS|MRT/.test(s)) return "traffic";
+  if (/PTT|บางจาก|ทอง|Exchange|Raka|LPG|แรงงาน|ไฟฟ้า|การค้าภายใน/.test(s)) return "prices";
+  return "calendar";
+}
+
+function Row({ source, config, run, breaker, info }: { source: string; config: Partial<Cfg> | null; run: { ok: boolean; ran_at: string; rows: number; error: string | null; sample: string | null; last_ok_at?: string | null } | null; breaker: { fail_streak: number; open_until: string | null } | null; info?: { owner: string; url: string | null; cadence: string } | null }) {
   const qc = useQueryClient();
   const save = useServerFn(saveSourceConfig);
   const runNow = useServerFn(runSourceNow);
@@ -77,6 +96,11 @@ function Row({ source, config, run, breaker }: { source: string; config: Partial
           {!run ? "ยังไม่เคยดึง" : run.ok ? `สำเร็จ ${run.rows} รายการ · ${dt(run.ran_at)}` : <span className="text-destructive">ล้มเหลว {dt(run.ran_at)}: {run.error}</span>}
         </span>
       </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {info ? <>{info.owner} · รอบปกติ: {info.cadence}{info.url && <> · <a href={info.url} target="_blank" rel="noreferrer" className="underline">ลิงก์แหล่ง</a></>}</> : "ไม่มีข้อมูลทะเบียนแหล่ง"}
+        {" · "}สำเร็จล่าสุด: {run?.last_ok_at ? dt(run.last_ok_at) : run?.ok ? dt(run.ran_at) : "ยังไม่เคย"}
+        {run?.sample && <> · {run.sample}</>}
+      </p>
       <BreakerNote source={source} breaker={breaker} />
       {run?.sample && <div className="mt-1 text-xs text-muted-foreground">{run.sample}</div>}
       <div className="mt-2 flex flex-wrap items-center gap-2">
