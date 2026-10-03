@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteRouteImport } from './routes/_admin/route'
+import { Route as CostTrendRouteImport } from './routes/cost-trend'
 import { Route as DataAllRouteImport } from './routes/data-all'
 import { Route as DataMapRouteImport } from './routes/data-map'
 import { Route as DevelopersRouteImport } from './routes/developers'
@@ -59,6 +60,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AdminRouteRoute = AdminRouteRouteImport.update({
   id: '/_admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CostTrendRoute = CostTrendRouteImport.update({
+  id: '/cost-trend',
+  path: '/cost-trend',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DataAllRoute = DataAllRouteImport.update({
@@ -264,6 +270,7 @@ const ApiPublicOgBriefDateRoute = ApiPublicOgBriefDateRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cost-trend': typeof CostTrendRoute
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
@@ -307,6 +314,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cost-trend': typeof CostTrendRoute
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/failures': typeof FailuresRoute
@@ -351,6 +359,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteRouteWithChildren
+  '/cost-trend': typeof CostTrendRoute
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
@@ -396,6 +405,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/cost-trend'
     | '/data-all'
     | '/data-map'
     | '/developers'
@@ -439,6 +449,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/cost-trend'
     | '/data-all'
     | '/data-map'
     | '/failures'
@@ -482,6 +493,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_admin'
+    | '/cost-trend'
     | '/data-all'
     | '/data-map'
     | '/developers'
@@ -527,6 +539,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
+  CostTrendRoute: typeof CostTrendRoute
   DataAllRoute: typeof DataAllRoute
   DataMapRoute: typeof DataMapRoute
   DevelopersRoute: typeof DevelopersRouteWithChildren
@@ -566,6 +579,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cost-trend': {
+      id: '/cost-trend'
+      path: '/cost-trend'
+      fullPath: '/cost-trend'
+      preLoaderRoute: typeof CostTrendRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/data-all': {
@@ -908,6 +928,7 @@ const DevelopersRouteWithChildren = DevelopersRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
+  CostTrendRoute: CostTrendRoute,
   DataAllRoute: DataAllRoute,
   DataMapRoute: DataMapRoute,
   DevelopersRoute: DevelopersRouteWithChildren,
