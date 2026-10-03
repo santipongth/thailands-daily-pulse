@@ -23,7 +23,8 @@ export function CostSignalChart({ s, metric }: { s: Signal; metric: Metric }) {
   const line: { d: string; v: number | null }[] = [];
   for (let d = shiftDays(end, -13); d <= end; d = shiftDays(d, 1)) line.push({ d: d.slice(5), v: rows.find((r) => r.observed_on === d)?.value ?? null });
   const basketId = DIT_ITEMS.find((x) => x.metric === s.metric_id)?.basket ?? s.metric_id;
-  const qty = BASKET.find((b) => b.metric_id === basketId)?.qty;
+  // DIT units can differ from the basket (e.g. rice per 15 kg): only per-kg DIT prices map onto basket quantities.
+  const qty = s.metric_id.startsWith("dit_") && metric.unit !== "บาท/กก." ? undefined : BASKET.find((b) => b.metric_id === basketId)?.qty;
   const impact = qty != null && cur.avg != null && prev.avg != null ? (cur.avg - prev.avg) * qty : null;
   return (
     <div className="mt-3 border-t border-editorial-rule pt-2 text-xs">
