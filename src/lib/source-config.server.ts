@@ -1,8 +1,23 @@
 // Server-only: admin overrides per source (source_config). A source with no row, or schedule
 // "default" and enabled, keeps the built-in cadence. Overridden sources are queued only by these rules.
 import type { JobSpec } from "./queue.server";
+import { lastCustomSlot } from "./schedule-next";
 
-export type SourceConfig = { source: string; enabled: boolean; schedule: string; daily_hour: number | null; fetch_mode: string; max_attempts: number; retry_delay_min: number | null; range_start?: number | null; range_end?: number | null; extra_hours?: number[] };
+export type SourceConfig = { source: string; enabled: boolean; schedule: string; daily_hour: number | null; fetch_mode: string; max_attempts: number; retry_delay_min: number | null; range_start?: number | null; range_end?: number | null; extra_hours?: number[]; custom_times?: string[] };
+
+/** Custom HH:MM slot passed since the last run (and within 3h, so long outages don't replay old slots). */
+function customDue(times: string[], lastRun: number, now: number): boolean {
+  const slot = lastCustomSlot(times, now);
+  return slot !== null && slot > lastRun && now - slot < 3 * 3600e3;
+}
+
+/** Custom-time sources that are due now (used by the 30-minute tick). */
+export async function customDueSpecs(admin: any): Promise<(JobSpec & { max_attempts?: number })[]> {
+  const cfg = await loadConfigs(admin);
+  const custom = new Set([...cfg.values()].filter((c) => c.enabled && c.schedule === "custom").map((c) => c.source));
+  if (!custom.size) return [];
+  return (await applySourceConfig(admin, [])).filter((s) => custom.has(s.source));
+}
 
 const EXTRA: JobSpec[] = [
   { job_type: "rakakaset", source: "RakaKaset (ราคาเกษตร)" },
@@ -70,6 +85,7 @@ async function applyConfigOnly(admin: any, specs: JobSpec[], runKind?: string): 
         : c.schedule === "3h" ? now - t >= 3 * 3600e3 - 5 * 60e3
         : c.schedule === "hourly_range" ? (inRange(h, c.range_start ?? 16, c.range_end ?? 8) ? !ranThisHour : now - t >= 3 * 3600e3 - 5 * 60e3)
         : c.schedule === "daily" ? bkk.getUTCHours() === (c.daily_hour ?? 5) && !(r?.ok && new Date(t + 7 * 3600e3).toISOString().slice(0, 10) === today)
+        : c.schedule === "custom" ? customDue(c.custom_times ?? [], t, now)
         : false; // manual: only via "ดึงตอนนี้"
       if (due) out.push({ job_type: jt, source: c.source });
     }
