@@ -382,6 +382,7 @@ export type Database = {
           id: string
           kind: string
           lag_days: number
+          late_window_days: number
           max_gap_days: number
           min_pct: number | null
           name_th: string
@@ -400,6 +401,7 @@ export type Database = {
           id: string
           kind?: string
           lag_days?: number
+          late_window_days?: number
           max_gap_days?: number
           min_pct?: number | null
           name_th: string
@@ -418,6 +420,7 @@ export type Database = {
           id?: string
           kind?: string
           lag_days?: number
+          late_window_days?: number
           max_gap_days?: number
           min_pct?: number | null
           name_th?: string
