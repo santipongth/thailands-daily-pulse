@@ -7,12 +7,12 @@ import { parseXPosts } from "./fm91.server";
 const fx = (f: string) => readFileSync(new URL(`./__fixtures__/${f}`, import.meta.url), "utf8");
 
 describe("air4thai", () => {
-  it("averages Bangkok stations only and names the highest", () => {
+  it("averages today's Bangkok stations (stale and other provinces excluded)", () => {
     const r = parseAir4Thai(JSON.parse(fx("air4thai.json")), "2026-10-03");
     expect(r.stations.length).toBe(6);
-    expect(r.max).toBe(30.4);
+    expect(r.max).toBe(25.7);
     expect(r.top?.at).toMatch(/^2026-10-03T\d{2}:\d{2}:00\+07:00$/);
-    expect(r.avg).toBeCloseTo((22.1 + 30.4 + 23.7 + 23.4 + 25.7 + 24.3) / 6, 1);
+    expect(r.avg).toBeCloseTo((22.1 + 23.7 + 23.4 + 25.7 + 24.3 + 25.5) / 6, 1);
   });
   it("ignores other days", () => {
     expect(parseAir4Thai(JSON.parse(fx("air4thai.json")), "2026-10-01").stations.length).toBe(0);

@@ -4,10 +4,10 @@ export const A4T_ALT_URL = "https://air4thai.com/forweb/getAQI_JSON.php";
 
 export type A4tStation = { id: string; name: string; area: string; pm25: number; aqi: number | null; at: string };
 
-/** Bangkok stations (areaTH contains กรุงเทพ) with a valid PM2.5 reading on `date`. */
+/** Bangkok stations (areaTH กรุงเทพ or areaEN Bangkok — some TH areas omit the province) with a valid PM2.5 reading on `date`. */
 export function parseAir4Thai(d: any, date: string) {
   const st: A4tStation[] = (d?.stations ?? [])
-    .filter((x: any) => /กรุงเทพ/.test(String(x?.areaTH ?? "")) && x?.AQILast?.date === date)
+    .filter((x: any) => (/กรุงเทพ/.test(String(x?.areaTH ?? "")) || /Bangkok/i.test(String(x?.areaEN ?? ""))) && x?.AQILast?.date === date)
     .map((x: any) => ({
       id: String(x.stationID), name: String(x.nameTH ?? x.stationID), area: String(x.areaTH ?? "").split(",")[0]!.trim(),
       pm25: Number(x.AQILast?.PM25?.value), aqi: Number(x.AQILast?.PM25?.aqi) > 0 ? Number(x.AQILast.PM25.aqi) : null,
