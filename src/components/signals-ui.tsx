@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import type { Family, Metric, News, Obs, Signal } from "@/lib/signals";
 import { SignalExplain } from "@/components/signal-explain";
 import { fmt } from "@/lib/signals";
+import { CostSignalChart } from "@/components/cost-signal-chart";
 
 export function Sparkline({ values, className = "" }: { values: number[]; className?: string }) {
   if (values.length < 2) return null;
@@ -53,9 +54,10 @@ export function SignalCard({ s, family, metric, history, news }: { s: Signal; fa
       </div>
     </Link>
       <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-        <span className="truncate">ที่มา: {family.source_name}</span>
+        <span className="truncate">ที่มา: {s.metric_id.startsWith("dit_") ? "กรมการค้าภายใน (ราคาขายปลีก กทม.)" : family.source_name}{s.checks?.price_date && s.checks.price_date !== s.signal_date ? ` · ราคาวันที่ ${s.checks.price_date}` : ""}</span>
         <DataBadge demo={s.is_demo} />
       </div>
+      {family.id === "food" && <CostSignalChart s={s} metric={metric} />}
       <div className="mt-2"><SignalExplain s={s} family={family} metric={metric} history={history} news={news} /></div>
     </div>
   );

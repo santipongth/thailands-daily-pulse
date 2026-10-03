@@ -388,6 +388,7 @@ export type Database = {
           threshold_pct: number | null
           unit: string
           vol_k: number
+          weekly: boolean
         }
         Insert: {
           bands?: number[] | null
@@ -403,6 +404,7 @@ export type Database = {
           threshold_pct?: number | null
           unit?: string
           vol_k?: number
+          weekly?: boolean
         }
         Update: {
           bands?: number[] | null
@@ -418,6 +420,7 @@ export type Database = {
           threshold_pct?: number | null
           unit?: string
           vol_k?: number
+          weekly?: boolean
         }
         Relationships: [
           {

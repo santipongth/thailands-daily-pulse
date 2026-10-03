@@ -6,6 +6,10 @@ import { isOfficial } from "@/lib/sources";
 
 export function explainReason(s: Signal, m: Metric): string {
   const v = (x: number) => `${fmt(x, m.decimals)} ${m.unit}`.trim();
+  const c = s.checks ?? {};
+  if (c.rule === "weekly") {
+    return `ราคาเฉลี่ย 7 วันล่าสุด (${thaiDate(c.cur_from)}–${thaiDate(c.cur_to)}, มีราคาจริง ${c.days_cur} วัน) ${v(Number(c.cur_avg))} เทียบสัปดาห์ก่อน ${v(Number(c.prev_avg))} (${c.days_prev} วัน) เปลี่ยน ${c.pct > 0 ? "+" : ""}${Number(c.pct).toFixed(1)}% เกินเกณฑ์ ${c.threshold_pct}% จึงถือเป็นสัญญาณ — ใช้เฉพาะวันที่มีราคาจริง ไม่เติมค่าวันที่ขาด`;
+  }
   if (m.kind === "release") {
     return s.prev_value != null
       ? `มีการประกาศตัวเลขรอบใหม่ ${v(s.new_value)} (รอบก่อน ${v(s.prev_value)}) ระบบแสดงเฉพาะวันที่ประกาศ วันอื่นจะเงียบ`
@@ -30,6 +34,10 @@ function checkLines(c: any, m: Metric): string[] {
     const t = [c.threshold_abs != null ? `${c.threshold_abs} ${m.unit}` : null, c.threshold_pct != null ? `${c.threshold_pct}%` : null].filter(Boolean).join(" หรือ ");
     out.push(`ขนาดการเปลี่ยนแปลง: ${c.ratio} เท่าของเกณฑ์ (${t})`);
     if (c.min_pct != null) out.push(`เปลี่ยนอย่างน้อย ${c.min_pct}% ตามเกณฑ์ขั้นต่ำ`);
+  }
+  if (c.rule === "weekly") {
+    out.push(`กฎรายสัปดาห์: ค่าเฉลี่ยเปลี่ยน ${c.ratio} เท่าของเกณฑ์ ${c.threshold_pct}% (ต้องมีราคาจริงอย่างน้อย 3 วันในแต่ละสัปดาห์)`);
+    if (c.price_date) out.push(`ราคาล่าสุดของแหล่งเป็นของวันที่ ${thaiDate(c.price_date)}`);
   }
   if (c.rule === "level") out.push(`ข้ามระดับเกณฑ์ ${(c.bands ?? []).join(", ")} ${m.unit}`);
   if (c.rule === "release") out.push("เป็นตัวเลขรอบใหม่ที่เพิ่งประกาศ");
