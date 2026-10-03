@@ -104,6 +104,38 @@ export type Database = {
         }
         Relationships: []
       }
+      dam_readings: {
+        Row: {
+          id: number
+          metric_id: string
+          observed_on: string
+          read_at: string
+          value: number
+        }
+        Insert: {
+          id?: number
+          metric_id: string
+          observed_on: string
+          read_at?: string
+          value: number
+        }
+        Update: {
+          id?: number
+          metric_id?: string
+          observed_on?: string
+          read_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dam_readings_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       families: {
         Row: {
           cadence: string
