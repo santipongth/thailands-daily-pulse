@@ -859,6 +859,39 @@ export type Database = {
           },
         ]
       }
+      source_config: {
+        Row: {
+          daily_hour: number | null
+          enabled: boolean
+          fetch_mode: string
+          max_attempts: number
+          retry_delay_min: number | null
+          schedule: string
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          daily_hour?: number | null
+          enabled?: boolean
+          fetch_mode?: string
+          max_attempts?: number
+          retry_delay_min?: number | null
+          schedule?: string
+          source: string
+          updated_at?: string
+        }
+        Update: {
+          daily_hour?: number | null
+          enabled?: boolean
+          fetch_mode?: string
+          max_attempts?: number
+          retry_delay_min?: number | null
+          schedule?: string
+          source?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       source_registry: {
         Row: {
           area: string
