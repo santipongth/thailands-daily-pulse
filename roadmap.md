@@ -17,3 +17,10 @@
 - [x] Brief archive pagination, Daily Brief reading order, active agency coverage, and Today section reorder
 - [x] Responsive site shell, mobile navigation, shared footer, and human sitemap
 - [x] Public read-only API v1, OpenAPI 3.1, 17-tool MCP server, llms.txt, and developer documents
+
+## Unified tactile editorial redesign
+- [ ] Unify household cost and latest lottery sections on Today
+- [ ] Remove the requested household calculation phrase
+- [ ] Apply the Today editorial shell, typography, sections, tables, and states across content pages
+- [ ] Verify PostgreSQL metadata/private-file storage boundaries and public API/MCP exposure
+- [ ] Validate metadata, MCP read-only tools, security, type safety, and responsive layouts at 320/390/768/1280
