@@ -1,3 +1,4 @@
+import { LocalTables } from "@/components/local-conditions";
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -60,6 +61,7 @@ function DataAll() {
         <StationMap />
         <DamsMonitor />
         <SocialDaily />
+        <LocalTables />
         {data.families.map((f) => {
           const ms = data.metrics.filter((m) => m.family_id === f.id);
           if (!ms.length) return null;
