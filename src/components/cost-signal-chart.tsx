@@ -22,7 +22,7 @@ export function CostSignalChart({ s, metric, history }: { s: Signal; metric: Met
   return <WeeklyComparison weeks={[
     { label: "7 วันก่อนหน้า", value: prev.days >= 3 ? prev.avg : null, coverage: `มีราคา ${prev.days} วันจาก 7 วัน` },
     { label: "7 วันล่าสุด", value: cur.days >= 3 ? cur.avg : null, coverage: `มีราคา ${cur.days} วันจาก 7 วัน` },
-  ]} unit={metric.unit} decimals={metric.decimals} note="ราคาเฉลี่ยจากวันที่มีราคาจริงอย่างน้อย 3 วันต่อช่วง ไม่เติมวันที่ขาด">
+  ]} unit={metric.unit} decimals={metric.decimals} note={`ราคาเฉลี่ยจากวันที่มีราคาจริงอย่างน้อย 3 วันต่อช่วง ไม่เติมวันที่ขาด${end !== s.signal_date ? ` · เทียบถึงวันที่ของราคา ${end} (ได้รับ ${s.signal_date})` : ""}`}>
     <div className="mt-4 border-t border-editorial-rule pt-3">
       <p className="text-xs text-muted-foreground">ราคา 14 วันล่าสุด · ช่องว่างคือวันที่ไม่มีราคา</p>
       <svg viewBox="0 0 260 76" preserveAspectRatio="none" className="mt-2 h-24 w-full border-b border-editorial-rule text-chart-1" role="img" aria-label="ราคาย้อนหลัง 14 วัน เส้นขาดเมื่อไม่มีราคา">

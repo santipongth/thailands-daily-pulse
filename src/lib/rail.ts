@@ -30,7 +30,7 @@ export const bkkDate = (iso: string) => new Date(Date.parse(iso) + 7 * 3600e3).t
 export const bkkBlock = (iso: string) => Math.floor(new Date(Date.parse(iso) + 7 * 3600e3).getUTCHours() / 3);
 export const BLOCK_TH = ["00–03", "03–06", "06–09", "09–12", "12–15", "15–18", "18–21", "21–24"];
 
-export type RailStatus = "counted" | "context" | "late";
+export type RailStatus = "counted" | "context" | "late"; // 'late' remains for historical rows already labelled before this rule.
 /**
  * Arrival-window rule: a service alert counts for the Bangkok day it was posted, or — when it was posted shortly
  * before midnight and first seen after it — for the day it arrived. Older notices are still counted on arrival,
