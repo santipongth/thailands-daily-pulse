@@ -22,6 +22,24 @@ const blocks = (xml: string, tag: string) => xml.split(`<${tag}>`).slice(1).map(
 const field = (b: string, tag: string) => b.match(new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`))?.[1] ?? "";
 const prevDay = (d: string) => { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() - 1); return t.toISOString().slice(0, 10); };
 
+/** Fetch a JSON URL through Firecrawl (real browser, stealth proxy, Thai location). */
+async function firecrawlJson(url: string): Promise<any> {
+  const key = process.env["FIRECRAWL_API_KEY"];
+  if (!key) throw new Error("ยังไม่ได้เชื่อม Firecrawl");
+  const r = await fetch("https://api.firecrawl.dev/v2/scrape", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ url, formats: ["rawHtml"], onlyMainContent: false, location: { country: "TH" }, maxAge: 0, timeout: 120000 }),
+  });
+  const fc: any = await r.json().catch(() => null);
+  if (!r.ok || !fc?.success) throw new Error(`Firecrawl ตอบ ${r.status} ${fc?.error ?? ""}`.trim());
+  const st = fc.data?.metadata?.statusCode;
+  if (st && st !== 200) throw new Error(`${st} — ปลายทางบล็อก Firecrawl ด้วย`);
+  const raw: string = fc.data?.rawHtml ?? "";
+  const body = (raw.match(/<pre[^>]*>([\s\S]*)<\/pre>/)?.[1] ?? raw).replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(body);
+}
+
 export const CONNECTORS: Connector[] = [
   {
     source: "PTT (thai-oil-api)",
@@ -63,27 +81,18 @@ export const CONNECTORS: Connector[] = [
   {
     // Chao Phraya Dam release (station C.13 ท้ายเขื่อนเจ้าพระยา) only exists in ThaiWater's water-level list.
     source: "ThaiWater (สสน.)",
-    run: async () => {
+    run: async (_date, ctx) => {
       const URL_TW = "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/thailand_main";
+      // Order is set by app_settings.thaiwater_mode: 'firecrawl_first' or 'direct_first' (default).
+      const { data: ms } = ctx?.admin ? await ctx.admin.from("app_settings").select("value").eq("key", "thaiwater_mode").maybeSingle() : { data: null };
+      const order: Array<"direct" | "firecrawl"> = ms?.value === "firecrawl_first" ? ["firecrawl", "direct"] : ["direct", "firecrawl"];
+      const errs: string[] = [];
       let d: any;
-      try { d = await json(URL_TW); }
-      catch (e) {
-        // Fallback: Firecrawl (real browser, stealth proxy, TH location) — ThaiWater blocks the hosting address.
-        const key = process.env["FIRECRAWL_API_KEY"];
-        if (!key) throw e;
-        const r = await fetch("https://api.firecrawl.dev/v2/scrape", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ url: URL_TW, formats: ["rawHtml"], onlyMainContent: false, location: { country: "TH" }, proxy: "auto", maxAge: 0, timeout: 120000 }),
-        });
-        const fc: any = await r.json().catch(() => null);
-        if (!r.ok || !fc?.success) throw new Error(`${(e as Error).message} · Firecrawl [${r.status}] ${fc?.error ?? ""}`.slice(0, 280));
-        const raw: string = fc.data?.rawHtml ?? "";
-        const body = (raw.match(/<pre[^>]*>([\s\S]*)<\/pre>/)?.[1] ?? raw).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
-        const st = fc.data?.metadata?.statusCode;
-        if (st && st !== 200) throw new Error(`${(e as Error).message} · Firecrawl ก็ถูก ThaiWater จำกัดคำขอ (${st})`);
-        d = JSON.parse(body);
+      for (const way of order) {
+        try { d = way === "direct" ? await json(URL_TW) : await firecrawlJson(URL_TW); break; }
+        catch (e) { errs.push(`${way === "direct" ? "ตรง" : "Firecrawl"}: ${(e as Error).message}`); }
       }
+      if (!d) throw new Error(`ThaiWater ดึงไม่ได้ทั้ง 2 ทาง — ${errs.join(" · ")}`.slice(0, 290));
       const wl: any[] = d?.waterlevel?.data?.data ?? d?.waterlevel?.data ?? [];
       const c13 = wl.find((x) => String(x?.station?.tele_station_oldcode ?? "").trim() === "C.13");
       const q = pos(c13?.discharge);
