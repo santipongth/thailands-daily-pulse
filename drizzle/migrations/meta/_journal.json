@@ -232,6 +232,13 @@
       "when": 1791036162619,
       "tag": "0032_flood_air_rail_sources",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1791036198021,
+      "tag": "0033_source_config_hourly_range",
+      "breakpoints": true
     }
   ]
 }
