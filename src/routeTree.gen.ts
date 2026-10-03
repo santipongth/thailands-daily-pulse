@@ -17,6 +17,8 @@ import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as FailuresRouteImport } from './routes/failures'
 import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as KeyDataRouteImport } from './routes/key-data'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -32,6 +34,8 @@ import { Route as EventsIdRouteImport } from './routes/events.$id'
 import { Route as SignalsFamilyRouteImport } from './routes/signals.$family'
 import { Route as ApiPublicBriefRouteImport } from './routes/api/public/brief'
 import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
+import { Route as ApiPublicOpenapiDotjsonRouteImport } from './routes/api/public/openapi[.]json'
+import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -71,6 +75,16 @@ const ImpactRoute = ImpactRouteImport.update({
 const KeyDataRoute = KeyDataRouteImport.update({
   id: '/key-data',
   path: '/key-data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodRoute = MethodRouteImport.update({
@@ -148,6 +162,16 @@ const ApiPublicIngestRoute = ApiPublicIngestRouteImport.update({
   path: '/api/public/ingest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicOpenapiDotjsonRoute = ApiPublicOpenapiDotjsonRouteImport.update({
+  id: '/api/public/openapi.json',
+  path: '/api/public/openapi.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
+  id: '/api/public/v1/$',
+  path: '/api/public/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -158,6 +182,8 @@ export interface FileRoutesByFullPath {
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
   '/key-data': typeof KeyDataRoute
+  '/llms.txt': typeof LlmsDottxtRoute
+  '/mcp': typeof McpRoute
   '/method': typeof MethodRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -173,6 +199,8 @@ export interface FileRoutesByFullPath {
   '/events/': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
+  '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -183,6 +211,8 @@ export interface FileRoutesByTo {
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
   '/key-data': typeof KeyDataRoute
+  '/llms.txt': typeof LlmsDottxtRoute
+  '/mcp': typeof McpRoute
   '/method': typeof MethodRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -198,6 +228,8 @@ export interface FileRoutesByTo {
   '/events': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
+  '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -209,6 +241,8 @@ export interface FileRoutesById {
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
   '/key-data': typeof KeyDataRoute
+  '/llms.txt': typeof LlmsDottxtRoute
+  '/mcp': typeof McpRoute
   '/method': typeof MethodRoute
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -224,6 +258,8 @@ export interface FileRoutesById {
   '/events/': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
+  '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -236,6 +272,8 @@ export interface FileRouteTypes {
     | '/failures'
     | '/impact'
     | '/key-data'
+    | '/llms.txt'
+    | '/mcp'
     | '/method'
     | '/settings'
     | '/sitemap.xml'
@@ -251,6 +289,8 @@ export interface FileRouteTypes {
     | '/events/'
     | '/api/public/brief'
     | '/api/public/ingest'
+    | '/api/public/openapi.json'
+    | '/api/public/v1/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -261,6 +301,8 @@ export interface FileRouteTypes {
     | '/failures'
     | '/impact'
     | '/key-data'
+    | '/llms.txt'
+    | '/mcp'
     | '/method'
     | '/settings'
     | '/sitemap.xml'
@@ -276,6 +318,8 @@ export interface FileRouteTypes {
     | '/events'
     | '/api/public/brief'
     | '/api/public/ingest'
+    | '/api/public/openapi.json'
+    | '/api/public/v1/$'
   id:
     | '__root__'
     | '/'
@@ -286,6 +330,8 @@ export interface FileRouteTypes {
     | '/failures'
     | '/impact'
     | '/key-data'
+    | '/llms.txt'
+    | '/mcp'
     | '/method'
     | '/settings'
     | '/sitemap.xml'
@@ -301,6 +347,8 @@ export interface FileRouteTypes {
     | '/events/'
     | '/api/public/brief'
     | '/api/public/ingest'
+    | '/api/public/openapi.json'
+    | '/api/public/v1/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -312,6 +360,8 @@ export interface RootRouteChildren {
   FailuresRoute: typeof FailuresRoute
   ImpactRoute: typeof ImpactRoute
   KeyDataRoute: typeof KeyDataRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
+  McpRoute: typeof McpRoute
   MethodRoute: typeof MethodRoute
   SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -327,6 +377,8 @@ export interface RootRouteChildren {
   EventsIndexRoute: typeof EventsIndexRoute
   ApiPublicBriefRoute: typeof ApiPublicBriefRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
+  ApiPublicOpenapiDotjsonRoute: typeof ApiPublicOpenapiDotjsonRoute
+  ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -385,6 +437,20 @@ declare module '@tanstack/react-router' {
       path: '/key-data'
       fullPath: '/key-data'
       preLoaderRoute: typeof KeyDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/method': {
@@ -492,6 +558,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIngestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/openapi.json': {
+      id: '/api/public/openapi.json'
+      path: '/api/public/openapi.json'
+      fullPath: '/api/public/openapi.json'
+      preLoaderRoute: typeof ApiPublicOpenapiDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/$': {
+      id: '/api/public/v1/$'
+      path: '/api/public/v1/$'
+      fullPath: '/api/public/v1/$'
+      preLoaderRoute: typeof ApiPublicV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -504,6 +584,8 @@ const rootRouteChildren: RootRouteChildren = {
   FailuresRoute: FailuresRoute,
   ImpactRoute: ImpactRoute,
   KeyDataRoute: KeyDataRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
+  McpRoute: McpRoute,
   MethodRoute: MethodRoute,
   SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
@@ -519,6 +601,8 @@ const rootRouteChildren: RootRouteChildren = {
   EventsIndexRoute: EventsIndexRoute,
   ApiPublicBriefRoute: ApiPublicBriefRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
+  ApiPublicOpenapiDotjsonRoute: ApiPublicOpenapiDotjsonRoute,
+  ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
