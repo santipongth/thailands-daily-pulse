@@ -1,11 +1,11 @@
 import { BASKET } from "./impact";
 
-export const GROUP: Record<string, "fuel" | "food" | "gas"> = { gsh95: "fuel", diesel: "fuel", e20: "fuel", lpg: "gas" };
+export const GROUP: Record<string, "fuel" | "food" | "gas" | "power"> = { gsh95: "fuel", diesel: "fuel", e20: "fuel", lpg: "gas", elec_unit: "power" };
 export const groupOf = (m: string) => GROUP[m] ?? "food";
-export const GROUP_TH = { fuel: "น้ำมัน", food: "เนื้อสัตว์และอาหาร", gas: "ก๊าซ" } as const;
+export const GROUP_TH = { fuel: "น้ำมัน", food: "เนื้อสัตว์และอาหาร", gas: "ก๊าซ", power: "ค่าไฟฟ้า" } as const;
 
 type Obs = { metric_id: string; observed_on: string; value: number };
-export type TrendDay = { date: string; total: number; fuel: number; food: number; gas: number; complete: boolean };
+export type TrendDay = { date: string; total: number; fuel: number; food: number; gas: number; power: number; complete: boolean };
 export type TrendItem = { metric_id: string; label: string; start: number | null; end: number | null; deltaDay: number | null };
 
 const addDays = (d: string, n: number) => new Date(Date.parse(d + "T00:00:00Z") + n * 86400e3).toISOString().slice(0, 10);
@@ -22,7 +22,7 @@ export function costTrend(obs: Obs[], end: string, days: number) {
   const series: TrendDay[] = [];
   for (let i = 0; i < days; i++) {
     const d = addDays(start, i);
-    const row: TrendDay = { date: d, total: 0, fuel: 0, food: 0, gas: 0, complete: true };
+    const row: TrendDay = { date: d, total: 0, fuel: 0, food: 0, gas: 0, power: 0, complete: true };
     for (const b of BASKET) {
       const p = priceOn(b.metric_id, d);
       if (p == null) { row.complete = false; continue; }

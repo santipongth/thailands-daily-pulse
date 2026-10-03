@@ -82,6 +82,7 @@ export const BASKET: { metric_id: string; label: string; qty: number; unit: stri
   { metric_id: "morning_glory", label: "ผักบุ้ง", qty: 0.25, unit: "กก." },
   { metric_id: "palm_oil", label: "น้ำมันปาล์ม", qty: 0.05, unit: "ขวด" },
   { metric_id: "gsh95", label: "แก๊สโซฮอล์ 95", qty: 0.73, unit: "ลิตร" },
+  { metric_id: "elec_unit", label: "ค่าไฟฟ้า", qty: 6.5, unit: "หน่วย" },
 ];
 
 export type BasketLine = { metric_id: string; label: string; qty: number; unit: string; prev: number | null; cur: number; prevDate: string | null; curDate: string; costPrev: number | null; costCur: number; delta: number };
@@ -123,6 +124,7 @@ export const USAGE: Record<string, Usage> = {
   gsh95: { label: "แก๊สโซฮอล์ 95", qty: 0.73, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 0.73 ลิตร/วัน", official: true, source: "กรมธุรกิจพลังงาน — ใช้แก๊สโซฮอล์ 95 ทั้งประเทศ 19.69 ล้านลิตร/วัน (ปี 2568)", method: "19.69 ล้านลิตร ÷ 27 ล้านครัวเรือน", url: "https://www.pptvhd36.com/wealth/economic/268526" },
   e20: { label: "แก๊สโซฮอล์ E20", qty: 0.19, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 0.19 ลิตร/วัน", official: true, source: "กรมธุรกิจพลังงาน — ใช้ E20 ทั้งประเทศ 5.06 ล้านลิตร/วัน (ปี 2568)", method: "5.06 ล้านลิตร ÷ 27 ล้านครัวเรือน", url: "https://www.pptvhd36.com/wealth/economic/268526" },
   diesel: { label: "ดีเซล", qty: 2.41, unit: "ลิตร", priceUnit: "บาท/ลิตร", period: "daily", scenario: "เฉลี่ยต่อครัวเรือน 2.41 ลิตร/วัน (รวมรถขนส่งที่ส่งต่อมาในราคาสินค้า)", official: true, source: "กรมธุรกิจพลังงาน — ใช้ดีเซลหมุนเร็วทั้งประเทศ 65.03 ล้านลิตร/วัน (ปี 2568)", method: "65.03 ล้านลิตร ÷ 27 ล้านครัวเรือน", url: "https://www.pptvhd36.com/wealth/economic/268526" },
+  elec_unit: { label: "ค่าไฟฟ้า", qty: 6.5, unit: "หน่วย", priceUnit: "บาท/หน่วย", period: "daily", scenario: "บ้านใช้ไฟ 6.5 หน่วย/วัน (≈200 หน่วย/เดือน)", official: false, source: "ค่าที่ผู้ดูแลยืนยัน: บ้านทั่วไปใน กทม. ≈200 หน่วย/เดือน", method: "ราคา/หน่วย = (อัตราบ้านอยู่อาศัย 1.1.2 + Ft + ค่าบริการ 24.62) × VAT 7% ÷ 200 หน่วย", url: "https://www.pea.co.th/our-services/tariff/ft" },
   gold_bar: { label: "ทองคำแท่ง", qty: 1, unit: "บาททอง", priceUnit: "บาท/บาททอง", period: "once", scenario: "ตัวอย่าง: ซื้อ 1 บาททอง 1 ครั้ง", official: false, source: "ไม่มีตัวเลขรัฐต่อครัวเรือน — ตัวอย่างการซื้อ", method: "1 ครั้ง" },
   gold_orn: { label: "ทองรูปพรรณ", qty: 1, unit: "บาททอง", priceUnit: "บาท/บาททอง", period: "once", scenario: "ตัวอย่าง: ซื้อ 1 บาททอง 1 ครั้ง", official: false, source: "ไม่มีตัวเลขรัฐต่อครัวเรือน — ตัวอย่างการซื้อ", method: "1 ครั้ง" },
   usdthb: { label: "เงินดอลลาร์", qty: 1000, unit: "ดอลลาร์", priceUnit: "บาท/ดอลลาร์", period: "once", scenario: "ตัวอย่าง: แลก 1,000 ดอลลาร์", official: false, source: "ไม่มีตัวเลขรัฐต่อครัวเรือน — ตัวอย่างการแลกเงิน", method: "1 ทริป" },

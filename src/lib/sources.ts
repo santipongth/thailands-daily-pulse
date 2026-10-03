@@ -26,7 +26,8 @@ export const SOURCES: SourceInfo[] = [
   { source: "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["tmax_bkk", "rain_bkk"] },
   { source: "GISTDA PM2.5 (กรุงเทพฯ)", agency: "GISTDA", kind: "api", metrics: ["pm25_bkk"] },
   { source: "Air4Thai PM2.5 (กรมควบคุมมลพิษ)", agency: "กรมควบคุมมลพิษ", kind: "api", metrics: ["pm25_bkk_a4t", "pm25_bkk_a4t_max"] },
-  { source: "รถไฟฟ้า BTS/MRT (X)", agency: "BTS / BEM", kind: "crawler", metrics: [] },
+  { source: "รถไฟฟ้า BTS/MRT (X)", agency: "BTS / BEM", kind: "crawler", metrics: ["rail_bts", "rail_mrt"] },
+  { source: "การไฟฟ้า (ค่า Ft / อัตราค่าไฟ)", agency: "การไฟฟ้าส่วนภูมิภาค", kind: "crawler", metrics: ["elec_ft", "elec_unit"] },
   { source: "ExchangeRate (อัตราแลกเปลี่ยน)", agency: "open.er-api.com", kind: "api", metrics: ["usdthb", "eurthb", "jpythb"] },
 ];
 
@@ -41,6 +42,7 @@ export const AGENCIES: Agency[] = [
   { key: "gistda", label: "GISTDA (PM2.5 กรุงเทพฯ)", category: "government", sources: ["GISTDA PM2.5 (กรุงเทพฯ)"] },
   { key: "pcd", label: "กรมควบคุมมลพิษ (Air4Thai)", category: "government", sources: ["Air4Thai PM2.5 (กรมควบคุมมลพิษ)"] },
   { key: "rail", label: "รถไฟฟ้า BTS / MRT", category: "other", sources: ["รถไฟฟ้า BTS/MRT (X)"] },
+  { key: "elec", label: "การไฟฟ้า (ค่า Ft)", category: "government", sources: ["การไฟฟ้า (ค่า Ft / อัตราค่าไฟ)"] },
   { key: "dit", label: "กรมการค้าภายใน", category: "government", sources: ["กรมการค้าภายใน (ราคาขายปลีก กทม.)"] },
   { key: "rd", label: "กรมสรรพากร", category: "government", sources: ["กรมสรรพากร (ปฏิทินภาษี)"] },
   { key: "glo", label: "สำนักงานสลากกินแบ่งรัฐบาล", category: "government", sources: ["สำนักงานสลากกินแบ่งรัฐบาล (GLO)"] },
