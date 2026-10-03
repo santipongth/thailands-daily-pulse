@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { Metric, Obs, Signal } from "@/lib/signals";
 import { fmt } from "@/lib/signals";
 import { periodStats, shiftDays } from "@/lib/cost-trend";
@@ -14,6 +13,8 @@ export function CostSignalChart({ s, metric, history }: { s: Signal; metric: Met
   const cur = periodStats(rows, shiftDays(end, -6), end), prev = periodStats(rows, shiftDays(end, -13), shiftDays(end, -7));
   const line: { d: string; v: number | null }[] = [];
   for (let d = shiftDays(end, -13); d <= end; d = shiftDays(d, 1)) line.push({ d: d.slice(5), v: rows.find((r) => r.observed_on === d)?.value ?? null });
+  const present = line.flatMap((r) => r.v == null ? [] : [r.v]);
+  const min = Math.min(...present), span = Math.max(...present) - min || 1;
   const basketId = DIT_ITEMS.find((x) => x.metric === s.metric_id)?.basket ?? s.metric_id;
   // DIT units can differ from the basket (e.g. rice per 15 kg): only per-kg DIT prices map onto basket quantities.
   const qty = s.metric_id.startsWith("dit_") && metric.unit !== "บาท/กก." ? undefined : BASKET.find((b) => b.metric_id === basketId)?.qty;
@@ -24,7 +25,10 @@ export function CostSignalChart({ s, metric, history }: { s: Signal; metric: Met
   ]} unit={metric.unit} decimals={metric.decimals} note="ราคาเฉลี่ยจากวันที่มีราคาจริงอย่างน้อย 3 วันต่อช่วง ไม่เติมวันที่ขาด">
     <div className="mt-4 border-t border-editorial-rule pt-3">
       <p className="text-xs text-muted-foreground">ราคา 14 วันล่าสุด · ช่องว่างคือวันที่ไม่มีราคา</p>
-      <div className="mt-2 h-24"><ResponsiveContainer><LineChart data={line}><XAxis dataKey="d" fontSize={10} interval={3} /><YAxis hide domain={["auto", "auto"]} /><Tooltip /><Line dataKey="v" name="ราคา" stroke="var(--chart-1)" dot={{ r: 1.5 }} connectNulls={false} /></LineChart></ResponsiveContainer></div>
+      <svg viewBox="0 0 260 76" preserveAspectRatio="none" className="mt-2 h-24 w-full border-b border-editorial-rule text-chart-1" role="img" aria-label="ราคาย้อนหลัง 14 วัน เส้นขาดเมื่อไม่มีราคา">
+        {line.slice(1).map((r, i) => r.v != null && line[i].v != null ? <line key={i} x1={i * 20 + 1} x2={(i + 1) * 20 + 1} y1={68 - ((line[i].v ?? min) - min) / span * 58} y2={68 - (r.v - min) / span * 58} stroke="currentColor" strokeWidth="1.5" /> : null)}
+        {line.map((r, i) => r.v == null ? null : <circle key={i} cx={i * 20 + 1} cy={68 - (r.v - min) / span * 58} r="2" fill="currentColor" />)}
+      </svg>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
         {cur.min != null && cur.max != null && `ช่วงต่ำ–สูง ${fmt(cur.min, metric.decimals)}–${fmt(cur.max, metric.decimals)} ${metric.unit}`}
         {impact != null && ` · ผลต่อครัวเรือน ${impact > 0 ? "+" : ""}${impact.toFixed(2)} ฿/วัน`}

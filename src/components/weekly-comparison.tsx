@@ -1,4 +1,3 @@
-import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { fmt } from "@/lib/signals";
 
 export type WeekSummary = { label: string; value: number | null; coverage: string };
@@ -13,15 +12,10 @@ export function WeeklyComparison({ weeks, unit, decimals, note, children }: {
       <h4 className="font-semibold text-foreground">เปรียบเทียบรายสัปดาห์</h4>
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{note} · เป็นข้อมูลประกอบ ไม่ใช่เกณฑ์ตัดสินสัญญาณทุกหมวด</p>
       {comparable ? (
-        <div className="mt-3 h-36 w-full" role="img" aria-label={`${weeks[0].label} ${fmt(weeks[0].value ?? 0, decimals)} ${unit} เทียบ ${weeks[1].label} ${fmt(weeks[1].value ?? 0, decimals)} ${unit}`}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weeks.map((w) => ({ name: w.label, value: w.value }))} margin={{ top: 5, right: 8, bottom: 3, left: 8 }}>
-              <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis hide domain={[0, "auto"]} />
-              <Tooltip formatter={(value: number) => `${fmt(value, decimals)} ${unit}`} />
-              <Bar dataKey="value" name={note} fill="var(--chart-1)" maxBarSize={82} radius={[2, 2, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="mt-4 flex h-28 items-end justify-center gap-8 border-b border-editorial-rule" role="img" aria-label={`${weeks[0].label} ${fmt(weeks[0].value ?? 0, decimals)} ${unit} เทียบ ${weeks[1].label} ${fmt(weeks[1].value ?? 0, decimals)} ${unit}`}>
+          {weeks.map((w, i) => <div key={w.label} className="flex h-full w-20 items-end justify-center">
+            <div className={i === 0 ? "w-14 bg-muted-foreground/50" : "w-14 bg-chart-1"} style={{ height: `${Math.max(3, Math.abs(w.value ?? 0) / Math.max(...weeks.map((x) => Math.abs(x.value ?? 0)), 1) * 100)}%` }} />
+          </div>)}
         </div>
       ) : <p className="mt-3 border-l-2 border-editorial-rule pl-3 text-sm text-muted-foreground">ข้อมูลไม่พอสำหรับเทียบ</p>}
       <div className="mt-3 grid grid-cols-2 gap-4 border-t border-editorial-rule pt-3">
