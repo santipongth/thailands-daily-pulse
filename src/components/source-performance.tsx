@@ -23,6 +23,7 @@ export function SourcePerformance() {
       <p className="mt-1 text-sm text-muted-foreground">อัตราสำเร็จ สาเหตุที่ล้มเหลว และช่วงเวลา (เวลาไทย) ที่ดึงได้/ล้มเหลว คำแนะนำคิดจากกฎตายตัว จะไม่เปลี่ยนค่าจนกว่าคุณกด "ใช้ค่านี้"</p>
       {isLoading && <p className="mt-3 text-sm text-muted-foreground">กำลังวิเคราะห์…</p>}
       {error && <p className="mt-3 text-sm text-destructive">โหลดไม่สำเร็จ (ต้องเข้าสู่ระบบผู้ดูแล)</p>}
+      {data && <FloodCard ps={data.filter((p) => /^(ThaiWater|กทม\.|ปภ\.)/.test(p.source))} />}
       <ul className="mt-4 divide-y divide-editorial-rule border-y-2 border-editorial-ink">
         {(data ?? []).map((p) => <PerfRow key={p.source} p={p} />)}
       </ul>
