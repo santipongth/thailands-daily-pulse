@@ -10,7 +10,8 @@ export const SOURCES: SourceInfo[] = [
   { source: "RakaKaset (ราคาเกษตร)", agency: "RakaKaset", kind: "crawler", metrics: ["palm", "rubber", "latex", "rice_farm", "cassava", "corn", "hog_farm"] },
   { source: "Longdo Traffic Index", agency: "Longdo Traffic", kind: "api", metrics: ["traffic_idx"] },
   { source: "สมาคมค้าทองคำ", agency: "สมาคมค้าทองคำ", kind: "api", metrics: ["gold_bar", "gold_orn"] },
-  { source: "ThaiWater (สสน.)", agency: "สสน. / กรมชลประทาน", kind: "api", metrics: ["dam_total", "dam_bhumibol"] },
+  { source: "ThaiWater (สสน.)", agency: "สสน.", kind: "api", metrics: ["cp_dam_q"] },
+  { source: "RID อ่างเก็บน้ำ (กรมชลประทาน)", agency: "กรมชลประทาน", kind: "api", metrics: ["dam_pasak_pct", "dam_pasak_out", "dam_khundan_pct"] },
   { source: "กรมอุตุฯ เตือนภัย", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["tmd_warn"] },
   { source: "กรมอุตุฯ แผ่นดินไหว", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["quake_th"] },
   { source: "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["fc_tmax_bkk", "fc_tmin_bkk"] },
@@ -29,8 +30,8 @@ export type Agency = { key: string; label: string; sources: string[]; newsAgency
 
 /** Agencies shown on /agencies, each grouping its sources (by source name). */
 export const AGENCIES: Agency[] = [
-  { key: "tmd", label: "กรมอุตุนิยมวิทยา", sources: ["กรมอุตุฯ เตือนภัย", "กรมอุตุฯ แผ่นดินไหว", "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล"], newsAgency: "กรมอุตุนิยมวิทยา" },
-  { key: "water", label: "สสน. / กรมชลประทาน", sources: ["ThaiWater (สสน.)"], newsAgency: "กรมชลประทาน / สทนช." },
+  { key: "tmd", label: "กรมอุตุนิยมวิทยา", sources: ["กรมอุตุฯ เตือนภัย", "กรมอุตุฯ แผ่นดินไหว", "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล", "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)"], newsAgency: "กรมอุตุนิยมวิทยา" },
+  { key: "water", label: "สสน. / กรมชลประทาน", sources: ["ThaiWater (สสน.)", "RID อ่างเก็บน้ำ (กรมชลประทาน)"], newsAgency: "กรมชลประทาน / สทนช." },
   { key: "gold", label: "สมาคมค้าทองคำ", sources: ["สมาคมค้าทองคำ"] },
   { key: "rd", label: "กรมสรรพากร", sources: ["กรมสรรพากร (ปฏิทินภาษี)"] },
   { key: "glo", label: "สำนักงานสลากกินแบ่งรัฐบาล", sources: ["สำนักงานสลากกินแบ่งรัฐบาล (GLO)"] },
