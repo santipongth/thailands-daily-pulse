@@ -3,7 +3,7 @@
 import { politeFetch } from "./http.server";
 
 type Values = Record<string, number>;
-export type ConnectorOut = Values | { values: Values; dates: Record<string, string> };
+export type ConnectorOut = Values | { values: Values; dates: Record<string, string>; note?: string; sample?: string };
 export type Connector = { source: string; run: (date: string, ctx?: { admin?: any }) => Promise<ConnectorOut> };
 
 export const normalizeOut = (o: ConnectorOut): { values: Values; dates?: Record<string, string>; note?: string; sample?: string } =>

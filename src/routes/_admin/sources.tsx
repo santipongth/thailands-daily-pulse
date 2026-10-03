@@ -55,6 +55,7 @@ function Sources() {
                     <td>
                       {c && <span className={c.status === "ok" ? "font-semibold text-primary" : "font-semibold text-destructive"}>{STATUS_TH[c.status]}</span>}
                       {c && <div className="text-xs text-muted-foreground">ข้อมูลวันที่ {c.data_date ?? "—"} · ได้รับ {dt(c.last_ok_at)}<br />{c.reason}</div>}
+                      {data.samples[r.source] && <div className="text-xs font-semibold">{data.samples[r.source]}</div>}
                     </td>
                   </tr>
                 );
