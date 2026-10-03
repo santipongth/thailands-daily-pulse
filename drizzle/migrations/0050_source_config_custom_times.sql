@@ -1,0 +1,1 @@
+ALTER TABLE public.source_config ADD COLUMN IF NOT EXISTS custom_times text[] NOT NULL DEFAULT '{}';
