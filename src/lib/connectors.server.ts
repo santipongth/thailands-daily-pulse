@@ -69,7 +69,7 @@ export const CONNECTORS: Connector[] = [
       try { d = await json(URL_TW); }
       catch (e) {
         // Fallback: Firecrawl (real browser, stealth proxy, TH location) — ThaiWater blocks the hosting address.
-        const key = process.env.FIRECRAWL_API_KEY;
+        const key = process.env["FIRECRAWL_API_KEY"];
         if (!key) throw e;
         const r = await fetch("https://api.firecrawl.dev/v2/scrape", {
           method: "POST",
