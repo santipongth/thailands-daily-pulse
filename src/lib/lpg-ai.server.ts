@@ -1,19 +1,20 @@
 // Server-only: EPPO renders LPG prices client-side, so the page is opened via Firecrawl and an AI
 // reads the PTT 15 kg cooking gas price + effective date; parseLpgAiResult verifies the quotes.
+import { aiUrl } from "./ai-endpoint";
 import { firecrawlMarkdown } from "./http.server";
 import { EPPO_LPG_PAGE, parseLpgAiResult, type LpgAi } from "./daily-prices";
 
 const MODEL = "openai/gpt-6-astra";
 
 async function askAi(page: string): Promise<LpgAi> {
-  const key = process.env["LOVABLE_API_KEY"];
+  const key = (process.env["AI_API_KEY"] || process.env["LOVABLE_API_KEY"]);
   if (!key) throw new Error("LOVABLE_API_KEY ไม่ได้ตั้งค่า");
   const prompt = `อ่านตารางราคาขายปลีก LPG จากหน้าเว็บ สนพ. ด้านล่าง หาราคา "ก๊าซหุงต้ม ถัง 15 กก." ของ PTT (คอลัมน์ PTT) และ "วันที่มีผลบังคับใช้ / Effective Date" ของคอลัมน์ PTT และวันที่ในหัวข้อ "ราคาขายปลีก LPG ณ วันที่ ..."
 ตอบ JSON อย่างเดียว: {"price_15kg": number, "effective_date": "YYYY-MM-DD" | null, "as_of_date": "YYYY-MM-DD" | null, "price_quote": "คัดลอกข้อความแถว 15 กก. ตรงตัวจากหน้า เช่น '- 15 กก. (kg.) | 423'", "date_quote": "คัดลอกวันที่มีผลของ PTT ตรงตัว เช่น '1 Mar 2023'"}
 ห้ามเดา ถ้าไม่พบให้ใส่ null
 หน้าเว็บ:
 ${page}`;
-  const r = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+  const r = await fetch(aiUrl("/responses"), {
     method: "POST",
     headers: { "Content-Type": "application/json", "Lovable-API-Key": key, Authorization: `Bearer ${key}`, "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({ model: MODEL, input: prompt, stream: true, store: false, reasoning: { effort: "low" } }),

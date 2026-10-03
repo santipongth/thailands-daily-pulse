@@ -1,6 +1,7 @@
 // Server-only: FM91 Trafficpro posts from X (Facebook is refused by Firecrawl),
 // fetched every 30 min, then classified by AI for Bangkok + vicinity relevance.
 // Social posts never create or boost signals.
+import { aiUrl } from "./ai-endpoint";
 import { withEvidence } from "./evidence.server";
 
 export const FM91_SOURCE = "FM91 Trafficpro (X)";
@@ -63,13 +64,13 @@ type Verdict = { id: string; is_bkk: boolean; area: string; summary: string; rea
 
 /** One streamed Responses call for a batch of posts; returns verdicts. Throws with status on failure. */
 async function classify(posts: RawPost[]): Promise<Verdict[]> {
-  const key = process.env["LOVABLE_API_KEY"];
+  const key = (process.env["AI_API_KEY"] || process.env["LOVABLE_API_KEY"]);
   if (!key) throw new Error("LOVABLE_API_KEY ไม่ได้ตั้งค่า");
   const prompt = `คุณคัดกรองโพสต์ของสถานีวิทยุจราจร FM91 ตัดสินว่าแต่ละโพสต์เกี่ยวข้องกับ "กรุงเทพมหานครและปริมณฑล" (กรุงเทพฯ นนทบุรี ปทุมธานี สมุทรปราการ นครปฐม สมุทรสาคร) โดยตรงหรือไม่ เช่น จราจร ถนน อุบัติเหตุ น้ำท่วม การปิดถนน ในพื้นที่นี้ ข่าวกีฬา ข่าวทั่วประเทศ หรือจังหวัดอื่น = false
 ตอบเป็น JSON อย่างเดียว: {"items":[{"id":"...","is_bkk":true|false,"area":"ชื่อถนน/เขต/จังหวัด หรือ ''","summary":"สรุปภาษาไทยไม่เกิน 1 ประโยค ห้ามใส่ตัวเลขที่ไม่มีในโพสต์","reason":"เหตุผลสั้น ๆ"}]}
 โพสต์:
 ${posts.map((p) => `id=${p.post_id}\n${p.text}`).join("\n---\n")}`;
-  const r = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+  const r = await fetch(aiUrl("/responses"), {
     method: "POST",
     headers: { "Content-Type": "application/json", "Lovable-API-Key": key, Authorization: `Bearer ${key}`, "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({ model: MODEL, input: prompt, stream: true, store: false, reasoning: { effort: "low" } }),

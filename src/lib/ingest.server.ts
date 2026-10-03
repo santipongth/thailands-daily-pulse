@@ -1,3 +1,4 @@
+import { aiUrl } from "./ai-endpoint";
 // Server-only: pulls live sources, writes observations, runs the signal detector,
 // and refreshes the AI daily brief when the day's signal set changes.
 
@@ -9,7 +10,7 @@ const STALE_MS = 3 * 3600e3;
 const LOCK = "ingest";
 
 async function streamBrief(prompt: string, apiKey: string): Promise<string> {
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+  const res = await fetch(aiUrl("/responses"), {
     method: "POST",
     headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
@@ -146,7 +147,7 @@ export async function refreshBrief(admin: any, date: string, publish = false, st
   const missing = completeness.filter((c) => c.status !== "ok");
   let body = items.length ? items.slice(0, 4).map((i: any) => i.what).join(" · ") : "วันนี้ยังไม่มีการเปลี่ยนแปลงอย่างมีนัยสำคัญจากข้อมูลจริง";
   if (!items.length && missing.length) body += ` — มี ${missing.length} แหล่งที่ข้อมูลเก่าหรือตรวจสอบไม่ได้ จึงยังสรุปไม่ได้ว่าไม่เปลี่ยน`;
-  const apiKey = process.env["LOVABLE_API_KEY"];
+  const apiKey = (process.env["AI_API_KEY"] || process.env["LOVABLE_API_KEY"]);
   if (apiKey && items.length) {
     const facts = items.map((i: any) => `- [${i.importance}] ${i.what}${i.impact ? ` | ผลต่อครัวเรือน: ${i.impact}` : ""}`).join("\n");
     const prompt = `คุณเป็นบรรณาธิการ "Thailand Daily Signals" เขียนบทนำ Daily Brief เช้านี้

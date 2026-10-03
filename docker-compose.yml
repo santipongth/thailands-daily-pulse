@@ -1,0 +1,18 @@
+# App container. For the database use Supabase Cloud, or run self-hosted Supabase
+# (https://supabase.com/docs/guides/self-hosting/docker) and point the URLs below at it.
+#   cp .env.example .env   # fill in values
+#   docker compose up -d --build
+services:
+  app:
+    build:
+      context: .
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
+        VITE_SUPABASE_PROJECT_ID: ${VITE_SUPABASE_PROJECT_ID}
+        VITE_SITE_URL: ${VITE_SITE_URL}
+        VITE_ADMIN_EMAIL: ${VITE_ADMIN_EMAIL}
+    ports: ["8787:8787"]
+    volumes:
+      - ./.env:/app/.dev.vars:ro   # server secrets (SUPABASE_SERVICE_ROLE_KEY, LOVABLE_CRON_SECRET, …)
+    restart: unless-stopped

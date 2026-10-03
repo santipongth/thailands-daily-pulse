@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { getRouterInstance } from "@tanstack/react-start";
 import { sitemapStaticPaths, sitemapXML, type SitemapEntry } from "@/lib/sitemap";
 
-const BASE_URL = "https://thailands-daily-pulse.lovable.app";
+import { SITE } from "@/lib/openapi";
+const BASE_URL = SITE;
 
 export const Route = createFileRoute("/sitemap.xml")({
   staticData: { sitemap: false },

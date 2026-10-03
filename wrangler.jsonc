@@ -1,0 +1,12 @@
+// Self-hosting / Cloudflare deploy config. Build first (`bun run build`), then:
+//   npx wrangler dev   (local workerd, also used by the Docker image)
+//   npx wrangler deploy (Cloudflare Workers)
+// Secrets: `npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY` etc. (see .env.example)
+{
+  "name": "thailand-daily-signals",
+  "main": "dist/server/index.mjs",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "directory": "dist/client", "binding": "ASSETS" },
+  "observability": { "enabled": true }
+}

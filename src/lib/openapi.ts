@@ -1,6 +1,6 @@
 // Single source of truth for Public API v1: used by the handler, OpenAPI JSON and /developers pages.
 // Browser-safe (no server imports).
-export const SITE = "https://thailands-daily-pulse.lovable.app";
+export const SITE: string = (import.meta.env?.["VITE_SITE_URL"] as string | undefined)?.replace(/\/+$/, "") || "https://thailands-daily-pulse.lovable.app";
 export const API_BASE = `${SITE}/api/public/v1`;
 export const DOCS_UPDATED = "2026-10-04";
 
