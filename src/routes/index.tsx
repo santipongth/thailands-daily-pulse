@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect } from "react";
 import { z } from "zod";
 import { Masthead } from "@/components/masthead";
-import { DataBadge, SignalCard, Sparkline } from "@/components/signals-ui";
+import { SignalCard, Sparkline } from "@/components/signals-ui";
 import { bkkToday, dayQuery, fmt, shiftDate, thaiDate } from "@/lib/signals";
 import { refreshData } from "@/lib/signals.functions";
 import { SENS_SEVERITIES } from "@/lib/signals";
@@ -105,9 +105,6 @@ function Today() {
               </div>
             )}
             {date === today && <div className="mt-6"><BkkForecast /></div>}
-            {date === today && <div className="mt-6"><LatestLottery /></div>}
-            {date === today && <div className="mt-6"><SocialFeed limit={6} /></div>}
-            <div className="mt-6"><HouseholdBasket date={date} /></div>
             <Link to="/day/$date" params={{ date }} className="mt-3 inline-block text-sm underline">อันดับสัญญาณวันนี้ เทียบเมื่อวาน →</Link>
           </div>
           <aside className="border-l border-foreground/30 pl-6 max-md:border-l-0 max-md:border-t max-md:pl-0 max-md:pt-6">
@@ -162,6 +159,9 @@ function Today() {
           )}
         </section>
 
+        <div className="mt-8"><HouseholdBasket date={date} /></div>
+        {date === today && <div className="mt-12"><SocialFeed limit={6} /></div>}
+
         {agencyNews.length > 0 && (
           <section className="mt-14 border-t border-foreground pt-4">
             <h2 className="font-display text-lg">ความเคลื่อนไหวจากหน่วยงานราชการ <span className="text-sm font-normal text-muted-foreground">— จาก RSS หนังสือพิมพ์</span></h2>
@@ -176,6 +176,8 @@ function Today() {
             </ul>
           </section>
         )}
+
+        {date === today && <div className="mt-12"><LatestLottery /></div>}
 
         <section className="mt-14 border-t border-foreground pt-4">
           <h2 className="font-display text-lg">เงียบวันนี้ <span className="text-sm font-normal text-muted-foreground">— ไม่มีอะไรเปลี่ยนอย่างมีนัยสำคัญ</span></h2>
@@ -196,10 +198,6 @@ function Today() {
                 </Link>
               );
             })}
-          </div>
-          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <DataBadge demo={false} /> ดึงจากแหล่งจริงอัตโนมัติ
-            <DataBadge demo /> ใช้ข้อมูลตัวอย่างระหว่างเชื่อมต่อแหล่งข้อมูลราชการ
           </div>
         </section>
       </main>
