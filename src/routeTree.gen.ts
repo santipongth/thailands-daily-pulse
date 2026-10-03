@@ -27,6 +27,7 @@ import { Route as AdminDataRouteImport } from './routes/_admin/data'
 import { Route as AdminEvidenceRouteImport } from './routes/_admin/evidence'
 import { Route as AdminImpactRouteImport } from './routes/_admin/impact'
 import { Route as AdminMethodRouteImport } from './routes/_admin/method'
+import { Route as AdminRawLogRouteImport } from './routes/_admin/raw-log'
 import { Route as AdminSettingsRouteImport } from './routes/_admin/settings'
 import { Route as AdminSourcesRouteImport } from './routes/_admin/sources'
 import { Route as AdminTrackingRouteImport } from './routes/_admin/tracking'
@@ -135,6 +136,11 @@ const AdminImpactRoute = AdminImpactRouteImport.update({
 const AdminMethodRoute = AdminMethodRouteImport.update({
   id: '/method',
   path: '/method',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminRawLogRoute = AdminRawLogRouteImport.update({
+  id: '/raw-log',
+  path: '/raw-log',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
@@ -256,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/evidence': typeof AdminEvidenceRoute
   '/impact': typeof AdminImpactRoute
   '/method': typeof AdminMethodRoute
+  '/raw-log': typeof AdminRawLogRoute
   '/settings': typeof AdminSettingsRoute
   '/sources': typeof AdminSourcesRoute
   '/tracking': typeof AdminTrackingRoute
@@ -294,6 +301,7 @@ export interface FileRoutesByTo {
   '/evidence': typeof AdminEvidenceRoute
   '/impact': typeof AdminImpactRoute
   '/method': typeof AdminMethodRoute
+  '/raw-log': typeof AdminRawLogRoute
   '/settings': typeof AdminSettingsRoute
   '/sources': typeof AdminSourcesRoute
   '/tracking': typeof AdminTrackingRoute
@@ -335,6 +343,7 @@ export interface FileRoutesById {
   '/_admin/evidence': typeof AdminEvidenceRoute
   '/_admin/impact': typeof AdminImpactRoute
   '/_admin/method': typeof AdminMethodRoute
+  '/_admin/raw-log': typeof AdminRawLogRoute
   '/_admin/settings': typeof AdminSettingsRoute
   '/_admin/sources': typeof AdminSourcesRoute
   '/_admin/tracking': typeof AdminTrackingRoute
@@ -376,6 +385,7 @@ export interface FileRouteTypes {
     | '/evidence'
     | '/impact'
     | '/method'
+    | '/raw-log'
     | '/settings'
     | '/sources'
     | '/tracking'
@@ -414,6 +424,7 @@ export interface FileRouteTypes {
     | '/evidence'
     | '/impact'
     | '/method'
+    | '/raw-log'
     | '/settings'
     | '/sources'
     | '/tracking'
@@ -454,6 +465,7 @@ export interface FileRouteTypes {
     | '/_admin/evidence'
     | '/_admin/impact'
     | '/_admin/method'
+    | '/_admin/raw-log'
     | '/_admin/settings'
     | '/_admin/sources'
     | '/_admin/tracking'
@@ -629,6 +641,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMethodRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/_admin/raw-log': {
+      id: '/_admin/raw-log'
+      path: '/raw-log'
+      fullPath: '/raw-log'
+      preLoaderRoute: typeof AdminRawLogRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/_admin/settings': {
       id: '/_admin/settings'
       path: '/settings'
@@ -779,6 +798,7 @@ interface AdminRouteRouteChildren {
   AdminEvidenceRoute: typeof AdminEvidenceRoute
   AdminImpactRoute: typeof AdminImpactRoute
   AdminMethodRoute: typeof AdminMethodRoute
+  AdminRawLogRoute: typeof AdminRawLogRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSourcesRoute: typeof AdminSourcesRoute
   AdminTrackingRoute: typeof AdminTrackingRoute
@@ -795,6 +815,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminEvidenceRoute: AdminEvidenceRoute,
   AdminImpactRoute: AdminImpactRoute,
   AdminMethodRoute: AdminMethodRoute,
+  AdminRawLogRoute: AdminRawLogRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminSourcesRoute: AdminSourcesRoute,
   AdminTrackingRoute: AdminTrackingRoute,

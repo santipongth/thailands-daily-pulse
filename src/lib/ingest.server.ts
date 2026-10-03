@@ -223,7 +223,9 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
   // Longdo has its own hourly cadence, independent of the broader 3-hour observation gate.
   const { data: lastLongdo } = await admin.from("source_runs").select("ran_at").eq("source", "Longdo Traffic Index").maybeSingle();
   const longdoDue = !lastLongdo?.ran_at || !Number.isFinite(new Date(lastLongdo.ran_at).getTime()) || Math.floor(new Date(lastLongdo.ran_at).getTime() / 3600e3) < Math.floor(Date.now() / 3600e3);
-  if (!liveStale && !newsStale && !longdoDue) {
+  const { applySourceConfig } = await import("./source-config.server");
+  const cfgDue = (await applySourceConfig(admin, [], opts.runKind)).length > 0;
+  if (!liveStale && !newsStale && !longdoDue && !cfgDue) {
     const { count: due } = await admin.from("ingest_jobs").select("id", { count: "exact", head: true }).eq("status", "queued").lte("run_after", new Date().toISOString());
     const { data: b } = await admin.from("daily_briefs").select("brief_date").eq("brief_date", date).maybeSingle();
     if (b && !due) return { refreshed: false };
@@ -257,7 +259,8 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
     }
     if (!liveStale && longdoDue) specs.push({ job_type: "connector", source: "Longdo Traffic Index" });
     if (newsStale) specs.push({ job_type: "news", source: "ข่าว RSS" });
-    if (specs.length) await enqueue(admin, specs, opts.runKind ?? "hourly");
+    const finalSpecs = await applySourceConfig(admin, specs, opts.runKind);
+    if (finalSpecs.length) await enqueue(admin, finalSpecs, opts.runKind ?? "hourly");
     const processed = await drain(admin, date);
     await admin.from("source_run_history").delete().lt("ran_at", new Date(Date.now() - 30 * 86400e3).toISOString());
     if (processed) {
@@ -281,10 +284,14 @@ export async function refreshDams(): Promise<{ processed: number }> {
   const { data: l } = await admin.from("job_locks").select("locked_until").eq("name", "dams_run").maybeSingle();
   if (l && new Date(l.locked_until) > new Date()) return { processed: 0 };
   await admin.from("job_locks").upsert({ name: "dams_run", locked_until: new Date(Date.now() + 10 * 60e3).toISOString() });
-  await enqueue(admin, [
+  const { loadConfigs } = await import("./source-config.server");
+  const cfg = await loadConfigs(admin);
+  const damSpecs = [
     { job_type: "connector", source: "ThaiWater (สสน.)" },
     { job_type: "connector", source: "RID อ่างเก็บน้ำ (กรมชลประทาน)" },
-  ], "dams");
+  ].filter((s) => cfg.get(s.source)?.enabled !== false && cfg.get(s.source)?.schedule !== "manual");
+  if (!damSpecs.length) return { processed: 0 };
+  await enqueue(admin, damSpecs, "dams");
   const processed = await drain(admin, date, 150e3, 4);
   if (processed) {
     await admin.rpc("detect_signals", { _d: date });

@@ -14,8 +14,8 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     if (!c) throw new Error(`unknown connector ${source}`);
     const ran_at = new Date().toISOString();
     try {
-      const { values, dates, note } = normalizeOut(await c.run(date, { admin }));
-      return { values, dates, runs: [{ source, ok: true, rows: Object.keys(values).length, error: note ?? null, ran_at, kind: "api" }] };
+      const { values, dates, note, sample } = normalizeOut(await c.run(date, { admin }));
+      return { values, dates, runs: [{ source, ok: true, rows: Object.keys(values).length, error: note ?? null, ran_at, kind: "api", sample: sample ?? null }] };
     } catch (e) {
       return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: "api" }] };
     }
@@ -84,7 +84,7 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
 };
 
 
-export type JobSpec = { job_type: string; source: string };
+export type JobSpec = { job_type: string; source: string; max_attempts?: number };
 
 /** Queue one job per source for a new batch. */
 export async function enqueue(admin: any, specs: JobSpec[], runKind: string) {
@@ -107,11 +107,16 @@ export async function drain(admin: any, date: string, budgetMs = 240e3, maxJobs 
     const handler = HANDLERS[job.job_type];
     let res: Result | null = null;
     let err: string | null = null;
+    const { data: cfg } = await admin.from("source_config").select("fetch_mode,retry_delay_min").eq("source", job.source).maybeSingle();
+    const { setRequestMode } = await import("./http.server");
+    setRequestMode(cfg?.fetch_mode && cfg.fetch_mode !== "default" ? cfg.fetch_mode : null, !/^(Longdo|ThaiWater)/.test(job.source));
     try {
       if (!handler) throw new Error(`unknown job type ${job.job_type}`);
       res = await withEvidence(admin, job.id, job.source, () => handler({ admin, date }, job.source));
     } catch (e) {
       err = String((e as Error).message ?? e).slice(0, 300);
+    } finally {
+      setRequestMode(null, false);
     }
     const runs = res?.runs ?? [];
     const allFailed = !!err || (runs.length > 0 && runs.every((r) => !r.ok));
@@ -142,7 +147,7 @@ export async function drain(admin: any, date: string, budgetMs = 240e3, maxJobs 
     const limited = runs.some((r) => r.error?.startsWith("429"));
     // TMD mid-write file (empty/partial): the next complete file is usually ready within minutes
     const midWrite = runs.some((r) => r.error?.includes("ใช้ค่ารอบก่อน"));
-    const delay = limited ? 15 * 60e3 : midWrite ? job.attempts * 5 * 60e3 : job.attempts * 20 * 60e3;
+    const delay = cfg?.retry_delay_min && !limited ? cfg.retry_delay_min * 60e3 : limited ? 15 * 60e3 : midWrite ? job.attempts * 5 * 60e3 : job.attempts * 20 * 60e3;
     await admin.from("ingest_jobs").update({
       status: retry ? "queued" : allFailed ? "failed" : "done",
       run_after: retry ? new Date(Date.now() + delay).toISOString() : job.run_after,

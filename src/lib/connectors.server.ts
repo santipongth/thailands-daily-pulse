@@ -3,10 +3,10 @@
 import { politeFetch } from "./http.server";
 
 type Values = Record<string, number>;
-export type ConnectorOut = Values | { values: Values; dates: Record<string, string> };
+export type ConnectorOut = Values | { values: Values; dates: Record<string, string>; note?: string; sample?: string };
 export type Connector = { source: string; run: (date: string, ctx?: { admin?: any }) => Promise<ConnectorOut> };
 
-export const normalizeOut = (o: ConnectorOut): { values: Values; dates?: Record<string, string>; note?: string } =>
+export const normalizeOut = (o: ConnectorOut): { values: Values; dates?: Record<string, string>; note?: string; sample?: string } =>
   o && typeof (o as any).values === "object" && typeof (o as any).dates === "object" ? (o as any) : { values: o as Values };
 
 const json = async (url: string) => (await politeFetch(url, { headers: { accept: "application/json, */*" } })).json() as Promise<any>;
@@ -26,6 +26,9 @@ const jsonWith = async (url: string, h: Record<string, string>) =>
   (await politeFetch(url, { headers: { accept: "application/json, */*", ...h } })).json() as Promise<any>;
 /** Site-wide request mode from app_settings: auto (default) | direct | firecrawl (| firecrawl_first legacy). */
 async function readMode(ctx: { admin?: any } | undefined, key: string): Promise<string> {
+  const { getRequestMode } = await import("./http.server");
+  const m = getRequestMode();
+  if (m) return m;
   if (!ctx?.admin) return "auto";
   const { data } = await ctx.admin.from("app_settings").select("value").eq("key", key).maybeSingle();
   return data?.value ?? "auto";
@@ -218,7 +221,8 @@ export const CONNECTORS: Connector[] = [
         if (y && Number.isFinite(Number(y.value))) { values["tmax_bkk"] = Number(y.value); dates["tmax_bkk"] = day; }
       }
       if (!Object.keys(values).length) throw new Error(`สถานี ${r.stationName ?? "BANGKOK METROPOLIS"} ไม่มีค่าฝน และยังไม่มีอุณหภูมิสูงสุดของเมื่อวาน`);
-      return note ? { values, dates, note } : { values, dates };
+      const sample = `สถานีที่ใช้: ${r.stationName ?? "?"} (${r.stationId})${r.stationId !== "48455" ? " — ใช้แทนสถานีกรุงเทพมหานคร 48455 เพราะไม่มีข้อมูลรอบนี้" : ""}`;
+      return note ? { values, dates, note, sample } : { values, dates, sample };
     },
   },
   {

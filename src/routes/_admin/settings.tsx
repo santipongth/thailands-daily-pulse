@@ -1,5 +1,5 @@
 import { nextSlot, readLastResult } from "@/components/scheduled-refresh";
-import { FetchModeSettings } from "@/components/fetch-mode-settings";
+import { SourceControl } from "@/components/source-control";
 import {useEffect,useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Masthead } from "@/components/masthead";
@@ -55,7 +55,7 @@ function Settings() {
         </fieldset>
         <p className="mt-6 text-sm text-muted-foreground">ตัวเลขที่ประกาศเป็นรอบ เช่น ผลสลาก จะแสดงเสมอในวันที่ประกาศ</p>
         <SourceSettings />
-        <FetchModeSettings />
+        <SourceControl />
         </div>
       </main>
     </div>
