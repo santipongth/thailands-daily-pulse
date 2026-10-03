@@ -41,8 +41,8 @@ export function RailSignalChart({ s }: { s: Signal }) {
   }));
   return (
     <WeeklyComparison weeks={[
-      { label: "7 วันก่อนหน้า", value: prevDays === 7 ? previousCount : null, coverage: `พบโพสต์ ${prevDays} วันจาก 7 วัน`, arrivals: past.filter((p) => (p.rail_status ?? "counted") === "counted" && dayOf(p) >= shiftDate(day, -13) && dayOf(p) <= shiftDate(day, -7)).map((p) => ({ date: dayOf(p), received: p.received_at })) },
-      { label: "7 วันล่าสุด", value: curDays === 7 ? latestCount : null, coverage: `พบโพสต์ ${curDays} วันจาก 7 วัน`, arrivals: [...past, ...todays].filter((p) => dayOf(p) >= shiftDate(day, -6) && dayOf(p) <= day).map((p) => ({ date: dayOf(p), received: p.received_at })) },
+      { label: "7 วันก่อนหน้า", value: prevDays === 7 ? previousCount : null, coverage: `พบโพสต์ ${prevDays} วันจาก 7 วัน` },
+      { label: "7 วันล่าสุด", value: curDays === 7 ? latestCount : null, coverage: `พบโพสต์ ${curDays} วันจาก 7 วัน` },
     ]} unit="ประกาศ" decimals={0} note="จำนวนประกาศผิดปกติที่นับเป็นสัญญาณในแต่ละช่วง · เทียบจำนวนได้เมื่อมีโพสต์ครบทุกวันเท่านั้น; วันที่ไม่มีโพสต์ไม่ยืนยันว่าไม่มีเหตุ">
       <div className="mt-4 border-t border-editorial-rule pt-3 text-xs">
       <p className="mb-2 text-muted-foreground">วันนี้เทียบค่าเฉลี่ย 7 วันก่อน แยกทุก 3 ชั่วโมง</p>
