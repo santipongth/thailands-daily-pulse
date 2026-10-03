@@ -288,6 +288,13 @@
       "when": 1791051228936,
       "tag": "0040_cost_lag_rail_electricity_signals",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1791051285567,
+      "tag": "0041_detect_lag_coverage_events",
+      "breakpoints": true
     }
   ]
 }

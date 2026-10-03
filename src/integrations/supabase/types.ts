@@ -1322,6 +1322,7 @@ export type Database = {
       }
       prune_old_data: { Args: never; Returns: Json }
       rank_signals: { Args: { _d: string }; Returns: number }
+      refresh_metric_lag: { Args: never; Returns: Json }
       replay_signals: {
         Args: { _d: string }
         Returns: {
