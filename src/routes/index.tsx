@@ -16,6 +16,7 @@ import { HouseholdBasket } from "@/components/household-basket";
 import { BriefItems, type BriefItem } from "@/components/brief-items";
 import { BkkForecast } from "@/components/bkk-forecast";
 import { LatestLottery } from "@/components/latest-lottery";
+import { SocialFeed } from "@/components/social-feed";
 
 export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
@@ -105,6 +106,7 @@ function Today() {
             )}
             {date === today && <div className="mt-6"><BkkForecast /></div>}
             {date === today && <div className="mt-6"><LatestLottery /></div>}
+            {date === today && <div className="mt-6"><SocialFeed limit={6} /></div>}
             <div className="mt-6"><HouseholdBasket date={date} /></div>
             <Link to="/day/$date" params={{ date }} className="mt-3 inline-block text-sm underline">อันดับสัญญาณวันนี้ เทียบเมื่อวาน →</Link>
           </div>

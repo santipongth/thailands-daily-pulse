@@ -8,6 +8,7 @@ import { shiftDate, thaiDate } from "@/lib/signals";
 import { STATUS_TH, type Completeness } from "@/lib/completeness";
 import { AllMetricsCompare } from "@/components/all-metrics-compare";
 import { DamsBox, StationCompare } from "@/components/brief-dams-weather";
+import { SocialFeed } from "@/components/social-feed";
 import { DailyTrends, ForecastCompare } from "@/components/brief-trends";
 
 const hm = (s: string) => new Date(s).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" });
@@ -112,6 +113,7 @@ function BriefPage() {
                 </ul>
               </section>
             )}
+            <div className="mt-10"><SocialFeed from={(data as any).data_window?.from ?? `${date}T00:00:00+07:00`} to={data.cutoff_at ?? (data as any).data_window?.to ?? null} /></div>
             <DamsBox date={date} cutoff={data.cutoff_at ?? (data as any).data_window?.to ?? null} />
             <ForecastCompare date={date} />
             <StationCompare date={date} />

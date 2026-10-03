@@ -829,6 +829,59 @@ export type Database = {
           },
         ]
       }
+      social_posts: {
+        Row: {
+          ai_reason: string | null
+          area: string | null
+          evidence_id: number | null
+          id: number
+          is_bkk: boolean | null
+          post_id: string
+          posted_at: string
+          received_at: string
+          source: string
+          summary: string | null
+          text: string
+          url: string
+        }
+        Insert: {
+          ai_reason?: string | null
+          area?: string | null
+          evidence_id?: number | null
+          id?: number
+          is_bkk?: boolean | null
+          post_id: string
+          posted_at: string
+          received_at?: string
+          source: string
+          summary?: string | null
+          text: string
+          url: string
+        }
+        Update: {
+          ai_reason?: string | null
+          area?: string | null
+          evidence_id?: number | null
+          id?: number
+          is_bkk?: boolean | null
+          post_id?: string
+          posted_at?: string
+          received_at?: string
+          source?: string
+          summary?: string | null
+          text?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "raw_evidence"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       source_registry: {
         Row: {
           area: string
