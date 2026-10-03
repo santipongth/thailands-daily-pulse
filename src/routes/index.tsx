@@ -143,7 +143,7 @@ function Today() {
             <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้ <span className="font-editorial-body text-sm font-normal text-muted-foreground">({moves.length})</span></h2>
             <Link to="/data-all" className="text-sm underline">ดูตัวเลขทุกหมวด →</Link>
           </div>
-          <p className="mb-5 text-sm text-muted-foreground">เฉพาะข้อมูลที่เปลี่ยนเกินเกณฑ์ตรวจสอบในวันที่เลือก · หมวดอื่นอาจไม่เปลี่ยน ยังไม่เกินเกณฑ์ หรือยังไม่มีค่าก่อนหน้าให้เทียบ</p>
+          <p className="mb-5 text-sm text-muted-foreground">เฉพาะข้อมูลที่เปลี่ยนเกินเกณฑ์ตรวจสอบในวันที่เลือก ตามระดับความสำคัญและแหล่งข้อมูลที่คุณเลือก · หมวดอื่นอาจไม่เปลี่ยน ยังไม่เกินเกณฑ์ หรือยังไม่มีค่าก่อนหน้าให้เทียบ</p>
           {moves.length === 0 ? (
             <p className="text-muted-foreground">ยังไม่มีการเปลี่ยนแปลงจากข้อมูลที่ตรวจสอบได้ที่เกินเกณฑ์ ส่วนแหล่งที่ตรวจไม่ได้ต้องดูสถานะแยกต่างหาก</p>
           ) : (
