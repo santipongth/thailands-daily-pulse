@@ -6,6 +6,7 @@ import { Masthead } from "@/components/masthead";
 import { supabase } from "@/integrations/supabase/client";
 import { makeReasonOf, srcOf, type Run, type Release } from "@/lib/missing-reason";
 import { StationMap } from "@/components/station-map";
+import { DamsMonitor } from "@/components/dams-monitor";
 
 // Every metric the site really collected (is_demo = false): latest vs previous value, change, daily chart.
 const allQuery = queryOptions({
@@ -15,7 +16,7 @@ const allQuery = queryOptions({
     const [f, m, o, r, rc] = await Promise.all([
       supabase.from("families").select("id,name_th,emoji,sort").order("sort"),
       supabase.from("metrics").select("id,family_id,name_th,unit,decimals,sort").order("sort"),
-      supabase.from("observations").select("metric_id,observed_on,value").eq("is_demo", false).gte("observed_on", since).order("observed_on").limit(20000),
+      supabase.from("observations").select("metric_id,observed_on,value").eq("is_demo", false).order("observed_on").limit(20000),
       supabase.from("source_runs").select("source,ran_at,ok,error"),
       supabase.from("release_calendar").select("family_id,title,release_date").gte("release_date", since).order("release_date"),
     ]);
@@ -55,6 +56,7 @@ function DataAll() {
         <h1 className="font-display text-3xl">ข้อมูลทั้งหมดที่เก็บได้จริง</h1>
         <p className="mt-1 text-sm text-muted-foreground">ข้อมูลจริงเท่านั้น (ไม่รวมข้อมูลตัวอย่าง) · มีค่า {withData.size} จาก {data.metrics.length} ตัวชี้วัด · กดแถวเพื่อดูกราฟรายวันขนาดใหญ่</p>
         <StationMap />
+        <DamsMonitor />
         {data.families.map((f) => {
           const ms = data.metrics.filter((m) => m.family_id === f.id);
           if (!ms.length) return null;
@@ -81,7 +83,7 @@ function DataAll() {
                               <td className={ch ? "pr-2 font-semibold" : "pr-2"}>{ch === null ? "—" : ch === 0 ? "ไม่เปลี่ยน" : `${ch > 0 ? "+" : ""}${fmt(ch, m.decimals)}${pct !== null ? ` (${pct > 0 ? "+" : ""}${pct.toFixed(1)}%)` : ""}`}</td>
                               <td>
                                 <div className="h-10 w-40">
-                                  <ResponsiveContainer><LineChart data={os.slice(-30)}><Line type="monotone" dataKey="v" stroke="var(--color-foreground)" dot={os.length < 3} strokeWidth={1.5} isAnimationActive={false} /><YAxis hide domain={["auto", "auto"]} /></LineChart></ResponsiveContainer>
+                                  <ResponsiveContainer><LineChart data={os}><Line type="monotone" dataKey="v" stroke="var(--color-foreground)" dot={os.length < 3} strokeWidth={1.5} isAnimationActive={false} /><YAxis hide domain={["auto", "auto"]} /></LineChart></ResponsiveContainer>
                                 </div>
                               </td>
                             </>
@@ -98,9 +100,12 @@ function DataAll() {
                                   <XAxis dataKey="d" fontSize={11} />
                                   <YAxis domain={["auto", "auto"]} fontSize={11} width={60} />
                                   <Tooltip formatter={(v: number) => `${fmt(v, m.decimals)} ${m.unit}`} />
-                                  <Line type="monotone" dataKey="v" stroke="var(--color-primary)" strokeWidth={2} isAnimationActive={false} />
+                                  <Line type="monotone" dataKey="v" stroke="var(--color-primary)" strokeWidth={2} dot={{ r: 2 }} isAnimationActive={false} />
                                 </LineChart>
                               </ResponsiveContainer>
+                            </div>
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 pb-2 text-xs">
+                              {os.map((p) => <span key={p.d}>{p.d}: <b>{fmt(p.v, m.decimals)}</b></span>)}
                             </div>
                           </td></tr>
                         ) : null,

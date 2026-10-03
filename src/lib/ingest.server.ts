@@ -254,3 +254,23 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
     await admin.from("job_locks").upsert({ name: LOCK, locked_until: new Date(0).toISOString() });
   }
 }
+
+// Dams-only forced run (hourly cron :20): ThaiWater + RID connectors, independent of the brief schedule.
+export async function refreshDams(): Promise<{ processed: number }> {
+  const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
+  const { enqueue, drain } = await import("./queue.server");
+  const date = bangkokDate();
+  const { data: l } = await admin.from("job_locks").select("locked_until").eq("name", "dams_run").maybeSingle();
+  if (l && new Date(l.locked_until) > new Date()) return { processed: 0 };
+  await admin.from("job_locks").upsert({ name: "dams_run", locked_until: new Date(Date.now() + 10 * 60e3).toISOString() });
+  await enqueue(admin, [
+    { job_type: "connector", source: "ThaiWater (สสน.)" },
+    { job_type: "connector", source: "RID อ่างเก็บน้ำ (กรมชลประทาน)" },
+  ], "dams");
+  const processed = await drain(admin, date, 150e3, 4);
+  if (processed) {
+    await admin.rpc("detect_signals", { _d: date });
+    await admin.rpc("rank_signals", { _d: date });
+  }
+  return { processed };
+}

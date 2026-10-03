@@ -29,6 +29,11 @@ export const Route = createFileRoute("/api/public/ingest")({
           if (r.refreshed) await supabaseAdmin.from("job_locks").upsert({ name: "daily_run", locked_until: new Date(Date.now() + 7 * 3600e3).toISOString() });
           return Response.json(r);
         }
+        // mode=dams (hourly :20): dams-only forced collection; refreshDams holds a 10-min lease so repeat calls are no-ops.
+        if (new URL(request.url).searchParams.get("mode") === "dams") {
+          const { refreshDams } = await import("@/lib/ingest.server");
+          return Response.json(await refreshDams());
+        }
         // mode=early (00:10/03:00/05:00 Bangkok): forced collection so overnight price changes land before the 05:45 cutoff.
         if (new URL(request.url).searchParams.get("mode") === "early") return Response.json(await refreshIfStale(3, { force: true, runKind: "daily" }));
         return Response.json(await refreshIfStale());
