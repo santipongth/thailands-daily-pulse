@@ -32,3 +32,4 @@
 - Today cards use `WeeklyComparison` with stored readings only (no gap filling); rail cards keep full notices. Late arrivals use `detect_received_signals` within `metrics.late_window_days` (dates + evidence in checks; cards show data/effective/received; /admin lists them) — auditable, thresholds and frozen briefs untouched.
 - Public API v1 resources, OpenAPI and /developers docs are generated from `API_SPEC` (src/lib/openapi.ts); MCP titles/descriptions come from `MCP_TOOLS` (src/lib/mcp-catalog.ts) — docs cannot drift from the code.
 - `database/` (schema.sql, seed.sql, cron.sql) is the fresh-install snapshot; re-run `scripts/export-db.sh` after any migration so self-hosters stay in sync with `drizzle/migrations`.
+- AI-agent onboarding: `CLAUDE.md` imports AGENTS.md; task guides in `docs/agent-tasks/` mirrored to `.claude/commands/`; `bun run setup`/`doctor` (scripts/*.ts) are the install path — one source of rules for Claude Code and Codex.

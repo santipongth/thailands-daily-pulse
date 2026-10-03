@@ -15,7 +15,9 @@
     "deploy": "vite build && npx wrangler@4 deploy",
     "start": "npx wrangler@4 dev --ip 0.0.0.0 --port 8787",
     "db:setup": "./scripts/setup-db.sh",
-    "db:export": "./scripts/export-db.sh"
+    "db:export": "./scripts/export-db.sh",
+    "setup": "bun scripts/setup.ts",
+    "doctor": "bun scripts/doctor.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

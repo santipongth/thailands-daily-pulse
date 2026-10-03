@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun install)",
+      "Bash(bun run dev)",
+      "Bash(bun run test*)",
+      "Bash(bun run typecheck)",
+      "Bash(bun run build*)",
+      "Bash(bun run lint*)",
+      "Bash(bun run doctor)",
+      "Bash(bunx vitest*)",
+      "Bash(bunx prettier*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./.dev.vars)",
+      "Bash(git push*)",
+      "Bash(git push --force*)",
+      "Bash(rm -rf*)"
+    ]
+  }
+}

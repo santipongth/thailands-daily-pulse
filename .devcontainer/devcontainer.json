@@ -1,0 +1,16 @@
+{
+  "name": "Thailand Daily Signals",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "features": {
+    "ghcr.io/shyim/devcontainers-features/bun:0": {}
+  },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y postgresql-client && bun install",
+  "postAttachCommand": "bun run doctor || true",
+  "forwardPorts": [8080],
+  "portsAttributes": { "8080": { "label": "App" } },
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "bradlc.vscode-tailwindcss"]
+    }
+  }
+}
