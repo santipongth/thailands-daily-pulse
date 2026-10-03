@@ -26,7 +26,7 @@ export function CostSignalChart({ s, metric, history }: { s: Signal; metric: Met
     <div className="mt-4 border-t border-editorial-rule pt-3">
       <p className="text-xs text-muted-foreground">ราคา 14 วันล่าสุด · ช่องว่างคือวันที่ไม่มีราคา</p>
       <svg viewBox="0 0 260 76" preserveAspectRatio="none" className="mt-2 h-24 w-full border-b border-editorial-rule text-chart-1" role="img" aria-label="ราคาย้อนหลัง 14 วัน เส้นขาดเมื่อไม่มีราคา">
-        {line.slice(1).map((r, i) => r.v != null && line[i].v != null ? <line key={i} x1={i * 20 + 1} x2={(i + 1) * 20 + 1} y1={68 - ((line[i].v ?? min) - min) / span * 58} y2={68 - (r.v - min) / span * 58} stroke="currentColor" strokeWidth="1.5" /> : null)}
+        {line.slice(1).map((r, i) => r.v != null && line[i]?.v != null ? <line key={i} x1={i * 20 + 1} x2={(i + 1) * 20 + 1} y1={68 - ((line[i]?.v ?? min) - min) / span * 58} y2={68 - (r.v - min) / span * 58} stroke="currentColor" strokeWidth="1.5" /> : null)}
         {line.map((r, i) => r.v == null ? null : <circle key={i} cx={i * 20 + 1} cy={68 - (r.v - min) / span * 58} r="2" fill="currentColor" />)}
       </svg>
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
