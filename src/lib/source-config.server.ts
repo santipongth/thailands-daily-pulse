@@ -34,8 +34,11 @@ const EXTRA: JobSpec[] = [
 /** Every source the queue can run, with its job type. */
 export async function allSources(): Promise<JobSpec[]> {
   const { CONNECTORS } = await import("./connectors.server");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { activeCustomSources } = await import("./custom-source.server");
+  const custom = (await activeCustomSources(supabaseAdmin).catch(() => [])).map((c) => ({ job_type: "custom", source: c.name }));
   const seen = new Set<string>();
-  return [...CONNECTORS.map((c) => ({ job_type: "connector", source: c.source })), ...EXTRA].filter((s) => (seen.has(s.source) ? false : (seen.add(s.source), true)));
+  return [...CONNECTORS.map((c) => ({ job_type: "connector", source: c.source })), ...EXTRA, ...custom].filter((s) => (seen.has(s.source) ? false : (seen.add(s.source), true)));
 }
 
 export async function loadConfigs(admin: any): Promise<Map<string, SourceConfig>> {

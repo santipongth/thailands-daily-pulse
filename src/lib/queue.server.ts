@@ -59,6 +59,20 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
       return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: "api" }] };
     }
   },
+  custom: async ({ admin }, source) => {
+    const { data: c } = await admin.from("custom_sources").select("*").eq("name", source).eq("active", true).maybeSingle();
+    if (!c) throw new Error(`unknown custom source ${source}`);
+    const ran_at = new Date().toISOString();
+    try {
+      const { fetchCustom } = await import("./custom-source.server");
+      const r = await fetchCustom(c);
+      // Observation = fetch day; the source's own date (if any) is kept as effective_from — never synthesised.
+      return { values: { [c.metric_id]: r.value }, ...(r.date ? { effective: { [c.metric_id]: r.date } } : {}),
+        runs: [{ source, ok: true, rows: 1, error: null, ran_at, kind: c.format, sample: `${r.value}${r.date ? ` · วันที่ของแหล่ง ${r.date}` : ""} · ${r.snippet}`.slice(0, 300) }] };
+    } catch (e) {
+      return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: c.format }] };
+    }
+  },
   checkraka: async () => {
     const { runCheckRaka } = await import("./checkraka.server");
     const r = await runCheckRaka();
