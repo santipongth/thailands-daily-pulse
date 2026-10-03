@@ -239,6 +239,13 @@
       "when": 1791036198021,
       "tag": "0033_source_config_hourly_range",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1791037356025,
+      "tag": "0034_station_snapshots_coords",
+      "breakpoints": true
     }
   ]
 }

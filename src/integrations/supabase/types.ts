@@ -1044,6 +1044,8 @@ export type Database = {
           area: string | null
           evidence_id: number | null
           id: number
+          lat: number | null
+          lng: number | null
           name: string
           observed_at: string | null
           pct: number | null
@@ -1057,6 +1059,8 @@ export type Database = {
           area?: string | null
           evidence_id?: number | null
           id?: never
+          lat?: number | null
+          lng?: number | null
           name: string
           observed_at?: string | null
           pct?: number | null
@@ -1070,6 +1074,8 @@ export type Database = {
           area?: string | null
           evidence_id?: number | null
           id?: never
+          lat?: number | null
+          lng?: number | null
           name?: string
           observed_at?: string | null
           pct?: number | null

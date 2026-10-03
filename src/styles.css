@@ -122,6 +122,13 @@ svg, canvas { max-width: 100%; }
   --accent-foreground: oklch(0.2 0.01 60);
   --destructive: oklch(0.52 0.17 35);
   --destructive-foreground: oklch(0.97 0.015 85);
+  /* Data-map scale (Thai AQI bands / water % of bank): good → very bad */
+  --map-1: oklch(0.7 0.13 220);
+  --map-2: oklch(0.72 0.17 145);
+  --map-3: oklch(0.86 0.17 95);
+  --map-4: oklch(0.72 0.18 55);
+  --map-5: oklch(0.55 0.21 25);
+  --map-ink: oklch(0.2 0.01 60);
   --border: oklch(0.82 0.02 80);
   --input: oklch(0.82 0.02 80);
   --ring: oklch(0.52 0.17 35);
@@ -313,3 +320,19 @@ svg, canvas { max-width: 100%; }
     linear-gradient(90deg, color-mix(in oklab, var(--color-ink) 7%, transparent) 1px, transparent 1px);
   background-size: 12px 12px;
 }
+
+/* Interactive Bangkok map pins (Leaflet SVG) */
+.bkk-pin { stroke: var(--map-ink); fill-opacity: 0.88; }
+.bkk-pin.map-b1, .bkk-dot.map-b1 { fill: var(--map-1); background: var(--map-1); }
+.bkk-pin.map-b2, .bkk-dot.map-b2 { fill: var(--map-2); background: var(--map-2); }
+.bkk-pin.map-b3, .bkk-dot.map-b3 { fill: var(--map-3); background: var(--map-3); }
+.bkk-pin.map-b4, .bkk-dot.map-b4 { fill: var(--map-4); background: var(--map-4); }
+.bkk-pin.map-b5, .bkk-dot.map-b5 { fill: var(--map-5); background: var(--map-5); }
+.bkk-pin.bkk-weather { fill: var(--background); stroke-width: 3; }
+.bkk-pin.bkk-stale { fill-opacity: 0.35; stroke-opacity: 0.4; }
+.bkk-me { fill: var(--foreground); stroke: var(--background); stroke-width: 3; fill-opacity: 1; }
+.bkk-dot { display: inline-block; width: 0.7rem; height: 0.7rem; border-radius: 9999px; border: 1px solid var(--map-ink); flex-shrink: 0; }
+.bkk-map { z-index: 0; }
+.bkk-pop { font-size: 0.85rem; line-height: 1.4; }
+.bkk-pop-val { margin-top: 0.25rem; font-weight: 600; }
+.bkk-pop-sub { color: var(--muted-foreground); font-size: 0.75rem; }
