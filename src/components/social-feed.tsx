@@ -10,7 +10,7 @@ export function SocialFeed({ from, to, limit = 8 }: { from?: string; to?: string
   const { data, isLoading, isError } = useQuery({
     queryKey: ["social-feed", from ?? "", to ?? "", limit],
     queryFn: async () => {
-      let q = supabase.from("social_posts").select("post_id,posted_at,received_at,text,url,area,summary").eq("is_bkk", true).order("posted_at", { ascending: false }).limit(from ? 60 : limit);
+      let q = supabase.from("social_posts").select("post_id,posted_at,received_at,text,url,area,summary").eq("is_bkk", true).eq("source", "FM91 Trafficpro (X)").order("posted_at", { ascending: false }).limit(from ? 60 : limit);
       if (from) q = q.gte("posted_at", from);
       const [{ data, error }, { data: run }] = await Promise.all([q, supabase.from("source_runs").select("ran_at,ok,error").eq("source", "FM91 Trafficpro (X)").maybeSingle()]);
       if (error) throw new Error(error.message);

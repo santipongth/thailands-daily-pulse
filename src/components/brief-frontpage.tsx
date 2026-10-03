@@ -17,7 +17,7 @@ function useFrontData(date: string) {
       const [f, obs, post, lot, images] = await Promise.all([
         supabase.from("families").select("id,name_th,emoji"),
         supabase.from("observations").select("metric_id,value,observed_on").in("metric_id", ["rain_bkk", "fc_tmax_bkk", "fc_tmin_bkk", "dam_pasak_pct", "pm25_bkk"]).eq("is_demo", false).lte("observed_on", date).order("observed_on", { ascending: false }).limit(40),
-        supabase.from("social_posts").select("summary,text,area,posted_at").eq("is_bkk", true).lte("posted_at", end).order("posted_at", { ascending: false }).limit(1),
+        supabase.from("social_posts").select("summary,text,area,posted_at").eq("is_bkk", true).eq("source", "FM91 Trafficpro (X)").lte("posted_at", end).order("posted_at", { ascending: false }).limit(1),
         supabase.from("lottery_draws").select("draw_date,first,last2").lte("draw_date", date).order("draw_date", { ascending: false }).limit(1),
         imgs({ data: { date } }).catch(() => []),
       ]);

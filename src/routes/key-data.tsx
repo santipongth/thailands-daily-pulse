@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Masthead } from "@/components/masthead";
+import { LocalSummary } from "@/components/local-conditions";
 import { supabase } from "@/integrations/supabase/client";
 
 // Key numbers: every real metric that feeds the Daily Brief, aggregated per month (average of real
@@ -85,6 +86,8 @@ function KeyData() {
             </ResponsiveContainer>
           </div>
         </section>
+
+        <LocalSummary gistda={(() => { const g = data.obs.filter((o) => o.metric_id === "pm25_bkk").at(-1); return g ? { value: Number(g.value), date: g.observed_on } : null; })()} />
 
         {data.families.map((f) => {
           const ss = series.filter((s) => s.m.family_id === f.id);

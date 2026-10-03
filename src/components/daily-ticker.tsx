@@ -8,12 +8,12 @@ type TickerSignal = Signal & {
   metric: Metric;
 };
 
-type TickerPost = { post_id: string; url: string; text: string; summary: string | null; posted_at: string };
+type TickerPost = { post_id: string; url: string; text: string; summary: string | null; posted_at: string; source: string };
 
 async function getTickerSignals(): Promise<{ signals: TickerSignal[]; updatedAt: string | null; posts: TickerPost[] }> {
   const date = bkkToday();
   const since = new Date(Date.now() - 12 * 3600e3).toISOString();
-  const { data: posts } = await supabase.from("social_posts").select("post_id,url,text,summary,posted_at").eq("is_bkk", true).gte("posted_at", since).order("posted_at", { ascending: false }).limit(3);
+  const { data: posts } = await supabase.from("social_posts").select("post_id,url,text,summary,posted_at,source").eq("is_bkk", true).gte("posted_at", since).order("posted_at", { ascending: false }).limit(4);
   const [{ data: signals, error: signalError }, { data: families, error: familyError }, { data: metrics, error: metricError }, { data: latest, error: latestError }] = await Promise.all([
     supabase.from("signals").select("*").eq("signal_date", date).order("score", { ascending: false }).limit(8),
     supabase.from("families").select("*").order("sort"),
@@ -68,7 +68,7 @@ function TickerItems({ signals, posts, duplicate = false }: { signals: TickerSig
       {posts.map((p) => (
         <a key={p.post_id} href={p.url} target="_blank" rel="noreferrer" tabIndex={duplicate ? -1 : undefined}
           className="flex min-w-max items-center gap-3 border-r border-ticker-grid px-5 py-2.5 outline-none transition-colors hover:bg-ticker-hover focus-visible:bg-ticker-hover">
-          <span className="text-[11px] font-semibold text-ticker-accent">FM91</span>
+          <span className="text-[11px] font-semibold text-ticker-accent">{/^(BTS|MRT)/.test(p.source) ? `รถไฟฟ้า ${p.source.split(" ")[0]}` : "FM91"}</span>
           <span className="max-w-[28rem] truncate text-ticker-foreground">{p.summary ?? p.text}</span>
           <span className="text-[11px] text-ticker-muted">{new Date(p.posted_at).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.</span>
         </a>

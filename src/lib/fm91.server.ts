@@ -17,7 +17,7 @@ export function parseXPosts(md: string): RawPost[] {
     const url = block.match(/^URL:\s*\[[^\]]*\]\((https:\/\/x\.com\/[^)]+\/status\/(\d+))\)/m);
     const text = block.split("\n").filter((l) => l.startsWith(">")).map((l) => l.replace(/^>\s?/, "")).join("\n").trim();
     if (!posted || !url || !text) continue;
-    const d = new Date(posted);
+    const d = new Date(posted.replace(/\\/g, ""));
     if (isNaN(d.getTime())) continue;
     out.push({ post_id: `x:${url[2]}`, posted_at: d.toISOString(), url: url[1]!, text: text.replace(/\\([-.()_*#\[\]!])/g, "$1") });
   }

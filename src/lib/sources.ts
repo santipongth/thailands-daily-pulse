@@ -24,6 +24,8 @@ export const SOURCES: SourceInfo[] = [
   { source: "บางจาก (Bangchak API)", agency: "บางจาก", kind: "api", metrics: [] },
   { source: "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["tmax_bkk", "rain_bkk"] },
   { source: "GISTDA PM2.5 (กรุงเทพฯ)", agency: "GISTDA", kind: "api", metrics: ["pm25_bkk"] },
+  { source: "Air4Thai PM2.5 (กรมควบคุมมลพิษ)", agency: "กรมควบคุมมลพิษ", kind: "api", metrics: ["pm25_bkk_a4t", "pm25_bkk_a4t_max"] },
+  { source: "รถไฟฟ้า BTS/MRT (X)", agency: "BTS / BEM", kind: "crawler", metrics: [] },
   { source: "ExchangeRate (อัตราแลกเปลี่ยน)", agency: "open.er-api.com", kind: "api", metrics: ["usdthb", "eurthb", "jpythb"] },
 ];
 
@@ -36,6 +38,8 @@ export const AGENCIES: Agency[] = [
   { key: "tmd", label: "กรมอุตุนิยมวิทยา", category: "government", sources: ["กรมอุตุฯ เตือนภัย", "กรมอุตุฯ แผ่นดินไหว", "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล", "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)"], newsAgency: "กรมอุตุนิยมวิทยา" },
   { key: "water", label: "สสน. / กรมชลประทาน", category: "government", sources: ["ThaiWater (สสน.)", "ThaiWater สถานี กทม.และปริมณฑล", "RID อ่างเก็บน้ำ (กรมชลประทาน)", "กทม. ระบายน้ำ (น้ำท่วมถนน)", "ปภ. แจ้งเตือนสาธารณภัย"], newsAgency: "กรมชลประทาน / สทนช." },
   { key: "gistda", label: "GISTDA (PM2.5 กรุงเทพฯ)", category: "government", sources: ["GISTDA PM2.5 (กรุงเทพฯ)"] },
+  { key: "pcd", label: "กรมควบคุมมลพิษ (Air4Thai)", category: "government", sources: ["Air4Thai PM2.5 (กรมควบคุมมลพิษ)"] },
+  { key: "rail", label: "รถไฟฟ้า BTS / MRT", category: "other", sources: ["รถไฟฟ้า BTS/MRT (X)"] },
   { key: "rd", label: "กรมสรรพากร", category: "government", sources: ["กรมสรรพากร (ปฏิทินภาษี)"] },
   { key: "glo", label: "สำนักงานสลากกินแบ่งรัฐบาล", category: "government", sources: ["สำนักงานสลากกินแบ่งรัฐบาล (GLO)"] },
   { key: "gold", label: "สมาคมค้าทองคำ", category: "other", sources: ["สมาคมค้าทองคำ"] },

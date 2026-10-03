@@ -3,10 +3,12 @@
 import { politeFetch } from "./http.server";
 
 type Values = Record<string, number>;
-export type ConnectorOut = Values | { values: Values; dates: Record<string, string>; note?: string; sample?: string };
+/** Per-station/road detail kept in station_snapshots for the public flood/air tables. */
+export type Snap = { station_id: string; name: string; area?: string | null; value?: number | null; pct?: number | null; status?: string | null; observed_at?: string | null };
+export type ConnectorOut = Values | { values: Values; dates: Record<string, string>; note?: string; sample?: string; rows?: Snap[] };
 export type Connector = { source: string; run: (date: string, ctx?: { admin?: any }) => Promise<ConnectorOut> };
 
-export const normalizeOut = (o: ConnectorOut): { values: Values; dates?: Record<string, string>; note?: string; sample?: string } =>
+export const normalizeOut = (o: ConnectorOut): { values: Values; dates?: Record<string, string>; note?: string; sample?: string; rows?: Snap[] } =>
   o && typeof (o as any).values === "object" && typeof (o as any).dates === "object" ? (o as any) : { values: o as Values };
 
 const json = async (url: string) => (await politeFetch(url, { headers: { accept: "application/json, */*" } })).json() as Promise<any>;
@@ -68,7 +70,9 @@ export const CONNECTORS: Connector[] = [
       const { TW_WL_URL, parseThaiWaterBkk } = await import("./flood");
       const r = parseThaiWaterBkk(await jsonWith(TW_WL_URL, { referer: "https://www.thaiwater.net/", origin: "https://www.thaiwater.net" }), date);
       if (!r.stations.length) throw new Error("ไม่มีสถานีใน กทม./ปริมณฑล ที่รายงานวันนี้");
-      return { values: { flood_bank_max: r.maxPct!, flood_over_bank: r.overBank }, dates: {}, sample: `${r.stations.length} สถานี · สูงสุด ${r.top!.name} (${r.top!.province}) ${r.maxPct}% ของตลิ่ง ${r.top!.at}` };
+      const { twDateTime } = await import("./flood");
+      const rows = r.stations.map((x) => ({ station_id: x.id || x.name, name: x.name, area: x.province, value: Number.isFinite(x.msl) ? x.msl : null, pct: x.pct, status: x.pct >= 100 ? "ล้นตลิ่ง" : x.pct >= 80 ? "เฝ้าระวัง" : "ปกติ", observed_at: twDateTime(x.at) }));
+      return { rows, values: { flood_bank_max: r.maxPct!, flood_over_bank: r.overBank }, dates: {}, sample: `${r.stations.length} สถานี · สูงสุด ${r.top!.name} (${r.top!.province}) ${r.maxPct}% ของตลิ่ง ${r.top!.at}` };
     },
   },
   {
@@ -77,9 +81,16 @@ export const CONNECTORS: Connector[] = [
     run: async (date) => {
       const { BMA_FLOOD_URL, parseBmaFlood } = await import("./flood");
       const { firecrawlMarkdown } = await import("./http.server");
-      const r = parseBmaFlood(await firecrawlMarkdown(BMA_FLOOD_URL), date);
+      // The sensor table renders late and in stages: retry with longer waits until most sensors are present.
+      let r = parseBmaFlood(await firecrawlMarkdown(BMA_FLOOD_URL, 8000), date);
+      for (const wait of [15000, 25000]) {
+        if (r.sensors >= 100) break;
+        const next = parseBmaFlood(await firecrawlMarkdown(BMA_FLOOD_URL, wait), date);
+        if (next.sensors > r.sensors) r = next;
+      }
       if (!r.sensors) throw new Error("ไม่พบตารางจุดวัดน้ำท่วมถนนของวันนี้ (หน้าเว็บอาจเปลี่ยน)");
-      return { values: { bma_road_flood: r.flooded }, dates: {}, sample: `อ่านได้ ${r.sensors} จุด · น้ำท่วม ${r.flooded} จุด${r.names.length ? `: ${r.names.slice(0, 4).join(", ")}` : ""}` };
+      const rows = r.rows.map((x) => ({ station_id: x.code, name: x.name || x.road, area: x.road, value: x.level, status: x.status, observed_at: x.at }));
+      return { rows, values: { bma_road_flood: r.flooded }, dates: {}, sample: `อ่านได้ ${r.sensors} จุด · น้ำท่วม ${r.flooded} จุด${r.names.length ? `: ${r.names.slice(0, 4).join(", ")}` : ""}` };
     },
   },
   {
@@ -89,7 +100,8 @@ export const CONNECTORS: Connector[] = [
       const { firecrawlMarkdown } = await import("./http.server");
       const r = parseDdpmAlerts(await firecrawlMarkdown(DDPM_ALERT_URL), date);
       if (!r.listed) throw new Error("ไม่พบรายการแจ้งเตือนในหน้า (หน้าเว็บอาจเปลี่ยน)");
-      return { values: { ddpm_flood_warn: r.warnings }, dates: {}, sample: r.warnings ? `${r.warnings} ฉบับ${r.bkk ? " (มีกรุงเทพฯ)" : ""}: ${r.titles[0]}` : "วันนี้ยังไม่มีประกาศเฝ้าระวังน้ำท่วม" };
+      const rows = r.titles.slice(0, 20).map((t, i) => ({ station_id: `${date}:${i}`, name: t, area: /กรุงเทพ/.test(t) ? "กรุงเทพฯ" : null, status: "ประกาศ", observed_at: `${date}T00:00:00+07:00` }));
+      return { rows, values: { ddpm_flood_warn: r.warnings }, dates: {}, sample: r.warnings ? `${r.warnings} ฉบับ${r.bkk ? " (มีกรุงเทพฯ)" : ""}: ${r.titles[0]}` : "วันนี้ยังไม่มีประกาศเฝ้าระวังน้ำท่วม" };
     },
   },
   {
@@ -265,6 +277,22 @@ export const CONNECTORS: Connector[] = [
       const o: Values = {};
       put(o, "pm25_bkk", pos(row.pm25Avg24hr ?? row.pm25));
       return o;
+    },
+  },
+  {
+    // PCD Air4Thai: ~59 Bangkok stations, hourly. Comparison only (no bands → never a signal); GISTDA stays the signal metric.
+    source: "Air4Thai PM2.5 (กรมควบคุมมลพิษ)",
+    run: async (date) => {
+      const { A4T_URL, A4T_ALT_URL, parseAir4Thai } = await import("./air4thai");
+      const { getRequestMode } = await import("./http.server");
+      const mode = getRequestMode() ?? "auto";
+      const ways: Array<[string, () => Promise<any>]> = [];
+      if (mode !== "firecrawl") ways.push(["ตรง", () => json(A4T_URL)], ["ตรง (air4thai.com)", () => json(A4T_ALT_URL)]);
+      if (mode !== "direct") ways.push(["Firecrawl", () => firecrawlJson(A4T_URL)]);
+      const r = parseAir4Thai(await tryWays("Air4Thai", ways), date);
+      if (!r.stations.length) throw new Error("ไม่มีสถานีใน กทม. ที่รายงานวันนี้");
+      const rows = r.stations.map((x) => ({ station_id: x.id, name: x.name, area: x.area, value: x.pm25, status: x.aqi != null ? `AQI ${x.aqi}` : null, observed_at: x.at }));
+      return { rows, values: { pm25_bkk_a4t: r.avg!, pm25_bkk_a4t_max: r.max! }, dates: {}, sample: `${r.stations.length} สถานี · เฉลี่ย ${r.avg} · สูงสุด ${r.top!.name} ${r.max} µg/m³ (${r.latest!.slice(11, 16)} น.)` };
     },
   },
   {

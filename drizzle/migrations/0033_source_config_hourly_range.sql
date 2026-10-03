@@ -1,0 +1,3 @@
+ALTER TABLE public.source_config DROP CONSTRAINT source_config_schedule_check;
+ALTER TABLE public.source_config ADD CONSTRAINT source_config_schedule_check CHECK (schedule IN ('default','hourly','3h','daily','manual','hourly_range'));
+ALTER TABLE public.source_config ADD CONSTRAINT source_config_range_check CHECK ((range_start IS NULL OR range_start BETWEEN 0 AND 23) AND (range_end IS NULL OR range_end BETWEEN 0 AND 23));

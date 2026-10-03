@@ -11,20 +11,28 @@ const BKK_AREA = ["กรุงเทพมหานคร", "นนทบุร
 export function parseThaiWaterBkk(d: any, date: string) {
   const rows: any[] = d?.waterlevel_data?.data ?? [];
   const st = rows.filter((x) => BKK_AREA.includes(x?.geocode?.province_name?.th) && String(x?.waterlevel_datetime ?? "").startsWith(date) && x?.storage_percent != null)
-    .map((x) => ({ name: String(x.station?.tele_station_name?.th ?? ""), province: String(x.geocode.province_name.th), pct: Number(x.storage_percent), msl: Number(x.waterlevel_msl), at: String(x.waterlevel_datetime) }))
+    .map((x) => ({ id: String(x.station?.id ?? x.station?.tele_station_oldcode ?? x.station?.tele_station_name?.th ?? ""), name: String(x.station?.tele_station_name?.th ?? ""), province: String(x.geocode.province_name.th), pct: Number(x.storage_percent), msl: Number(x.waterlevel_msl), at: String(x.waterlevel_datetime) }))
     .filter((x) => Number.isFinite(x.pct));
   st.sort((a, b) => b.pct - a.pct);
   return { stations: st, maxPct: st[0]?.pct, overBank: st.filter((x) => x.pct >= 100).length, top: st[0] };
 }
 
 const beDate = (s: string) => { const m = s.match(/(\d{2})\/(\d{2})\/(\d{4})/); return m ? `${Number(m[3]) - 543}-${m[2]}-${m[1]}` : null; };
+/** "dd/mm/BBBB hh:mm" (Bangkok) → ISO with +07:00. */
+export const beDateTime = (s: string) => { const m = s.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{1,2}):(\d{2})/); return m ? `${Number(m[3]) - 543}-${m[2]}-${m[1]}T${m[4]!.padStart(2, "0")}:${m[5]}:00+07:00` : null; };
+/** ThaiWater "YYYY-MM-DD HH:MM" (Bangkok) → ISO with +07:00. */
+export const twDateTime = (s: string) => (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(s) ? `${s.slice(0, 10)}T${s.slice(11, 16)}:00+07:00` : null);
 const tableRows = (md: string, prefix: string) => md.split("\n").filter((l) => l.startsWith(`| ${prefix}`)).map((l) => l.split("|").slice(1, -1).map((c) => c.trim()));
 
 /** BMA road-flood sensors: rows | code | road | station | dd/mm/BBBB hh:mm | level | status |. Counts flooded sensors read on `date`. */
 export function parseBmaFlood(md: string, date: string) {
   const rows = tableRows(md, "FL.").filter((r) => beDate(r[3] ?? "") === date);
   const flooded = rows.filter((r) => (r[5] ?? "").startsWith("น้ำท่วม"));
-  return { sensors: rows.length, flooded: flooded.length, names: flooded.map((r) => r[2]!.replace(/\s*\\?\*$/, "")) };
+  const clean = (v: string) => v.replace(/\s*\\?\*$/, "");
+  return {
+    sensors: rows.length, flooded: flooded.length, names: flooded.map((r) => clean(r[2]!)),
+    rows: rows.map((r) => ({ code: r[0]!, road: clean(r[1] ?? ""), name: clean(r[2] ?? ""), at: beDateTime(r[3] ?? ""), level: Number.isFinite(Number(r[4])) ? Number(r[4]) : null, status: r[5] ?? "" })),
+  };
 }
 
 /** BMA canal level stations: status column (index 4) = ปกติ / เตือนภัย / วิกฤต. */
