@@ -52,6 +52,16 @@
 | ไม่บังคับ | AI ที่รองรับรูปแบบ OpenAI · Firecrawl สำหรับเว็บที่บล็อก |
 | ทดสอบ | Vitest |
 
+## เริ่มเร็วที่สุด (คำสั่งเดียว)
+```sh
+git clone https://github.com/<you>/thailand-daily-signals.git && cd thailand-daily-signals
+bun install && bun run setup && bun run doctor && bun run dev
+```
+`bun run setup` จะถามที่อยู่และคีย์ฐานข้อมูล สร้างไฟล์ `.env` สุ่มรหัสตัวตั้งเวลาให้ และติดตั้งตารางให้ได้ `bun run doctor` บอกว่ายังขาดอะไร หรือเปิดโปรเจกต์ใน Dev Container / Codespaces ซึ่งติดตั้งเครื่องมือให้ครบอัตโนมัติ
+
+## พัฒนาต่อด้วย Claude Code หรือ Codex
+โปรเจกต์พร้อมใช้กับผู้ช่วยเขียนโค้ด AI: `CLAUDE.md` (Claude Code) และ `AGENTS.md` (Codex) เก็บกฎของโปรเจกต์, `.claude/commands/` มีคำสั่ง `/add-source`, `/add-signal`, `/check`, `/db-export` และ `docs/agent-tasks/` มีคู่มือเดียวกันสำหรับ Codex เปิดโฟลเดอร์แล้วสั่งได้เลย เช่น *"เพิ่มแหล่งข้อมูลอัตราดอกเบี้ยนโยบาย ธปท. ตาม docs/agent-tasks/add-source.md"* รายละเอียด: [docs/development.md](docs/development.md)
+
 ## ติดตั้งบนเครื่องตัวเอง (ประมาณ 10 นาที)
 **ต้องมี:** [Bun](https://bun.sh) 1.1+ (หรือ Node 20+), `psql` 15+, Git และโปรเจกต์ Supabase ฟรี (บนคลาวด์ หรือ [ติดตั้งเอง](https://supabase.com/docs/guides/self-hosting/docker))
 

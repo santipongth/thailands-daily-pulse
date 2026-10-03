@@ -56,6 +56,16 @@ Principles:
 | Optional | Any OpenAI-compatible AI API · [Firecrawl](https://firecrawl.dev) for blocked pages |
 | Tests | Vitest (parsers and calculation helpers) |
 
+## Fastest start (one command)
+```sh
+git clone https://github.com/<you>/thailand-daily-signals.git && cd thailand-daily-signals
+bun install && bun run setup && bun run doctor && bun run dev
+```
+`bun run setup` asks for your database URL and keys, writes `.env`, generates the scheduler secret and can install the schema. `bun run doctor` tells you exactly what is missing. Opening the repo in a **Dev Container / Codespace** pre-installs everything.
+
+## Develop with Claude Code or Codex
+The repo is ready for AI coding agents: `CLAUDE.md` (Claude Code) and `AGENTS.md` (Codex) hold the project rules, `.claude/commands/` gives `/add-source`, `/add-signal`, `/check`, `/db-export`, and `docs/agent-tasks/` has the same guides for Codex. Just open the folder and ask, e.g. *"Add a connector for the BOT policy rate following docs/agent-tasks/add-source.md"*. Full guide: [docs/development.md](docs/development.md).
+
 ## Quick start (local, about 10 minutes)
 **You need:** [Bun](https://bun.sh) 1.1+ (or Node 20+), `psql` 15+, Git, and a free Supabase project (cloud or [self-hosted](https://supabase.com/docs/guides/self-hosting/docker)).
 
