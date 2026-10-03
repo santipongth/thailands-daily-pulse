@@ -25,11 +25,14 @@ export const Route = createFileRoute("/api/public/brief")({
           return Response.json({ ok: true, date: d, ...data });
         }
         const date = bangkokDate();
+        const { ensureBriefImages } = await import("@/lib/brief-images.server");
         const { data: b } = await admin.from("daily_briefs").select("published_at").eq("brief_date", date).maybeSingle();
-        if (b?.published_at) return Response.json({ ok: true, already: true });
+        // Published already (05:58 retry or ?step=images): only fill missing illustrations — idempotent.
+        if (b?.published_at) return Response.json({ ok: true, already: true, images: await ensureBriefImages(admin, date) });
         await admin.rpc("rank_signals", { _d: date });
         await refreshBrief(admin, date, step === "publish", step);
-        return Response.json({ ok: true, step });
+        const images = step === "publish" ? await ensureBriefImages(admin, date) : null;
+        return Response.json({ ok: true, step, images });
       },
     },
   },

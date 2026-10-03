@@ -72,6 +72,12 @@
   --color-ticker-up: var(--ticker-up);
   --color-ticker-down: var(--ticker-down);
   --color-ticker-accent: var(--ticker-accent);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-headline-red: var(--headline-red);
+  --color-headline-red-foreground: var(--headline-red-foreground);
+  --color-press-green: var(--press-green);
+  --color-press-yellow: var(--press-yellow);
   --font-sans: "IBM Plex Sans Thai", system-ui, sans-serif;
   --font-display: "Noto Serif Thai", Georgia, serif;
 }
@@ -98,6 +104,12 @@
   --input: oklch(0.82 0.02 80);
   --ring: oklch(0.52 0.17 35);
   --up: oklch(0.52 0.17 35);
+  --paper: oklch(0.985 0.008 90);
+  --ink: oklch(0.14 0.01 60);
+  --headline-red: oklch(0.5 0.21 27);
+  --headline-red-foreground: oklch(0.99 0.005 90);
+  --press-green: oklch(0.45 0.12 155);
+  --press-yellow: oklch(0.9 0.17 95);
   --down: oklch(0.48 0.08 150);
   --live: oklch(0.48 0.08 150);
   --live-foreground: oklch(0.97 0.015 85);
@@ -223,4 +235,10 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+@utility tds-grid {
+  background-image: linear-gradient(color-mix(in oklab, var(--color-ink) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-ink) 7%, transparent) 1px, transparent 1px);
+  background-size: 12px 12px;
 }
