@@ -67,20 +67,3 @@ export function SignalCard({ s, family, metric, history, news }: { s: Signal; fa
   );
 }
 
-const thDay = (d: string) => new Date(`${d}T00:00:00+07:00`).toLocaleDateString("th-TH", { timeZone: "Asia/Bangkok", day: "numeric", month: "short", year: "2-digit" });
-const thTime = (t: string) => new Date(t).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-
-/** Data date, effective date and received time for any signal — late arrivals are labelled, never hidden. */
-export function SignalDates({ s, history }: { s: Signal; history: Obs[] }) {
-  const late = s.checks?.arrival_rule === "late_above_threshold";
-  const dataDate: string = late ? s.checks.data_date : s.signal_date;
-  const obs = [...history].reverse().find((o) => o.observed_on === dataDate && o.is_demo === s.is_demo);
-  const eff: string | null = (late ? s.checks.effective_from : null) ?? obs?.effective_from ?? null;
-  const recv: string | null = (late ? s.checks.received_at : null) ?? obs?.received_at ?? null;
-  return (
-    <p className="mt-1 text-xs text-muted-foreground">
-      {late && <span className="font-medium text-foreground">ข้อมูลมาช้า {s.checks.arrival_lag_days} วัน · </span>}
-      ข้อมูลวันที่ {thDay(dataDate)} · มีผล {eff ? thDay(eff) : "แหล่งไม่ระบุ"} · ได้รับ {recv ? thTime(recv) : "—"}
-    </p>
-  );
-}
