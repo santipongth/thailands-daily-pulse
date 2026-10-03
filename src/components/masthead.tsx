@@ -29,7 +29,7 @@ export function Masthead() {
         </nav>
       </div>
       <p className="mx-auto max-w-6xl px-4 pb-3 text-sm text-muted-foreground">
-        วันนี้ มีอะไรเปลี่ยนไปในประเทศไทยที่อาจกระทบชีวิตคุณ — อะไรไม่เปลี่ยน เราก็เงียบ
+        วันนี้ มีอะไรเปลี่ยนไปในประเทศไทยที่อาจกระทบชีวิตคุณ
       </p>
       <DailyTicker />
       {/* FailureAlert renders nothing visible; it only fires browser notifications */}
