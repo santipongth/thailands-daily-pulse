@@ -220,7 +220,10 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
   const { data: lastNews } = await admin.from("job_locks").select("locked_until").eq("name", "news_fetched").maybeSingle();
   const liveStale = !!opts.force || !last || Date.now() - new Date(last.created_at).getTime() >= STALE;
   const newsStale = !!opts.force || !lastNews || Date.now() - new Date(lastNews.locked_until).getTime() >= STALE_MS;
-  if (!liveStale && !newsStale) {
+  // Longdo has its own hourly cadence, independent of the broader 3-hour observation gate.
+  const { data: lastLongdo } = await admin.from("source_runs").select("ran_at").eq("source", "Longdo Traffic Index").maybeSingle();
+  const longdoDue = !lastLongdo?.ran_at || Math.floor(new Date(lastLongdo.ran_at).getTime() / 3600e3) < Math.floor(Date.now() / 3600e3);
+  if (!liveStale && !newsStale && !longdoDue) {
     const { count: due } = await admin.from("ingest_jobs").select("id", { count: "exact", head: true }).eq("status", "queued").lte("run_after", new Date().toISOString());
     const { data: b } = await admin.from("daily_briefs").select("brief_date").eq("brief_date", date).maybeSingle();
     if (b && !due) return { refreshed: false };
@@ -235,7 +238,7 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
     const specs: { job_type: string; source: string }[] = [];
     if (liveStale) {
       const { CONNECTORS } = await import("./connectors.server");
-      for (const c of CONNECTORS) if (!DAILY_05.includes(c.source)) specs.push({ job_type: "connector", source: c.source });
+      for (const c of CONNECTORS) if (!DAILY_05.includes(c.source) && (c.source !== "Longdo Traffic Index" || longdoDue)) specs.push({ job_type: "connector", source: c.source });
       for (const s of await daily05Due(admin, date, opts.runKind)) specs.push(s);
       // Food prices change once a day: fetch on daily/manual runs or if today's prices are missing.
       const { count: foodToday } = await admin.from("observations").select("id", { count: "exact", head: true })
@@ -251,6 +254,7 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
       }
       specs.push({ job_type: "lottery", source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)" });
     }
+    if (!liveStale && longdoDue) specs.push({ job_type: "connector", source: "Longdo Traffic Index" });
     if (newsStale) specs.push({ job_type: "news", source: "ข่าว RSS" });
     if (specs.length) await enqueue(admin, specs, opts.runKind ?? "hourly");
     const processed = await drain(admin, date);

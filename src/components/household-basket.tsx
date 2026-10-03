@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BASKET, basketLines } from "@/lib/impact";
-import { EditorialDataSection } from "@/components/editorial-data-section";
 
 const b2 = (n: number) => n.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const sign = (n: number) => (n > 0.005 ? `+${b2(n)}` : n < -0.005 ? `−${b2(-n)}` : "0.00");
@@ -23,13 +22,13 @@ export function HouseholdBasket({ date }: { date: string }) {
   const total = lines.reduce((s, l) => s + l.costCur, 0);
   const delta = lines.reduce((s, l) => s + l.delta, 0);
   return (
-    <EditorialDataSection
-      eyebrow="ผลกระทบต่อชีวิตประจำวัน"
-      title="ตัวอย่างค่าใช้จ่ายครัวเรือนต่อวัน"
-      summary={<><span className="block font-editorial text-3xl tabular-nums text-editorial-ink">{b2(total)} ฿</span><span className="text-xs text-muted-foreground">รวมต่อวัน</span></>}
-      footer={<>สูตร: (ราคาล่าสุด − ราคาก่อน) × ปริมาณต่อวัน; ต่อเดือน = × 30 · ปริมาณตะกร้าเป็นค่าสมมติของครอบครัว 3–4 คน</>}
-    >
-      <p className="mb-4 text-sm leading-relaxed text-muted-foreground">ตะกร้าอ้างอิงคงที่ × ราคาจริงล่าสุด เทียบกับราคาครั้งก่อน</p>
+    <section className="border-t border-editorial-ink pt-5 font-editorial-body">
+      <div className="flex items-baseline gap-3 border-b border-editorial-rule pb-3">
+        <h2 className="font-editorial text-2xl leading-snug text-editorial-red">ตัวอย่างค่าใช้จ่ายครัวเรือนต่อวัน</h2>
+        <span aria-hidden="true" className="hidden h-px flex-1 bg-editorial-rule sm:block" />
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">ตะกร้าอ้างอิงคงที่ × ราคาจริงล่าสุด เทียบกับราคาครั้งก่อน</p>
+      <p className="mt-4 font-editorial text-3xl tabular-nums text-editorial-ink">{b2(total)} ฿ <span className="font-editorial-body text-sm text-muted-foreground">รวมต่อวัน</span></p>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-sm">
           <thead><tr className="border-b border-editorial-ink text-left text-muted-foreground"><th className="py-2">รายการ</th><th>ปริมาณ/วัน</th><th>ราคาก่อน</th><th>ราคาล่าสุด</th><th>ค่าใช้จ่าย/วัน</th><th>เปลี่ยน/วัน</th></tr></thead>
@@ -45,6 +44,7 @@ export function HouseholdBasket({ date }: { date: string }) {
         </table>
       </div>
       <p className="mt-4 text-sm">เทียบครั้งก่อน <b>{sign(delta)} บาท/วัน</b> · ประมาณ <b>{sign(delta * 30)} บาท/เดือน</b></p>
-    </EditorialDataSection>
+      <p className="mt-5 border-t border-editorial-rule pt-3 text-xs leading-relaxed text-muted-foreground">สูตร: (ราคาล่าสุด − ราคาก่อน) × ปริมาณต่อวัน; ต่อเดือน = × 30 · ปริมาณตะกร้าเป็นค่าสมมติของครอบครัว 3–4 คน</p>
+    </section>
   );
 }
