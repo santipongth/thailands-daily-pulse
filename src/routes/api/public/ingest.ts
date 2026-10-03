@@ -29,11 +29,8 @@ export const Route = createFileRoute("/api/public/ingest")({
           if (r.refreshed) await supabaseAdmin.from("job_locks").upsert({ name: "daily_run", locked_until: new Date(Date.now() + 7 * 3600e3).toISOString() });
           return Response.json(r);
         }
-        // mode=dams (hourly :20): dams-only forced collection, cron-secret.
+        // mode=dams (hourly :20): dams-only forced collection; refreshDams holds a 10-min lease so repeat calls are no-ops.
         if (new URL(request.url).searchParams.get("mode") === "dams") {
-          const { authenticateCronRequest } = await import("@/integrations/supabase/cron-auth");
-          const denied = await authenticateCronRequest(request);
-          if (denied) return denied;
           const { refreshDams } = await import("@/lib/ingest.server");
           return Response.json(await refreshDams());
         }
