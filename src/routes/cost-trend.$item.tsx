@@ -75,7 +75,7 @@ function Item() {
         return (
           <section key={id} className="mt-8 border-t-2 border-editorial-ink pt-4">
             <h2 className="font-editorial text-2xl text-editorial-red">{srcName(id)}</h2>
-            {!id.startsWith("elec_") && <Link to="/cost-signals/$item" params={{ item: id }} className="text-xs underline">วิเคราะห์สัญญาณ / ตั้งเกณฑ์เอง →</Link>}
+            
             <p className="mt-1 text-sm">{m?.name_th} · ล่าสุด <b className="tabular-nums">{b2(last ? Number(last.value) : null)}</b> {m?.unit} {last && <span className="text-muted-foreground">(ราคาวันที่ {last.observed_on})</span>}</p>
             {!rows.length && <p className="mt-2 text-sm text-muted-foreground">ยังไม่มีข้อมูลจริงในช่วงนี้</p>}
             <div className="overflow-x-auto"><table className="mt-3 w-full min-w-[640px] text-sm">

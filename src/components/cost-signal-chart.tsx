@@ -34,7 +34,7 @@ export function CostSignalChart({ s, metric, history }: { s: Signal; metric: Met
         {cur.min != null && cur.max != null && `ช่วงต่ำ–สูง ${fmt(cur.min, metric.decimals)}–${fmt(cur.max, metric.decimals)} ${metric.unit}`}
         {impact != null && ` · ผลต่อครัวเรือน ${impact > 0 ? "+" : ""}${impact.toFixed(2)} ฿/วัน`}
       </p>
-      <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs"><Link to="/cost-trend/$item" params={{ item: s.metric_id }} className="underline">ดูรายละเอียดสินค้า →</Link><Link to="/cost-signals/$item" params={{ item: s.metric_id }} className="underline">วิเคราะห์สัญญาณ / ตั้งเกณฑ์เอง →</Link></p>
+      <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs"><Link to="/cost-trend/$item" params={{ item: s.metric_id }} className="underline">ดูรายละเอียดสินค้า →</Link></p>
     </div>
   </WeeklyComparison>;
 }

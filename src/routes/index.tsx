@@ -8,10 +8,8 @@ import { Masthead } from "@/components/masthead";
 import { SignalCard, Sparkline } from "@/components/signals-ui";
 import { bkkToday, dayQuery, fmt, shiftDate, thaiDate } from "@/lib/signals";
 import { refreshData } from "@/lib/signals.functions";
-import { SENS_SEVERITIES } from "@/lib/signals";
-import { useSensitivity } from "@/hooks/use-sensitivity";
-import { useSourcePrefs, readIntervalHours } from "@/hooks/use-source-prefs";
-import { SOURCES } from "@/lib/sources";
+import { readIntervalHours } from "@/hooks/use-source-prefs";
+import { TodayItem, TodayList, TodaySection, thTime } from "@/components/today-section";
 import { HouseholdBasket } from "@/components/household-basket";
 import { BriefItems, type BriefItem } from "@/components/brief-items";
 import { BkkForecast } from "@/components/bkk-forecast";
@@ -69,10 +67,11 @@ function Today() {
   const met = new Map(data.metrics.map((m) => [m.id, m]));
   const hist = (id: string) => data.obs.filter((o) => o.metric_id === id);
   const releases = data.signals.filter((s) => met.get(s.metric_id)?.kind === "release");
-  const [sens] = useSensitivity();
-  const [prefs] = useSourcePrefs();
-  const off = new Set(SOURCES.filter((x) => prefs.disabled.includes(x.source)).flatMap((x) => x.metrics));
-  const moves = data.signals.filter((s) => s.is_demo === false && !off.has(s.metric_id) && SENS_SEVERITIES[sens].includes(s.severity));
+  const moves = data.signals.filter((s) => s.is_demo === false);
+  useEffect(() => { // one-time cleanup of retired reader-threshold settings
+    localStorage.removeItem("tds-sensitivity");
+    Object.keys(localStorage).filter((k) => k.startsWith("cost-threshold:")).forEach((k) => localStorage.removeItem(k));
+  }, []);
   const agencyNews = data.news.filter((n) => n.agency).slice(0, 6);
   const activeFams = new Set([...releases, ...moves].map((s) => s.family_id));
   const quiet = data.families.filter((f) => !activeFams.has(f.id));
@@ -144,8 +143,8 @@ function Today() {
             <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้ <span className="font-editorial-body text-sm font-normal text-muted-foreground">({moves.length})</span></h2>
             <Link to="/data-all" className="text-sm underline">ดูตัวเลขทุกหมวด →</Link>
           </div>
-          <p className="mb-5 text-sm text-muted-foreground">เฉพาะข้อมูลที่เปลี่ยนเกินเกณฑ์ตรวจสอบในวันที่เลือก ตามระดับความสำคัญและแหล่งข้อมูลที่คุณเลือก · หมวดอื่นอาจไม่เปลี่ยน ยังไม่เกินเกณฑ์ หรือยังไม่มีค่าก่อนหน้าให้เทียบ</p>
-          {moves.length === 0 && <p className="text-muted-foreground">ยังไม่มีการเปลี่ยนแปลงที่เกินเกณฑ์ในระดับที่คุณเลือก ส่วนแหล่งที่ตรวจไม่ได้ต้องดูสถานะแยกต่างหาก</p>}
+          <p className="mb-5 text-sm text-muted-foreground">เฉพาะข้อมูลที่เปลี่ยนเกินเกณฑ์ตรวจสอบในวันที่เลือก · หมวดอื่นอาจไม่เปลี่ยน ยังไม่เกินเกณฑ์ หรือยังไม่มีค่าก่อนหน้าให้เทียบ</p>
+          {moves.length === 0 && <p className="text-muted-foreground">ยังไม่มีการเปลี่ยนแปลงที่เกินเกณฑ์ ส่วนแหล่งที่ตรวจไม่ได้ต้องดูสถานะแยกต่างหาก</p>}
           {moves.length > 0 && (
             <div className="grid gap-x-10 gap-y-10 md:grid-cols-2">
               {moves.map((s) => (
@@ -156,11 +155,10 @@ function Today() {
         </section>
 
         {date === today && (
-          <div className="mt-12 space-y-8">
+          <div className="mt-12 space-y-12">
             <BkkMap initialLayers={layers} initialPoint={pt} />
             <StationMap />
             <RailStatus />
-            <p className="text-sm"><Link to="/stations" className="underline">ดูข้อมูลรายสถานีและกราฟแนวโน้มทั้งหมด →</Link></p>
           </div>
         )}
 
@@ -169,26 +167,19 @@ function Today() {
         {date === today && <div className="mt-12"><GeneralNews /></div>}
 
         {agencyNews.length > 0 && (
-          <section className="mt-12 border-t border-editorial-ink pt-5">
-            <div className="flex items-baseline gap-3 border-b border-editorial-rule pb-3">
-              <h2 className="font-editorial text-2xl leading-snug text-editorial-red">ความเคลื่อนไหวจากหน่วยงานราชการ</h2>
-              <span aria-hidden="true" className="hidden h-px flex-1 bg-editorial-rule sm:block" />
-            </div>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">ข่าวจากหนังสือพิมพ์ที่กล่าวถึงหน่วยงานราชการ · ไม่ใช่ประกาศยืนยันจากหน่วยงานโดยตรง</p>
-            <ul className="mt-4 grid gap-x-8 sm:grid-cols-2">
+          <div className="mt-12"><TodaySection id="agency-h" title="ความเคลื่อนไหวจากหน่วยงานราชการ" note="ข่าวจากหนังสือพิมพ์ที่กล่าวถึงหน่วยงานราชการ · ไม่ใช่ประกาศยืนยันจากหน่วยงานโดยตรง">
+            <TodayList>
               {agencyNews.map((n) => (
-                <li key={n.id} className="border-b border-editorial-rule py-4 text-sm leading-relaxed">
-                  <span className="text-xs font-semibold text-editorial-red">{n.agency}</span>
-                  <a href={n.link} target="_blank" rel="noreferrer" className="mt-1 block hover:underline">{n.title}</a>
-                  <span className="mt-2 block text-xs text-muted-foreground">{n.source} · {new Date(n.published_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium", timeStyle: "short" })}</span>
-                </li>
+                <TodayItem key={n.id} label={n.agency} meta={<><span>{n.source} · {thTime(n.published_at)}</span><a href={n.link} target="_blank" rel="noreferrer" className="underline hover:text-foreground">อ่านข่าวต้นทาง</a></>}>
+                  <p>{n.title}</p>
+                </TodayItem>
               ))}
-            </ul>
-          </section>
+            </TodayList>
+          </TodaySection></div>
         )}
 
         <div className="mt-12"><HouseholdBasket date={date} /></div>
-        {date === today && <div className="mt-10"><LatestLottery /></div>}
+        {date === today && <div className="mt-12"><LatestLottery /></div>}
 
         <section className="mt-14 border-t border-editorial-ink pt-4">
            <h2 className="font-editorial text-2xl text-editorial-red">หมวดที่ยังไม่มีสัญญาณ <span className="font-editorial-body text-sm font-normal text-muted-foreground">— แหล่งที่ตรวจไม่ได้ไม่ถือว่าไม่มีการเปลี่ยนแปลง</span></h2>
