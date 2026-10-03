@@ -66,8 +66,8 @@ function BriefPage() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-5xl px-4 py-8 font-editorial-body">
-        <nav aria-label="ฉบับ Daily Brief" className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-b border-foreground pb-3 text-sm sm:flex sm:items-center sm:justify-between">
+      <main className="page-shell">
+        <nav aria-label="ฉบับ Daily Brief" className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 border-b border-editorial-rule pb-3 text-sm sm:flex sm:items-center sm:justify-between">
           <Link to="/brief/$date" params={{ date: shiftDate(date, -1) }} className="hover:underline">← วันก่อน</Link>
           <Link to="/brief" className="hover:underline">คลังทั้งหมด</Link>
           {date < bkkToday() && <Link to="/brief/$date" params={{ date: shiftDate(date, 1) }} className="col-span-2 text-right hover:underline sm:col-span-1">วันถัดไป →</Link>}
@@ -127,7 +127,7 @@ function BriefPage() {
               </div>); })()}
             {Array.isArray(data.completeness) && (
               <div className="mt-6">
-                <h3 className="border-b border-foreground pb-1 font-display text-xl">ความครบถ้วนของแหล่งข้อมูล</h3>
+                <h3 className="border-b border-editorial-rule pb-2 font-editorial text-xl text-editorial-ink">ความครบถ้วนของแหล่งข้อมูล</h3>
                 <p className="mt-1 text-xs text-muted-foreground">แหล่งที่ "เก่า" หรือ "ตรวจสอบไม่ได้" ไม่ได้แปลว่าไม่เปลี่ยน — เพียงแต่ยังยืนยันไม่ได้ในฉบับนี้</p>
                 <ul className="mt-2 grid gap-1 text-sm sm:grid-cols-2">
                   {(data.completeness as Completeness[]).map((c) => (

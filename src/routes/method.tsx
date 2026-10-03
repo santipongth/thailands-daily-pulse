@@ -49,14 +49,14 @@ function Method() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-5xl space-y-10 px-4 py-8">
+      <main className="page-shell space-y-10">
         <header>
-          <h1 className="font-display text-4xl">วิธีคำนวณสัญญาณ</h1>
+          <h1 className="font-editorial text-4xl sm:text-5xl">วิธีคำนวณสัญญาณ</h1>
           <p className="mt-2 text-muted-foreground">ตัวเลขทุกตัว (การเปลี่ยนแปลง, %, ผลต่อครัวเรือน, อันดับ) คำนวณโดยระบบจากสูตรด้านล่าง AI ใช้เรียบเรียงภาษาบทนำเท่านั้น และถ้าข้อความของ AI มีตัวเลขที่ไม่อยู่ในข้อเท็จจริงที่คำนวณไว้ ระบบจะทิ้งข้อความนั้นและใช้ข้อความแม่แบบแทน</p>
         </header>
 
         <section>
-          <h2 className="font-display text-2xl">1. ตรวจจับการเปลี่ยนแปลง</h2>
+          <h2 className="section-heading text-2xl">1. ตรวจจับการเปลี่ยนแปลง</h2>
           <ul className="mt-3 list-disc space-y-1 pl-6 text-sm">
             <li><b>delta</b>: ratio = max(|Δ| ÷ เกณฑ์สัมบูรณ์, |Δ%| ÷ เกณฑ์ %) ÷ ตัวคูณความน่าเชื่อถือ (แหล่งระดับกลางต้องแรงขึ้น 1.5 เท่า) ต้อง ≥ 1</li>
             <li>|Δ%| ต้องไม่ต่ำกว่า min % ของตัวชี้วัด</li>
@@ -67,8 +67,8 @@ function Method() {
         </section>
 
         <section>
-          <h2 className="font-display text-2xl">2. จัดอันดับ</h2>
-          <p className="mt-3 border-2 border-foreground p-4 font-mono text-sm">คะแนน = น้ำหนักความรุนแรง × ตัวคูณความแรง × ความน่าเชื่อถือแหล่ง × ผลต่อครัวเรือน × หลักฐานไฟล์ดิบ</p>
+          <h2 className="section-heading text-2xl">2. จัดอันดับ</h2>
+          <p className="mt-3 border-t-2 border-editorial-ink bg-editorial-surface p-4 font-mono text-sm shadow-[var(--shadow-editorial)]">คะแนน = น้ำหนักความรุนแรง × ตัวคูณความแรง × ความน่าเชื่อถือแหล่ง × ผลต่อครัวเรือน × หลักฐานไฟล์ดิบ</p>
           <ul className="mt-3 list-disc space-y-1 pl-6 text-sm">
             <li>น้ำหนักความรุนแรง: สูง {SEVERITY_WEIGHT.high} · กลาง {SEVERITY_WEIGHT.medium} · ต่ำ {SEVERITY_WEIGHT.low}</li>
             <li>ตัวคูณความแรง = z ÷ vol_k จำกัดช่วง 1–2 (ไม่มีข้อมูลพอ = 1)</li>
@@ -83,13 +83,13 @@ function Method() {
         </section>
 
         <section>
-          <h2 className="font-display text-2xl">3. ผลต่อครัวเรือน</h2>
+          <h2 className="section-heading text-2xl">3. ผลต่อครัวเรือน</h2>
           <p className="mt-3 text-sm">ตะกร้าค่าใช้จ่ายรายวัน: (ราคาล่าสุด − ราคาก่อน) × ปริมาณต่อวัน (หมู 0.3 กก., อกไก่ 0.3 กก., ไข่ 4 ฟอง, ข้าว 0.5 กก., ผักบุ้ง 0.25 กก., น้ำมันปาล์ม 0.05 ขวด, แก๊สโซฮอล์ 95 3 ลิตร) และ × 30 เป็นรายเดือน · ต่อสัญญาณคำนวณจากตัวอย่างครัวเรือนอ้างอิงคงที่ เช่น รถเก๋งเติม 50 ลิตร × Δ ราคาต่อลิตร, กระบะดีเซล 70 ลิตร, ทอง 1 บาท, หมู 2 กก./สัปดาห์, ไข่ 30 ฟอง/เดือน, งบเที่ยว 1,000 ดอลลาร์ และ PM2.5 เทียบมาตรฐานไทย 37.5 µg/m³</p>
         </section>
 
 
         <section>
-          <h2 className="font-display text-2xl">ตัวอย่างการคำนวณจากข้อมูลจริง</h2>
+          <h2 className="section-heading text-2xl">ตัวอย่างการคำนวณจากข้อมูลจริง</h2>
           {!data.sample ? <p className="mt-3 text-sm text-muted-foreground">ยังไม่มีสัญญาณจากข้อมูลจริงให้ยกตัวอย่าง</p> : (() => {
             const s = data.sample; const c = s.checks ?? {}; const k = c.score ?? {};
             const m = data.metrics.find((x) => x.id === s.metric_id); const u = m?.unit ?? "";
@@ -117,7 +117,7 @@ function Method() {
           </div>
         </section>
         <section>
-          <h2 className="font-display text-2xl">4. เกณฑ์ของแต่ละตัวชี้วัด</h2>
+          <h2 className="section-heading text-2xl">4. เกณฑ์ของแต่ละตัวชี้วัด</h2>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="border-b-2 border-foreground text-left"><th className="py-1">ตัวชี้วัด</th><th>กลุ่ม</th><th>กฎ</th><th>เกณฑ์สัมบูรณ์</th><th>ความน่าเชื่อถือ</th><th>เกณฑ์ %</th><th>min %</th><th>vol_k</th><th>max gap</th><th>bands</th></tr></thead>
@@ -181,7 +181,7 @@ function ReplayAndChecks() {
   return (
     <>
       <section>
-        <h2 className="font-display text-2xl">เกณฑ์เปิดใช้งาน (7 วันล่าสุด, ข้อมูลจริง)</h2>
+         <h2 className="section-heading text-2xl">เกณฑ์เปิดใช้งาน (7 วันล่าสุด, ข้อมูลจริง)</h2>
         {checks.data ? (
           <ul className="mt-3 list-disc space-y-1 pl-6 text-sm">
             <li>Signal ที่ย้อนถึงกฎและไฟล์หลักฐานต้นทางได้: <b>{checks.data.traced}/{checks.data.total} ({pct(checks.data.traced, checks.data.total)})</b> — เป้าหมาย 100%</li>
@@ -193,7 +193,7 @@ function ReplayAndChecks() {
         <p className="mt-2 text-xs text-muted-foreground">ระบบไม่ตั้งเป้าจำนวนข่าวต่อวัน</p>
       </section>
       <section>
-        <h2 className="font-display text-2xl">Replay: ย้อนตรวจด้วยข้อมูลที่ระบบรู้ ณ 05:45 ของวันนั้น</h2>
+         <h2 className="section-heading text-2xl">Replay: ย้อนตรวจด้วยข้อมูลที่ระบบรู้ ณ 05:45 ของวันนั้น</h2>
         <div className="mt-3 flex items-center gap-2 text-sm">
           <input type="date" value={d} max={today} onChange={(e) => setD(e.target.value)} className="border-2 border-foreground bg-background px-2 py-1" aria-label="วันที่ replay" />
         </div>
