@@ -169,6 +169,13 @@
       "when": 1791020625699,
       "tag": "0023_social_posts_fm91",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791021170002,
+      "tag": "0024_deprecate_gov_catalog_tables",
+      "breakpoints": true
     }
   ]
 }
