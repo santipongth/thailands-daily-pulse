@@ -1,0 +1,1 @@
+ALTER TABLE public.source_registry ALTER COLUMN stale_after_days SET DEFAULT 1;
