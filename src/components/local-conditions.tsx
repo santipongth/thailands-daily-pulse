@@ -55,7 +55,7 @@ export function LocalSummary({ gistda }: { gistda?: { value: number; date: strin
   const latestAt = (rs: Snap[]) => rs.map((r) => r.observed_at ?? "").sort().at(-1) ?? null;
   return (
     <section className="mt-10">
-      <h2 className="section-heading text-2xl">🌊 น้ำท่วม กทม. · อากาศ · รถไฟฟ้า (รอบล่าสุด)</h2>
+      <h2 className="section-heading text-2xl">น้ำท่วม กทม. · อากาศ · รถไฟฟ้า (รอบล่าสุด)</h2>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <article className={box}>
           <h3 className="font-semibold">น้ำท่วมถนน (เซนเซอร์ กทม.)</h3>
@@ -91,7 +91,7 @@ export function LocalSummary({ gistda }: { gistda?: { value: number; date: strin
           <Src s={A4T} at={a4t[0]?.received_at} />
         </article>
         <article className={`${box} md:col-span-2`}>
-          <h3 className="font-semibold">🚆 รถไฟฟ้า BTS / MRT — ประกาศเหตุขัดข้อง (3 วันล่าสุด)</h3>
+          <h3 className="font-semibold">รถไฟฟ้า BTS / MRT — ประกาศเหตุขัดข้อง (3 วันล่าสุด)</h3>
           {data.rail.length ? <ul className="mt-1 space-y-1 text-sm">{data.rail.map((p) => (
             <li key={p.post_id}><b>{p.source.split(" ")[0]}</b> · {when(p.posted_at)} — <a href={p.url} target="_blank" rel="noreferrer" className="hover:underline">{p.text.slice(0, 160)}</a></li>
           ))}</ul> : <p className="mt-1 text-sm text-muted-foreground">ไม่พบประกาศเหตุขัดข้องจากบัญชีทางการของ BTS และ MRT</p>}
@@ -113,7 +113,7 @@ export function LocalTables() {
   const th = "py-1 pr-3 text-left";
   return (
     <section className="mt-8">
-      <h2 className="section-heading text-2xl">🌊 น้ำท่วม / น้ำท้องถิ่น / ฝุ่นรายสถานี</h2>
+      <h2 className="section-heading text-2xl">น้ำท่วม / น้ำท้องถิ่น / ฝุ่นรายสถานี</h2>
       <p className="mt-1 text-sm text-muted-foreground">ค่าทุกจุดจากรอบดึงล่าสุดของแต่ละแหล่ง พร้อมเวลาที่สถานีรายงาน</p>
 
       <h3 className="mt-4 font-semibold">ระดับน้ำ ThaiWater (กทม. นนทบุรี ปทุมธานี สมุทรปราการ) · {tw.length} สถานี</h3>
