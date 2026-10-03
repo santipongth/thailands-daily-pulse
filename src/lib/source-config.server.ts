@@ -37,6 +37,14 @@ const overridden = (c?: SourceConfig) => !!c && (!c.enabled || c.schedule !== "d
  * Attaches max_attempts from config to every spec that has a row.
  */
 export async function applySourceConfig(admin: any, specs: JobSpec[], runKind?: string): Promise<(JobSpec & { max_attempts?: number })[]> {
+  const out = await applyConfigOnly(admin, specs, runKind);
+  const { pausedSources, breakerBypass } = await import("./breaker.server");
+  if (breakerBypass(runKind)) return out;
+  const paused = await pausedSources(admin);
+  return paused.size ? out.filter((s) => !paused.has(s.source)) : out;
+}
+
+async function applyConfigOnly(admin: any, specs: JobSpec[], runKind?: string): Promise<(JobSpec & { max_attempts?: number })[]> {
   const cfg = await loadConfigs(admin);
   if (!cfg.size) return specs;
   const out: (JobSpec & { max_attempts?: number })[] = specs.filter((s) => !overridden(cfg.get(s.source)));

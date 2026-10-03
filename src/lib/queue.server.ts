@@ -200,6 +200,8 @@ export async function drain(admin: any, date: string, budgetMs = 240e3, maxJobs 
       await admin.from("source_runs").upsert(runs.map(okAt), { onConflict: "source" });
       await admin.from("source_run_history").insert(runs.map((r) => ({ source: r.source, ran_at: r.ran_at, ok: r.ok, rows: r.rows, error: r.error, run_kind: job.run_kind })));
     }
+    const midWriteOnly = runs.length > 0 && runs.every((r) => r.ok || r.error?.includes("ใช้ค่ารอบก่อน"));
+    await import("./breaker.server").then((b) => b.recordBreaker(admin, job.source, allFailed && !midWriteOnly)).catch((e) => console.error("breaker", e));
     const retry = allFailed && job.attempts < job.max_attempts;
     // provider rate-limit (429): retry sooner (15 min) so a pre-05:45 run still has a chance
     const limited = runs.some((r) => r.error?.startsWith("429"));
