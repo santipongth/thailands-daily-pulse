@@ -13,6 +13,37 @@ async function saveSnapshots(admin: any, jobId: number, source: string, rows: im
   const received_at = new Date().toISOString();
   const { error } = await admin.from("station_snapshots").insert(rows.map((r) => ({ ...r, source, evidence_id: ev?.id ?? null, received_at })));
   if (error) console.error("station_snapshots insert failed", error.message);
+  // Remember each station's own coordinates so the map keeps its pins when a later fetch has none.
+  const locs = rows.filter((r) => r.lat != null && r.lng != null).map((r) => ({ source, station_id: r.station_id, name: r.name, lat: r.lat, lng: r.lng, method: "source", updated_at: received_at }));
+  if (locs.length) {
+    const { error: le } = await admin.from("station_locations").upsert(locs, { onConflict: "source,station_id" });
+    if (le) console.error("station_locations upsert failed", le.message);
+  }
+  if (source === BMA_SOURCE) await geocodeBma(admin, rows).catch((e) => console.error("bma geocode failed", e));
+}
+
+const BMA_SOURCE = "กทม. ระบายน้ำ (น้ำท่วมถนน)";
+/** New BMA road sensors (no coordinates from the source) → OpenStreetMap lookup, max 20 per run, stored as approximate. */
+async function geocodeBma(admin: any, rows: import("./connectors.server").Snap[]) {
+  const { data: known } = await admin.from("station_locations").select("station_id").eq("source", BMA_SOURCE);
+  const tried = new Set((known ?? []).map((k: any) => k.station_id));
+  const { data: miss } = await admin.from("app_settings").select("value").eq("key", "bma_geocode_miss").maybeSingle();
+  const missed = new Set<string>(JSON.parse(miss?.value ?? "[]"));
+  const todo = rows.filter((r) => !tried.has(r.station_id) && !missed.has(r.station_id)).slice(0, 20);
+  const { bmaGeoQueries } = await import("./bkk-geo");
+  for (const r of todo) {
+    let hit: any = null;
+    for (const q of bmaGeoQueries(r.name, r.area ?? "")) {
+      const u = `https://nominatim.openstreetmap.org/search?format=json&limit=1&bounded=1&countrycodes=th&viewbox=100.32,14.0,100.95,13.49&q=${encodeURIComponent(q)}`;
+      const res = await fetch(u, { headers: { "user-agent": "ThailandDailySignals/1.0 (flood map)" } });
+      await new Promise((ok) => setTimeout(ok, 1100));
+      hit = res.ok ? (await res.json())[0] : null;
+      if (hit) break;
+    }
+    if (hit) await admin.from("station_locations").upsert({ source: BMA_SOURCE, station_id: r.station_id, name: r.name, lat: Number(hit.lat), lng: Number(hit.lon), method: "geocoded" }, { onConflict: "source,station_id" });
+    else missed.add(r.station_id);
+  }
+  if (todo.length) await admin.from("app_settings").upsert({ key: "bma_geocode_miss", value: JSON.stringify([...missed]), updated_at: new Date().toISOString() }, { onConflict: "key" });
 }
 
 const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = {
