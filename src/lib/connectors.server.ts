@@ -88,7 +88,7 @@ export const CONNECTORS: Connector[] = [
         const next = parseBmaFlood(await firecrawlMarkdown(BMA_FLOOD_URL, wait), date);
         if (next.sensors > r.sensors) r = next;
       }
-      if (!r.sensors) throw new Error("ไม่พบตารางจุดวัดน้ำท่วมถนนของวันนี้ (หน้าเว็บอาจเปลี่ยน)");
+      if (!r.sensors) throw new Error("ไม่พบตารางจุดวัดน้ำท่วมถนนของวันนี้ — ตารางยังโหลดไม่ทัน จะลองใหม่รอบถัดไป");
       const rows = r.rows.map((x) => ({ station_id: x.code, name: x.name || x.road, area: x.road, value: x.level, status: x.status, observed_at: x.at }));
       return { rows, values: { bma_road_flood: r.flooded }, dates: {}, sample: `อ่านได้ ${r.sensors} จุด · น้ำท่วม ${r.flooded} จุด${r.names.length ? `: ${r.names.slice(0, 4).join(", ")}` : ""}` };
     },
