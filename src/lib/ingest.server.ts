@@ -202,7 +202,7 @@ async function daily05Due(admin: any, date: string, runKind?: string) {
   if (runKind !== "daily" || b.getUTCHours() !== 5) return [];
   if (b.getUTCMinutes() < 30) return DAILY_05.map(spec);
   const { data } = await admin.from("source_runs").select("source,ok,ran_at").in("source", DAILY_05);
-  const okToday = new Set((data ?? []).filter((r: any) => r.ok && bangkokDate.call(null, 0) === date && new Date(new Date(r.ran_at).getTime() + 7 * 3600e3).toISOString().slice(0, 10) === date).map((r: any) => r.source));
+  const okToday = new Set((data ?? []).filter((r: any) => r.ok && new Date(new Date(r.ran_at).getTime() + 7 * 3600e3).toISOString().slice(0, 10) === date).map((r: any) => r.source));
   return DAILY_05.filter((s) => !okToday.has(s)).map(spec);
 }
 
