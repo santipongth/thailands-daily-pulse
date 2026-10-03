@@ -22,6 +22,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StationsRouteImport } from './routes/stations'
+import { Route as UnchangedRouteImport } from './routes/unchanged'
 import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
 import { Route as AdminCalendarRouteImport } from './routes/_admin/calendar'
 import { Route as AdminDataRouteImport } from './routes/_admin/data'
@@ -116,6 +117,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const StationsRoute = StationsRouteImport.update({
   id: '/stations',
   path: '/stations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnchangedRoute = UnchangedRouteImport.update({
+  id: '/unchanged',
+  path: '/unchanged',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAdminRoute = AdminAdminRouteImport.update({
@@ -287,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stations': typeof StationsRoute
+  '/unchanged': typeof UnchangedRoute
   '/admin': typeof AdminAdminRoute
   '/calendar': typeof AdminCalendarRoute
   '/data': typeof AdminDataRoute
@@ -331,6 +338,7 @@ export interface FileRoutesByTo {
   '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stations': typeof StationsRoute
+  '/unchanged': typeof UnchangedRoute
   '/admin': typeof AdminAdminRoute
   '/calendar': typeof AdminCalendarRoute
   '/data': typeof AdminDataRoute
@@ -378,6 +386,7 @@ export interface FileRoutesById {
   '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stations': typeof StationsRoute
+  '/unchanged': typeof UnchangedRoute
   '/_admin/admin': typeof AdminAdminRoute
   '/_admin/calendar': typeof AdminCalendarRoute
   '/_admin/data': typeof AdminDataRoute
@@ -425,6 +434,7 @@ export interface FileRouteTypes {
     | '/sitemap'
     | '/sitemap.xml'
     | '/stations'
+    | '/unchanged'
     | '/admin'
     | '/calendar'
     | '/data'
@@ -469,6 +479,7 @@ export interface FileRouteTypes {
     | '/sitemap'
     | '/sitemap.xml'
     | '/stations'
+    | '/unchanged'
     | '/admin'
     | '/calendar'
     | '/data'
@@ -515,6 +526,7 @@ export interface FileRouteTypes {
     | '/sitemap'
     | '/sitemap.xml'
     | '/stations'
+    | '/unchanged'
     | '/_admin/admin'
     | '/_admin/calendar'
     | '/_admin/data'
@@ -562,6 +574,7 @@ export interface RootRouteChildren {
   SitemapRoute: typeof SitemapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StationsRoute: typeof StationsRoute
+  UnchangedRoute: typeof UnchangedRoute
   AdminLoginRoute: typeof AdminLoginRoute
   BriefDateRoute: typeof BriefDateRoute
   CostTrendItemRoute: typeof CostTrendItemRoute
@@ -669,6 +682,13 @@ declare module '@tanstack/react-router' {
       path: '/stations'
       fullPath: '/stations'
       preLoaderRoute: typeof StationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unchanged': {
+      id: '/unchanged'
+      path: '/unchanged'
+      fullPath: '/unchanged'
+      preLoaderRoute: typeof UnchangedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_admin/admin': {
@@ -959,6 +979,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapRoute: SitemapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StationsRoute: StationsRoute,
+  UnchangedRoute: UnchangedRoute,
   AdminLoginRoute: AdminLoginRoute,
   BriefDateRoute: BriefDateRoute,
   CostTrendItemRoute: CostTrendItemRoute,
