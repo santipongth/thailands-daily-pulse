@@ -30,7 +30,9 @@ export function SourcePerformance() {
   );
 }
 
-function PerfRow({ p }: { p: Perf & { config: any } }) {
+type Day = { day: string; runs: number; ok: number; files_changed: number; median_data_age_min: number | null };
+
+function PerfRow({ p }: { p: Perf & { config: any; trend: Day[]; dataAgeMin: number | null } }) {
   const qc = useQueryClient();
   const save = useServerFn(saveSourceConfig);
   const [msg, setMsg] = useState<string | null>(null);
@@ -42,7 +44,18 @@ function PerfRow({ p }: { p: Perf & { config: any } }) {
         <span className="font-semibold">{p.source}</span>
         <span className={pct >= 90 ? "text-primary" : pct >= 60 ? "" : "font-semibold text-destructive"}>สำเร็จ {pct}% ({p.ok}/{p.runs} รอบ)</span>
         <span className="text-xs text-muted-foreground">{p.runsPerDay.toFixed(1)} รอบ/วัน · ไฟล์ใหม่ {p.filesChangedPerDay === null ? "—" : p.filesChangedPerDay.toFixed(1)} ครั้ง/วัน</span>
+        {p.dataAgeMin != null && <span className="text-xs text-muted-foreground" title="เวลาที่ข้อมูลของต้นทางเก่าอยู่ตอนดึง (มัธยฐาน)">ข้อมูลอายุตอนดึง ~{p.dataAgeMin < 120 ? `${p.dataAgeMin} นาที` : `${(p.dataAgeMin / 60).toFixed(1)} ชม.`}</span>}
       </div>
+      {p.trend.length > 1 && (
+        <div className="mt-2 flex items-end gap-1" aria-label="อัตราสำเร็จรายวัน">
+          <span className="mr-1 text-[10px] text-muted-foreground">รายวัน</span>
+          {p.trend.map((d) => {
+            const r = d.runs ? d.ok / d.runs : 0;
+            return <div key={d.day} title={`${d.day}: สำเร็จ ${d.ok}/${d.runs} · ไฟล์ใหม่ ${d.files_changed}${d.median_data_age_min != null ? ` · อายุข้อมูล ${d.median_data_age_min} นาที` : ""}`}
+              className={`w-3 ${r >= 0.9 ? "bg-primary" : r >= 0.6 ? "bg-accent" : "bg-destructive"}`} style={{ height: `${Math.max(4, r * 24)}px` }} />;
+          })}
+        </div>
+      )}
       {causes.length > 0 && <div className="mt-1 text-xs text-muted-foreground">ล้มเหลวเพราะ: {causes.map(([c, n]) => `${CAUSE_TH[c]} ${n}`).join(" · ")}</div>}
       <div className="mt-2 flex gap-px" aria-label="ผลแยกตามชั่วโมง">
         {p.byHour.map((h, i) => {
