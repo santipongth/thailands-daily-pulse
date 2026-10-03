@@ -34,3 +34,7 @@
 - Brief front page (`brief-frontpage.tsx`): numbers only from brief items/real rows; AI illustrations (`brief-images.server.ts`, private bucket `brief-images`, signed URLs via `getBriefImages`) generated after publish, no text in images, labelled AI; 402/403 pause via app_settings `brief_images_paused`.
 - Public integrations are read-only: REST `/api/public/v1`, OpenAPI, and MCP share anon-RLS reads; never expose writes, admin access, queues/settings, private files, or evidence paths; UI uses shared responsive editorial primitives.
 
+- Admin area: pathless `_admin` layout (ssr:false) gates internal pages (agencies, events, impact, calendar, data, evidence, method, sources, tracking, settings, /admin) by `has_role(admin)` from `user_roles`; site-wide writes and private-file links use `requireAdmin` middleware; public sign-up disabled, readers need no account — no settings changeable by visitors.
+- Raw evidence: a re-fetch identical to the URL's latest record only bumps `last_seen_at`/`seen_count`/`last_job_id` (no new row); freshness uses max(fetched_at,last_seen_at) — keeps "file changed that day" ranking semantics without row bloat.
+- Retention: `pruneOldJobs` (daily run + admin button) deletes done/failed jobs and run history older than 30 days; evidence never deleted. Public API v1 rate-limited 120/min/IP via `hit_rate_limit`; detection/rank/claim SQL functions executable by service role only.
+- Brief share image = `/api/public/og/brief/$date` streaming the day's AI hero (no text); `/search` queries real signals and brief_updates only.
