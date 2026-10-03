@@ -46,9 +46,10 @@ function FamilyPage() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-4xl px-4 py-8">
+      <main className="page-shell">
+        <div className="mx-auto max-w-5xl">
         <Link to="/" className="text-sm hover:underline">← กลับหน้าวันนี้</Link>
-        <h1 className="mt-4 font-display text-4xl">{family.emoji} {family.name_th}</h1>
+        <h1 className="mt-4 font-editorial text-4xl sm:text-5xl">{family.emoji} {family.name_th}</h1>
         <p className="mt-2 text-muted-foreground">{family.description} · อัปเดต{family.cadence}</p>
         <p className="mt-1 flex items-center gap-2 text-sm">
           ที่มา: {family.source_url ? <a href={family.source_url} target="_blank" rel="noreferrer" className="underline">{family.source_name}</a> : family.source_name}
@@ -60,10 +61,10 @@ function FamilyPage() {
             const h = obs.filter((o) => o.metric_id === m.id);
             const last = h.at(-1);
             return (
-              <div key={m.id} className="border-t-2 border-foreground pt-3">
+              <div key={m.id} className="border-t-2 border-editorial-ink bg-editorial-surface p-4 shadow-[var(--shadow-editorial)]">
                 <div className="text-sm text-muted-foreground">{m.name_th}</div>
                 <div className="flex items-end justify-between">
-                  <div className="font-display text-3xl tabular-nums">
+                  <div className="font-editorial text-3xl tabular-nums">
                     {last ? fmt(last.value, m.decimals) : "—"} <span className="text-base text-muted-foreground">{m.unit}</span>
                   </div>
                   {m.kind !== "release" && <Sparkline values={h.map((o) => Number(o.value))} />}
@@ -76,7 +77,7 @@ function FamilyPage() {
 
         {news.length > 0 && (
           <section className="mt-12">
-            <h2 className="font-display text-2xl">ข่าวที่เกี่ยวข้องล่าสุด</h2>
+            <h2 className="section-heading text-2xl">ข่าวที่เกี่ยวข้องล่าสุด</h2>
             <ul className="mt-4 space-y-3 text-sm">
               {news.map((n) => (
                 <li key={n.id}>
@@ -89,7 +90,7 @@ function FamilyPage() {
         )}
 
         <section className="mt-12">
-          <h2 className="font-display text-2xl">สัญญาณที่เคยเกิด</h2>
+          <h2 className="section-heading text-2xl">สัญญาณที่เคยเกิด</h2>
           {signals.length === 0 ? (
             <p className="mt-3 text-muted-foreground">ยังไม่มีการเปลี่ยนแปลงที่เกินเกณฑ์</p>
           ) : (
@@ -106,6 +107,7 @@ function FamilyPage() {
             </ul>
           )}
         </section>
+        </div>
       </main>
     </div>
   );

@@ -60,8 +60,9 @@ function Failures() {
   return (
     <div className="min-h-screen">
       <Masthead />
-      <main className="mx-auto max-w-4xl px-4 py-8">
-        <h1 className="font-display text-4xl">แหล่งที่ดึงข้อมูลไม่ได้</h1>
+      <main className="page-shell">
+        <div className="mx-auto max-w-5xl">
+        <h1 className="font-editorial text-4xl sm:text-5xl">แหล่งที่ดึงข้อมูลไม่ได้</h1>
         <p className="mt-2 text-muted-foreground">ล้มเหลว {failed.length} จาก {data.length} แหล่งในรอบล่าสุด ระบบจะลองใหม่อัตโนมัติทุกชั่วโมง ข้อมูลของแหล่งที่ล้มเหลวจะไม่ถูกใช้ตัดสัญญาณ</p>
         <p className="mt-1 text-sm">รอบประจำวัน (ทุกวัน 05:30 น.) ล่าสุด: <strong>{daily ? t(daily) : "ยังไม่เคยรัน"}</strong>{followed ? " · แสดงเฉพาะแหล่งที่คุณติดตาม" : ""}</p>
         <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -69,13 +70,13 @@ function Failures() {
           {msg && <span className="text-sm text-muted-foreground">{msg}</span>}
         </div>
         {failed.length === 0 ? (
-          <p className="mt-8 border-2 border-foreground p-6">ทุกแหล่งดึงข้อมูลสำเร็จในรอบล่าสุด</p>
+          <p className="mt-8 border-t-2 border-editorial-ink bg-editorial-surface p-6 shadow-[var(--shadow-editorial)]">ทุกแหล่งดึงข้อมูลสำเร็จในรอบล่าสุด</p>
         ) : (
           <ul className="mt-6 space-y-4">
             {failed.map((r) => (
-              <li key={r.source} className="border-2 border-foreground p-4">
+              <li key={r.source} className="border-t-2 border-editorial-ink bg-editorial-surface p-4 shadow-[var(--shadow-editorial)]">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h2 className="font-display text-xl">{r.source}</h2>
+                  <h2 className="font-editorial text-xl">{r.source}</h2>
                   <span className="text-xs uppercase text-muted-foreground">{r.kind === "crawler" ? "crawler เว็บไซต์" : "API"} · {r.run_kind === "daily" ? "รอบประจำวัน" : r.run_kind === "manual" ? "ลองเอง" : "รอบรายชั่วโมง"}</span>
                 </div>
                 {r.error?.startsWith("429") && (
@@ -88,6 +89,7 @@ function Failures() {
             ))}
           </ul>
         )}
+        </div>
       </main>
     </div>
   );
