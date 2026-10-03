@@ -22,10 +22,8 @@
 - Public reads via browser client under anon SELECT RLS; writes server-side with admin client. `is_demo`/`is_live` label real vs illustrative data.
 - Household impact per signal = `impactFor` in impact.ts: `USAGE` holds per-metric usage with source/method/official flag (official = gov per-person or national figure converted per household; else labelled example); user overrides only on /impact via localStorage, briefs always use official — one formula, recomputable.
 - Brief data window = 00:00 → 05:45 Bangkok on the brief day (forced `?mode=early` runs 00:10/03:00/05:00 + 05:30 daily); on freeze/publish signals whose observation `received_at` is after it are excluded (become brief_updates); window stored in `daily_briefs.data_window` (first/last received, excluded with reason) and shown on brief, /events and /impact — honest cutoff.
-- The masthead ticker reads today's ranked signals directly and links each item to its family page; it never creates fallback numbers or changes detection logic .
 
 - Source-specific fetch rules live in `src/lib/AGENTS.md`.
-- Brief front page (`brief-frontpage.tsx`): numbers only from brief items/real rows; AI illustrations (`brief-images.server.ts`, private bucket `brief-images`, signed URLs via `getBriefImages`) generated after publish, no text in images, labelled AI; 402/403 pause via app_settings `brief_images_paused`.
 - Public integrations are read-only: REST `/api/public/v1`, OpenAPI, and MCP share anon-RLS reads; never expose writes, admin access, queues/settings, private files, or evidence paths; UI uses shared responsive editorial primitives.
 
 - Admin area: pathless `_admin` layout (ssr:false) gates internal pages (agencies, events, impact, calendar, data, evidence, method, sources, tracking, settings, /admin) by `has_role(admin)` from `user_roles`; site-wide writes and private-file links use `requireAdmin` middleware; public sign-up disabled, readers need no account — no settings changeable by visitors.
