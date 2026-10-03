@@ -20,8 +20,8 @@ export function CostSignalChart({ s, metric, history }: { s: Signal; metric: Met
   const qty = s.metric_id.startsWith("dit_") && metric.unit !== "บาท/กก." ? undefined : BASKET.find((b) => b.metric_id === basketId)?.qty;
   const impact = qty != null && cur.avg != null && prev.avg != null ? (cur.avg - prev.avg) * qty : null;
   return <WeeklyComparison weeks={[
-    { label: "7 วันก่อนหน้า", value: prev.days >= 3 ? prev.avg : null, coverage: `มีราคา ${prev.days} วันจาก 7 วัน`, arrivals: arrivals(shiftDays(end, -13), shiftDays(end, -7)) },
-    { label: "7 วันล่าสุด", value: cur.days >= 3 ? cur.avg : null, coverage: `มีราคา ${cur.days} วันจาก 7 วัน`, arrivals: arrivals(shiftDays(end, -6), end) },
+    { label: "7 วันก่อนหน้า", value: prev.days >= 3 ? prev.avg : null, coverage: `มีราคา ${prev.days} วันจาก 7 วัน` },
+    { label: "7 วันล่าสุด", value: cur.days >= 3 ? cur.avg : null, coverage: `มีราคา ${cur.days} วันจาก 7 วัน` },
   ]} unit={metric.unit} decimals={metric.decimals} note={`ราคาเฉลี่ยจากวันที่มีราคาจริงอย่างน้อย 3 วันต่อช่วง ไม่เติมวันที่ขาด${end !== s.signal_date ? ` · เทียบถึงวันที่ของราคา ${end} (ได้รับ ${s.signal_date})` : ""}`}>
     <div className="mt-4 border-t border-editorial-rule pt-3">
       <p className="text-xs text-muted-foreground">ราคา 14 วันล่าสุด · ช่องว่างคือวันที่ไม่มีราคา</p>
