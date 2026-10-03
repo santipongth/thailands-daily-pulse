@@ -72,19 +72,7 @@ function Today() {
   const [sens] = useSensitivity();
   const [prefs] = useSourcePrefs();
   const off = new Set(SOURCES.filter((x) => prefs.disabled.includes(x.source)).flatMap((x) => x.metrics));
-  const allMoves = data.signals.filter((s) => met.get(s.metric_id)?.kind !== "release" && !off.has(s.metric_id));
-  const moves = allMoves.filter((s) => SENS_SEVERITIES[sens].includes(s.severity));
-  const minor = allMoves.filter((s) => !SENS_SEVERITIES[sens].includes(s.severity));
-  // Near threshold: real latest change ≥ 70% of the metric's threshold but no signal — context only, never counted.
-  const signalled = new Set(data.signals.map((s) => s.metric_id));
-  const nearMisses = data.metrics.flatMap((m) => {
-    if (signalled.has(m.id) || off.has(m.id) || m.kind !== "delta" || (m.threshold_abs == null && m.threshold_pct == null)) return [];
-    const h = hist(m.id); const last = h.at(-1), prev = h.at(-2);
-    if (!last || !prev || last.observed_on < shiftDate(date, -3)) return [];
-    const d = Number(last.value) - Number(prev.value); const pc = Number(prev.value) ? (d / Number(prev.value)) * 100 : null;
-    const ratio = Math.max(m.threshold_abs ? Math.abs(d) / m.threshold_abs : 0, m.threshold_pct && pc != null ? Math.abs(pc) / m.threshold_pct : 0);
-    return ratio >= 0.7 && ratio < 1 ? [{ m, d, pc, ratio, h, last }] : [];
-  }).sort((a, b) => b.ratio - a.ratio).slice(0, 8);
+  const moves = data.signals.filter((s) => met.get(s.metric_id)?.kind !== "release" && !off.has(s.metric_id) && SENS_SEVERITIES[sens].includes(s.severity));
   const agencyNews = data.news.filter((n) => n.agency).slice(0, 6);
   const activeFams = new Set([...releases, ...moves].map((s) => s.family_id));
   const quiet = data.families.filter((f) => !activeFams.has(f.id));
@@ -153,7 +141,7 @@ function Today() {
 
         <section className="mt-9 border-t border-editorial-ink pt-5">
           <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้ <span className="font-editorial-body text-sm font-normal text-muted-foreground">({moves.length}{minor.length ? ` / ทั้งหมด ${allMoves.length}` : ""})</span></h2>
+            <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้ <span className="font-editorial-body text-sm font-normal text-muted-foreground">({moves.length})</span></h2>
             <Link to="/data-all" className="text-sm underline">ดูตัวเลขทุกหมวด →</Link>
           </div>
           <p className="mb-5 text-sm text-muted-foreground">เฉพาะข้อมูลที่เปลี่ยนเกินเกณฑ์ตรวจสอบในวันที่เลือก ตามระดับความสำคัญและแหล่งข้อมูลที่คุณเลือก · หมวดอื่นอาจไม่เปลี่ยน ยังไม่เกินเกณฑ์ หรือยังไม่มีค่าก่อนหน้าให้เทียบ</p>
