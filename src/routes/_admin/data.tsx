@@ -28,8 +28,8 @@ const rawQuery = queryOptions({
   },
 });
 
-export const Route = createFileRoute("/data")({
-  staticData: { sitemap: true },
+export const Route = createFileRoute("/_admin/data")({
+  staticData: { sitemap: false },
   loader: ({ context }) => context.queryClient.ensureQueryData(rawQuery),
   head: () => ({
     meta: [

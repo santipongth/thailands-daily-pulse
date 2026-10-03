@@ -24,8 +24,8 @@ const agenciesQuery = queryOptions({
   },
 });
 
-export const Route = createFileRoute("/agencies/")({
-  staticData: { sitemap: true },
+export const Route = createFileRoute("/_admin/agencies/")({
+  staticData: { sitemap: false },
   loader: ({ context }) => context.queryClient.ensureQueryData(agenciesQuery),
   head: () => ({
     meta: [

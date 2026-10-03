@@ -61,12 +61,12 @@ export async function completenessNow(admin: any, today: string) {
     admin.from("source_registry").select("*").order("sort"),
     admin.from("source_runs").select("source,ok,ran_at,last_ok_at,error"),
     admin.from("observations").select("metric_id,observed_on").eq("is_demo", false).gte("observed_on", bangkokDate(-120)).order("observed_on", { ascending: false }).limit(5000),
-    admin.from("raw_evidence").select("source,fetched_at").order("fetched_at", { ascending: false }).limit(500),
+    admin.from("raw_evidence").select("source,fetched_at,last_seen_at").order("fetched_at", { ascending: false }).limit(500),
   ]);
   const latest: Record<string, string> = {};
   for (const o of obs ?? []) latest[o.metric_id] ??= o.observed_on;
   const lastEv: Record<string, string> = {};
-  for (const e of ev ?? []) lastEv[e.source] ??= e.fetched_at;
+  for (const e of ev ?? []) { const t = e.last_seen_at && e.last_seen_at > e.fetched_at ? e.last_seen_at : e.fetched_at; if (!lastEv[e.source] || t > lastEv[e.source]!) lastEv[e.source] = t; }
   return computeCompleteness(today, reg ?? [], runs ?? [], latest, lastEv);
 }
 
@@ -247,6 +247,7 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
         specs.push({ job_type: "checkraka", source: "CheckRaka (ราคาอาหาร)" });
       }
       if (opts.runKind === "daily" || opts.runKind === "manual") specs.push({ job_type: "holidays", source: "Kapook ปฏิทินวันหยุด" });
+      if (opts.runKind === "daily") await import("./maintenance.server").then((m) => m.pruneOldJobs(admin)).catch((e) => console.error("prune failed", e));
       if (opts.runKind === "daily" || opts.runKind === "manual") specs.push({ job_type: "rdtax", source: "กรมสรรพากร (ปฏิทินภาษี)" });
       else {
         const { count: tax } = await admin.from("tax_deadlines").select("id", { count: "exact", head: true }).gte("fetched_at", new Date(Date.now() - 86400e3).toISOString());

@@ -9,8 +9,8 @@ import { bkkToday, thaiDate } from "@/lib/signals";
 import { RD_TAX_URL } from "@/lib/rdtax";
 import { upcomingQuery } from "@/lib/calendar";
 
-export const Route = createFileRoute("/calendar")({
-  staticData: { sitemap: true },
+export const Route = createFileRoute("/_admin/calendar")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "วันหยุดและกำหนดยื่นภาษี — Thailand Daily Signals" },

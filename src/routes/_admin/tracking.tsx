@@ -20,8 +20,8 @@ const todayData = (d: string) => queryOptions({
   },
 });
 
-export const Route = createFileRoute("/tracking")({
-  staticData: { sitemap: true },
+export const Route = createFileRoute("/_admin/tracking")({
+  staticData: { sitemap: false },
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(registryQuery), context.queryClient.ensureQueryData(todayData(bkkToday()))]),
   head: () => ({
     meta: [

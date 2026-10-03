@@ -4,8 +4,8 @@ import { Masthead } from "@/components/masthead";
 import { registryQuery } from "@/lib/registry";
 import { STATUS_TH } from "@/lib/completeness";
 
-export const Route = createFileRoute("/sources")({
-  staticData: { sitemap: true },
+export const Route = createFileRoute("/_admin/sources")({
+  staticData: { sitemap: false },
   loader: ({ context }) => context.queryClient.ensureQueryData(registryQuery),
   head: () => ({
     meta: [

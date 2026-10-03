@@ -6,8 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { USAGE, impactFor } from "@/lib/impact";
 import { useCutEvents, CutEventsList } from "@/components/cut-events";
 
-export const Route = createFileRoute("/impact")({
-  staticData: { sitemap: true },
+export const Route = createFileRoute("/_admin/impact")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "ติดตามสูตรผลกระทบต่อครัวเรือน — Thailand Daily Signals" },

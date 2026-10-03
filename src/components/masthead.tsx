@@ -24,23 +24,16 @@ export function Masthead() {
           <Link to="/key-data" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ข้อมูลสำคัญ</Link>
           <Link to="/data-all" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ข้อมูลทั้งหมด</Link>
           <Link to="/day/$date" params={{ date: bkkToday() }} className="hover:underline" activeProps={{ className: "font-semibold underline" }}>รายวัน</Link>
-          <Link to="/agencies" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>หน่วยงาน</Link>
-          <Link to="/events" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>เหตุการณ์</Link>
-          <Link to="/impact" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>สูตรผลกระทบ</Link>
-          <Link to="/calendar" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>วันหยุด/ภาษี</Link>
-          <Link to="/data" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ข้อมูลดิบ</Link>
-          <Link to="/evidence" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ไฟล์ดิบ</Link>
-          <Link to="/method" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>วิธีคำนวณ</Link>
-          <Link to="/sources" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>แหล่งข้อมูล</Link>
-          <Link to="/tracking" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ติดตามข้อมูล</Link>
-          <Link to="/settings" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ตั้งค่า</Link>
+          <Link to="/data-map" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>แผนผังข้อมูล</Link>
+          <Link to="/search" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>ค้นหา</Link>
+          <Link to="/developers" className="hover:underline" activeProps={{ className: "font-semibold underline" }}>สำหรับนักพัฒนา</Link>
         </nav>
         <Sheet>
           <SheetTrigger asChild><Button variant="outline" size="icon" className="shrink-0 md:hidden" aria-label="เปิดเมนู"><Menu /></Button></SheetTrigger>
           <SheetContent side="right" className="w-[88vw] overflow-y-auto p-5 sm:max-w-sm">
             <SheetHeader className="pr-8 text-left"><SheetTitle className="font-editorial text-2xl">เมนู</SheetTitle></SheetHeader>
             <nav className="mt-5 flex flex-col" aria-label="เมนูมือถือ">
-              <MobileLink to="/">วันนี้</MobileLink><MobileLink to="/brief">Brief</MobileLink><MobileLink to="/key-data">ข้อมูลสำคัญ</MobileLink><MobileLink to="/data-all">ข้อมูลทั้งหมด</MobileLink><MobileLink to={`/day/${bkkToday()}`}>รายวัน</MobileLink><MobileLink to="/agencies">หน่วยงาน</MobileLink><MobileLink to="/events">เหตุการณ์</MobileLink><MobileLink to="/impact">สูตรผลกระทบ</MobileLink><MobileLink to="/calendar">วันหยุด/ภาษี</MobileLink><MobileLink to="/data">ข้อมูลดิบ</MobileLink><MobileLink to="/evidence">ไฟล์ดิบ</MobileLink><MobileLink to="/method">วิธีคำนวณ</MobileLink><MobileLink to="/sources">แหล่งข้อมูล</MobileLink><MobileLink to="/data-map">แผนผังข้อมูล</MobileLink><MobileLink to="/tracking">ติดตามข้อมูล</MobileLink><MobileLink to="/settings">ตั้งค่า</MobileLink><MobileLink to="/developers">สำหรับนักพัฒนา</MobileLink>
+              <MobileLink to="/">วันนี้</MobileLink><MobileLink to="/brief">Brief</MobileLink><MobileLink to="/key-data">ข้อมูลสำคัญ</MobileLink><MobileLink to="/data-all">ข้อมูลทั้งหมด</MobileLink><MobileLink to={`/day/${bkkToday()}`}>รายวัน</MobileLink><MobileLink to="/data-map">แผนผังข้อมูล</MobileLink><MobileLink to="/search">ค้นหา</MobileLink><MobileLink to="/developers">สำหรับนักพัฒนา</MobileLink>
             </nav>
           </SheetContent>
         </Sheet>

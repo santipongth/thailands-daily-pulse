@@ -1,9 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireAdmin } from "./admin-middleware";
 import { KAPOOK_URL_RE } from "./kapook";
 
 /** Change the holiday page link (e.g. next year's Kapook page) and re-read it immediately. Only calendar.kapook.com/<year>/holiday links are accepted. */
 export const setHolidayUrl = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
   .inputValidator((d) => z.object({ url: z.string().trim().regex(KAPOOK_URL_RE) }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

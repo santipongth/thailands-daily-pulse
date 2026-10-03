@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_rate_limits: {
+        Row: {
+          bucket: string
+          hits: number
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          hits?: number
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          hits?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           key: string
@@ -632,6 +650,9 @@ export type Database = {
           http_status: number | null
           id: number
           job_id: number | null
+          last_job_id: number | null
+          last_seen_at: string | null
+          seen_count: number
           sha256: string
           source: string
           storage_path: string
@@ -644,6 +665,9 @@ export type Database = {
           http_status?: number | null
           id?: number
           job_id?: number | null
+          last_job_id?: number | null
+          last_seen_at?: string | null
+          seen_count?: number
           sha256: string
           source: string
           storage_path: string
@@ -656,6 +680,9 @@ export type Database = {
           http_status?: number | null
           id?: number
           job_id?: number | null
+          last_job_id?: number | null
+          last_seen_at?: string | null
+          seen_count?: number
           sha256?: string
           source?: string
           storage_path?: string
@@ -1079,6 +1106,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       weather_station_obs: {
         Row: {
           descr: string | null
@@ -1179,6 +1227,17 @@ export type Database = {
       }
       detect_signals: { Args: { _d: string }; Returns: number }
       family_evidence_source: { Args: { _family: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      hit_rate_limit: {
+        Args: { _bucket: string; _limit: number }
+        Returns: boolean
+      }
       rank_signals: { Args: { _d: string }; Returns: number }
       replay_signals: {
         Args: { _d: string }
@@ -1193,7 +1252,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1320,6 +1379,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

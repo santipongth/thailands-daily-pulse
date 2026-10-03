@@ -3,11 +3,19 @@
 - All crawler/API fetches go through `politeFetch` (`http.server.ts`): browser header profile, 120s timeout, retry 429/5xx/timeout max 3 — headless browsers can't run in the Worker runtime; 429-failed jobs re-queue after 15 min.
 - Bangkok forecast figures come from data.tmd.go.th WeatherForecast7Days (`tmd7d.ts`, today's row) because www.tmd.go.th has a broken cert chain (526); `getBkkForecast` tries region RSS → 7-day → archived RSS.
 - Calendar: `holidays` + `tax_deadlines` (rdtax) on /calendar + homepage aside; dates, never signals. Earthquake signal = `quake_th` from TMD RSS (`quake.ts`), Thai-province epicentres only, level bands {4,5}.
-- Holidays: Kapook yearly page (`kapook.ts`, job `holidays`); URL in `app_settings.holiday_url`, set on /calendar via `setHolidayUrl` — new year = new link.
+- Holidays: Kapook yearly page (`kapook.ts`, job `holidays`); URL in `app_settings.holiday_url`, set on /calendar (admin) via `setHolidayUrl` — new year = new link.
 - Air/weather: GISTDA pm25_bkk; TMD Weather3Hours station 48455 (file <100 stations = TMD mid-write → spaced re-fetch 45s/90s; if 48455 absent use nearest of BKK_ORDER, never averaged) (`tmd3h.ts`, decode XML char refs) → rain_bkk (24h, report date) and tmax_bkk = yesterday's max of 3-hourly readings (running max in app_settings `tmax3h:date`). Water: RID reservoir API → Pasak/Khun Dan; ThaiWater C.13 → cp_dam_q.
 - `weather_station_obs` (5 nearest 3h stations + 7d vicinity rows, by TMD connectors) feeds brief `StationCompare`; fixed `DamsBox` — compare regardless of thresholds.
 - FM91 Firecrawl requests retry transient 429/5xx/network/empty-post responses with bounded backoff; permanent client errors fail immediately and successful no-new-post runs are distinguished from failed fetches — avoid false success and duplicate posts.
-- Longdo and ThaiWater request modes = `app_settings.longdo_mode`/`thaiwater_mode` (auto|direct|firecrawl, set on /settings via `setFetchMode`); ThaiWater tries light `waterlevel_load` then `thailand_main` with thaiwater.net Referer/Origin, then Firecrawl; per-attempt errors verbatim in `source_runs.error`.
+- Longdo and ThaiWater request modes = `app_settings.longdo_mode`/`thaiwater_mode` (auto|direct|firecrawl, set on /settings (admin) via `setFetchMode`); ThaiWater tries light `waterlevel_load` then `thailand_main` with thaiwater.net Referer/Origin, then Firecrawl; per-attempt errors verbatim in `source_runs.error`.
 - Household cost is fixed `BASKET` × real price change in `impact.ts`, shown by `HouseholdBasket` — keep this math deterministic.
 - `/tracking` shows per-source windows, missing values and cutoff reasons from this source pipeline — retain auditable status.
 - `/agencies` groups active `SOURCES` into government and other `AGENCIES`; names must match collection run names so coverage and status remain inspectable.
+
+- Sources: connectors `{metric_id: value}` in `connectors.server.ts`; CheckRaka/RakaKaset aggregators (trust medium); GLO lottery confirmed by 2nd endpoint; outcomes in `source_runs` + `source_run_history` (30d).
+- Every job fetch is archived as raw evidence (private `evidence` bucket, sha256 dedup, kept forever, `raw_evidence`, signed URLs); `/evidence` diffs vs previous file.
+- News RSS: keyword-tagged, tagged items only; never creates signals.
+- Backfill (`backfill.server.ts`, `/api/public/ingest?mode=backfill`, cron-secret) only for sources that publish history (none now); real rows replace demo rows, never real ones; then detect/rank/brief replayed oldest→newest, briefs left unpublished (archive editions).
+- Social: FM91 Trafficpro from X via Firecrawl (Facebook refused by Firecrawl), `fm91.server.ts`, cron every 30 min `?mode=social`, AI (Responses, streamed) tags is_bkk/area/summary in `social_posts`; summaries with new numbers dropped; 402/403 pauses via app_settings `social_ai_paused`; never creates signals; shown on home, brief (data window) and ticker as labelled FM91 items.
+- `dam_readings`: each dams run snapshots today's dam values (even if unchanged) for the 48h hourly chart on /data-all; observations stay one row/day.
+- Raw evidence: a re-fetch identical to the URL's latest record only bumps `last_seen_at`/`seen_count`/`last_job_id` (no new row); freshness uses max(fetched_at,last_seen_at) — keeps "file changed that day" ranking semantics without row bloat.

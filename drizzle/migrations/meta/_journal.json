@@ -197,6 +197,20 @@
       "when": 1791030047369,
       "tag": "0027_source_freshness_default_one_day",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1791032566174,
+      "tag": "0028_admin_roles_evidence_dedup_rate_limit",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1791033054500,
+      "tag": "0029_revoke_public_execute_write_functions",
+      "breakpoints": true
     }
   ]
 }

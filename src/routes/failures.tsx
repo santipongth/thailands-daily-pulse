@@ -52,7 +52,8 @@ function Failures() {
   const daily = data.filter((r) => r.run_kind === "daily").map((r) => r.ran_at).sort().pop() ?? null;
   const onRetry = async () => {
     setBusy(true); setMsg("กำลังดึงข้อมูลใหม่จากทุกแหล่ง อาจใช้เวลา 1–2 นาที…");
-    const r: any = await retry();
+    let r: any;
+    try { r = await retry(); } catch { setBusy(false); setMsg("การสั่งดึงใหม่ทำได้เฉพาะผู้ดูแลระบบ — ระบบจะลองใหม่เองตามรอบอัตโนมัติ"); return; }
     setBusy(false);
     setMsg(r.refreshed ? "ลองใหม่เสร็จแล้ว" : r.wait_until ? `เพิ่งลองไปแล้ว ลองได้อีกครั้งหลัง ${t(r.wait_until)}` : "มีการดึงข้อมูลอยู่แล้ว ลองใหม่ในอีกสักครู่");
     qc.invalidateQueries({ queryKey: ["source-failures"] });

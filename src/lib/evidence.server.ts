@@ -53,6 +53,13 @@ async function persist(admin: any, jobId: number, source: string, items: Capture
   for (let i = 0; i < items.length; i += 5) {
     const rows = await Promise.all(items.slice(i, i + 5).map(async (c) => {
       const hash = await sha256(c.body);
+      const url = c.url.slice(0, 1000);
+      // Same URL, same bytes as its latest record → just mark it seen again (no new row, no new file).
+      const { data: last } = await admin.from("raw_evidence").select("id,sha256,seen_count").eq("url", url).order("fetched_at", { ascending: false }).limit(1).maybeSingle();
+      if (last && last.sha256 === hash) {
+        await admin.from("raw_evidence").update({ last_seen_at: c.fetchedAt, seen_count: (last.seen_count ?? 1) + 1, last_job_id: jobId }).eq("id", last.id);
+        return null;
+      }
       const { data: prev } = await admin.from("raw_evidence").select("storage_path").eq("sha256", hash).limit(1).maybeSingle();
       let path = prev?.storage_path as string | undefined;
       if (!path) {

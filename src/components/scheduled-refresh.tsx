@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { retrySources } from "@/lib/signals.functions";
+import { refreshData } from "@/lib/signals.functions";
 import { useSourcePrefs } from "@/hooks/use-source-prefs";
 import { SOURCES } from "@/lib/sources";
 
@@ -36,7 +36,7 @@ export function readLastResult(): { key: string; text: string } | null {
 /** Runs the user's chosen update times while the site is open (or on the next visit) and reports the result. */
 export function ScheduledRefresh() {
   const [prefs] = useSourcePrefs();
-  const retry = retrySources;
+  const retry = () => refreshData({ data: { maxAgeHours: 1 } });
   const qc = useQueryClient();
 
   useEffect(() => {

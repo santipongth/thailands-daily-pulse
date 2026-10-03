@@ -10,52 +10,51 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as CalendarRouteImport } from './routes/calendar'
-import { Route as DataRouteImport } from './routes/data'
+import { Route as AdminRouteRouteImport } from './routes/_admin/route'
 import { Route as DataAllRouteImport } from './routes/data-all'
 import { Route as DataMapRouteImport } from './routes/data-map'
 import { Route as DevelopersRouteImport } from './routes/developers'
-import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as FailuresRouteImport } from './routes/failures'
-import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as KeyDataRouteImport } from './routes/key-data'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as McpRouteImport } from './routes/mcp'
-import { Route as MethodRouteImport } from './routes/method'
-import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SourcesRouteImport } from './routes/sources'
-import { Route as TrackingRouteImport } from './routes/tracking'
-import { Route as AgenciesIndexRouteImport } from './routes/agencies.index'
-import { Route as AgenciesAgencyRouteImport } from './routes/agencies.$agency'
+import { Route as AdminAdminRouteImport } from './routes/_admin/admin'
+import { Route as AdminCalendarRouteImport } from './routes/_admin/calendar'
+import { Route as AdminDataRouteImport } from './routes/_admin/data'
+import { Route as AdminEvidenceRouteImport } from './routes/_admin/evidence'
+import { Route as AdminImpactRouteImport } from './routes/_admin/impact'
+import { Route as AdminMethodRouteImport } from './routes/_admin/method'
+import { Route as AdminSettingsRouteImport } from './routes/_admin/settings'
+import { Route as AdminSourcesRouteImport } from './routes/_admin/sources'
+import { Route as AdminTrackingRouteImport } from './routes/_admin/tracking'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as BriefIndexRouteImport } from './routes/brief.index'
 import { Route as BriefDateRouteImport } from './routes/brief.$date'
 import { Route as DayDateRouteImport } from './routes/day.$date'
 import { Route as DevelopersIndexRouteImport } from './routes/developers.index'
 import { Route as DevelopersApiRouteImport } from './routes/developers.api'
 import { Route as DevelopersMcpRouteImport } from './routes/developers.mcp'
-import { Route as EventsIndexRouteImport } from './routes/events.index'
-import { Route as EventsIdRouteImport } from './routes/events.$id'
 import { Route as SignalsFamilyRouteImport } from './routes/signals.$family'
+import { Route as AdminAgenciesIndexRouteImport } from './routes/_admin/agencies.index'
+import { Route as AdminAgenciesAgencyRouteImport } from './routes/_admin/agencies.$agency'
+import { Route as AdminEventsIndexRouteImport } from './routes/_admin/events.index'
+import { Route as AdminEventsIdRouteImport } from './routes/_admin/events.$id'
 import { Route as ApiPublicBriefRouteImport } from './routes/api/public/brief'
 import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
 import { Route as ApiPublicOpenapiDotjsonRouteImport } from './routes/api/public/openapi[.]json'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
+import { Route as ApiPublicOgBriefDateRouteImport } from './routes/api/public/og/brief.$date'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CalendarRoute = CalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DataRoute = DataRouteImport.update({
-  id: '/data',
-  path: '/data',
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/_admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DataAllRoute = DataAllRouteImport.update({
@@ -73,19 +72,9 @@ const DevelopersRoute = DevelopersRouteImport.update({
   path: '/developers',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EvidenceRoute = EvidenceRouteImport.update({
-  id: '/evidence',
-  path: '/evidence',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FailuresRoute = FailuresRouteImport.update({
   id: '/failures',
   path: '/failures',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ImpactRoute = ImpactRouteImport.update({
-  id: '/impact',
-  path: '/impact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KeyDataRoute = KeyDataRouteImport.update({
@@ -103,14 +92,9 @@ const McpRoute = McpRouteImport.update({
   path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MethodRoute = MethodRouteImport.update({
-  id: '/method',
-  path: '/method',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapRoute = SitemapRouteImport.update({
@@ -123,24 +107,54 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SourcesRoute = SourcesRouteImport.update({
+const AdminAdminRoute = AdminAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminCalendarRoute = AdminCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminDataRoute = AdminDataRouteImport.update({
+  id: '/data',
+  path: '/data',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminEvidenceRoute = AdminEvidenceRouteImport.update({
+  id: '/evidence',
+  path: '/evidence',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminImpactRoute = AdminImpactRouteImport.update({
+  id: '/impact',
+  path: '/impact',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminMethodRoute = AdminMethodRouteImport.update({
+  id: '/method',
+  path: '/method',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminSourcesRoute = AdminSourcesRouteImport.update({
   id: '/sources',
   path: '/sources',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AdminRouteRoute,
 } as any)
-const TrackingRoute = TrackingRouteImport.update({
+const AdminTrackingRoute = AdminTrackingRouteImport.update({
   id: '/tracking',
   path: '/tracking',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AdminRouteRoute,
 } as any)
-const AgenciesIndexRoute = AgenciesIndexRouteImport.update({
-  id: '/agencies/',
-  path: '/agencies/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AgenciesAgencyRoute = AgenciesAgencyRouteImport.update({
-  id: '/agencies/$agency',
-  path: '/agencies/$agency',
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BriefIndexRoute = BriefIndexRouteImport.update({
@@ -173,20 +187,30 @@ const DevelopersMcpRoute = DevelopersMcpRouteImport.update({
   path: '/mcp',
   getParentRoute: () => DevelopersRoute,
 } as any)
-const EventsIndexRoute = EventsIndexRouteImport.update({
-  id: '/events/',
-  path: '/events/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EventsIdRoute = EventsIdRouteImport.update({
-  id: '/events/$id',
-  path: '/events/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SignalsFamilyRoute = SignalsFamilyRouteImport.update({
   id: '/signals/$family',
   path: '/signals/$family',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAgenciesIndexRoute = AdminAgenciesIndexRouteImport.update({
+  id: '/agencies/',
+  path: '/agencies/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminAgenciesAgencyRoute = AdminAgenciesAgencyRouteImport.update({
+  id: '/agencies/$agency',
+  path: '/agencies/$agency',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminEventsIndexRoute = AdminEventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminEventsIdRoute = AdminEventsIdRouteImport.update({
+  id: '/events/$id',
+  path: '/events/$id',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const ApiPublicBriefRoute = ApiPublicBriefRouteImport.update({
   id: '/api/public/brief',
@@ -208,250 +232,273 @@ const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
   path: '/api/public/v1/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicOgBriefDateRoute = ApiPublicOgBriefDateRouteImport.update({
+  id: '/api/public/og/brief/$date',
+  path: '/api/public/og/brief/$date',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/calendar': typeof CalendarRoute
-  '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
-  '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
-  '/impact': typeof ImpactRoute
   '/key-data': typeof KeyDataRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
-  '/method': typeof MethodRoute
-  '/settings': typeof SettingsRoute
+  '/search': typeof SearchRoute
   '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/sources': typeof SourcesRoute
-  '/tracking': typeof TrackingRoute
-  '/agencies/$agency': typeof AgenciesAgencyRoute
+  '/admin': typeof AdminAdminRoute
+  '/calendar': typeof AdminCalendarRoute
+  '/data': typeof AdminDataRoute
+  '/evidence': typeof AdminEvidenceRoute
+  '/impact': typeof AdminImpactRoute
+  '/method': typeof AdminMethodRoute
+  '/settings': typeof AdminSettingsRoute
+  '/sources': typeof AdminSourcesRoute
+  '/tracking': typeof AdminTrackingRoute
+  '/admin/login': typeof AdminLoginRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
   '/developers/api': typeof DevelopersApiRoute
   '/developers/mcp': typeof DevelopersMcpRoute
-  '/events/$id': typeof EventsIdRoute
   '/signals/$family': typeof SignalsFamilyRoute
-  '/agencies/': typeof AgenciesIndexRoute
   '/brief/': typeof BriefIndexRoute
   '/developers/': typeof DevelopersIndexRoute
-  '/events/': typeof EventsIndexRoute
+  '/agencies/$agency': typeof AdminAgenciesAgencyRoute
+  '/events/$id': typeof AdminEventsIdRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/agencies/': typeof AdminAgenciesIndexRoute
+  '/events/': typeof AdminEventsIndexRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
+  '/api/public/og/brief/$date': typeof ApiPublicOgBriefDateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/calendar': typeof CalendarRoute
-  '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
-  '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
-  '/impact': typeof ImpactRoute
   '/key-data': typeof KeyDataRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
-  '/method': typeof MethodRoute
-  '/settings': typeof SettingsRoute
+  '/search': typeof SearchRoute
   '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/sources': typeof SourcesRoute
-  '/tracking': typeof TrackingRoute
-  '/agencies/$agency': typeof AgenciesAgencyRoute
+  '/admin': typeof AdminAdminRoute
+  '/calendar': typeof AdminCalendarRoute
+  '/data': typeof AdminDataRoute
+  '/evidence': typeof AdminEvidenceRoute
+  '/impact': typeof AdminImpactRoute
+  '/method': typeof AdminMethodRoute
+  '/settings': typeof AdminSettingsRoute
+  '/sources': typeof AdminSourcesRoute
+  '/tracking': typeof AdminTrackingRoute
+  '/admin/login': typeof AdminLoginRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
   '/developers/api': typeof DevelopersApiRoute
   '/developers/mcp': typeof DevelopersMcpRoute
-  '/events/$id': typeof EventsIdRoute
   '/signals/$family': typeof SignalsFamilyRoute
-  '/agencies': typeof AgenciesIndexRoute
   '/brief': typeof BriefIndexRoute
   '/developers': typeof DevelopersIndexRoute
-  '/events': typeof EventsIndexRoute
+  '/agencies/$agency': typeof AdminAgenciesAgencyRoute
+  '/events/$id': typeof AdminEventsIdRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/agencies': typeof AdminAgenciesIndexRoute
+  '/events': typeof AdminEventsIndexRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
+  '/api/public/og/brief/$date': typeof ApiPublicOgBriefDateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/calendar': typeof CalendarRoute
-  '/data': typeof DataRoute
+  '/_admin': typeof AdminRouteRouteWithChildren
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
-  '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
-  '/impact': typeof ImpactRoute
   '/key-data': typeof KeyDataRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/mcp': typeof McpRoute
-  '/method': typeof MethodRoute
-  '/settings': typeof SettingsRoute
+  '/search': typeof SearchRoute
   '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/sources': typeof SourcesRoute
-  '/tracking': typeof TrackingRoute
-  '/agencies/$agency': typeof AgenciesAgencyRoute
+  '/_admin/admin': typeof AdminAdminRoute
+  '/_admin/calendar': typeof AdminCalendarRoute
+  '/_admin/data': typeof AdminDataRoute
+  '/_admin/evidence': typeof AdminEvidenceRoute
+  '/_admin/impact': typeof AdminImpactRoute
+  '/_admin/method': typeof AdminMethodRoute
+  '/_admin/settings': typeof AdminSettingsRoute
+  '/_admin/sources': typeof AdminSourcesRoute
+  '/_admin/tracking': typeof AdminTrackingRoute
+  '/admin/login': typeof AdminLoginRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
   '/developers/api': typeof DevelopersApiRoute
   '/developers/mcp': typeof DevelopersMcpRoute
-  '/events/$id': typeof EventsIdRoute
   '/signals/$family': typeof SignalsFamilyRoute
-  '/agencies/': typeof AgenciesIndexRoute
   '/brief/': typeof BriefIndexRoute
   '/developers/': typeof DevelopersIndexRoute
-  '/events/': typeof EventsIndexRoute
+  '/_admin/agencies/$agency': typeof AdminAgenciesAgencyRoute
+  '/_admin/events/$id': typeof AdminEventsIdRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
   '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/_admin/agencies/': typeof AdminAgenciesIndexRoute
+  '/_admin/events/': typeof AdminEventsIndexRoute
   '/api/public/v1/$': typeof ApiPublicV1SplatRoute
+  '/api/public/og/brief/$date': typeof ApiPublicOgBriefDateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/calendar'
-    | '/data'
     | '/data-all'
     | '/data-map'
     | '/developers'
-    | '/evidence'
     | '/failures'
-    | '/impact'
     | '/key-data'
     | '/llms.txt'
     | '/mcp'
-    | '/method'
-    | '/settings'
+    | '/search'
     | '/sitemap'
     | '/sitemap.xml'
+    | '/admin'
+    | '/calendar'
+    | '/data'
+    | '/evidence'
+    | '/impact'
+    | '/method'
+    | '/settings'
     | '/sources'
     | '/tracking'
-    | '/agencies/$agency'
+    | '/admin/login'
     | '/brief/$date'
     | '/day/$date'
     | '/developers/api'
     | '/developers/mcp'
-    | '/events/$id'
     | '/signals/$family'
-    | '/agencies/'
     | '/brief/'
     | '/developers/'
-    | '/events/'
+    | '/agencies/$agency'
+    | '/events/$id'
     | '/api/public/brief'
     | '/api/public/ingest'
     | '/api/public/openapi.json'
+    | '/agencies/'
+    | '/events/'
     | '/api/public/v1/$'
+    | '/api/public/og/brief/$date'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/calendar'
-    | '/data'
     | '/data-all'
     | '/data-map'
-    | '/evidence'
     | '/failures'
-    | '/impact'
     | '/key-data'
     | '/llms.txt'
     | '/mcp'
-    | '/method'
-    | '/settings'
+    | '/search'
     | '/sitemap'
     | '/sitemap.xml'
+    | '/admin'
+    | '/calendar'
+    | '/data'
+    | '/evidence'
+    | '/impact'
+    | '/method'
+    | '/settings'
     | '/sources'
     | '/tracking'
-    | '/agencies/$agency'
+    | '/admin/login'
     | '/brief/$date'
     | '/day/$date'
     | '/developers/api'
     | '/developers/mcp'
-    | '/events/$id'
     | '/signals/$family'
-    | '/agencies'
     | '/brief'
     | '/developers'
-    | '/events'
+    | '/agencies/$agency'
+    | '/events/$id'
     | '/api/public/brief'
     | '/api/public/ingest'
     | '/api/public/openapi.json'
+    | '/agencies'
+    | '/events'
     | '/api/public/v1/$'
+    | '/api/public/og/brief/$date'
   id:
     | '__root__'
     | '/'
-    | '/calendar'
-    | '/data'
+    | '/_admin'
     | '/data-all'
     | '/data-map'
     | '/developers'
-    | '/evidence'
     | '/failures'
-    | '/impact'
     | '/key-data'
     | '/llms.txt'
     | '/mcp'
-    | '/method'
-    | '/settings'
+    | '/search'
     | '/sitemap'
     | '/sitemap.xml'
-    | '/sources'
-    | '/tracking'
-    | '/agencies/$agency'
+    | '/_admin/admin'
+    | '/_admin/calendar'
+    | '/_admin/data'
+    | '/_admin/evidence'
+    | '/_admin/impact'
+    | '/_admin/method'
+    | '/_admin/settings'
+    | '/_admin/sources'
+    | '/_admin/tracking'
+    | '/admin/login'
     | '/brief/$date'
     | '/day/$date'
     | '/developers/api'
     | '/developers/mcp'
-    | '/events/$id'
     | '/signals/$family'
-    | '/agencies/'
     | '/brief/'
     | '/developers/'
-    | '/events/'
+    | '/_admin/agencies/$agency'
+    | '/_admin/events/$id'
     | '/api/public/brief'
     | '/api/public/ingest'
     | '/api/public/openapi.json'
+    | '/_admin/agencies/'
+    | '/_admin/events/'
     | '/api/public/v1/$'
+    | '/api/public/og/brief/$date'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CalendarRoute: typeof CalendarRoute
-  DataRoute: typeof DataRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   DataAllRoute: typeof DataAllRoute
   DataMapRoute: typeof DataMapRoute
   DevelopersRoute: typeof DevelopersRouteWithChildren
-  EvidenceRoute: typeof EvidenceRoute
   FailuresRoute: typeof FailuresRoute
-  ImpactRoute: typeof ImpactRoute
   KeyDataRoute: typeof KeyDataRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   McpRoute: typeof McpRoute
-  MethodRoute: typeof MethodRoute
-  SettingsRoute: typeof SettingsRoute
+  SearchRoute: typeof SearchRoute
   SitemapRoute: typeof SitemapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  SourcesRoute: typeof SourcesRoute
-  TrackingRoute: typeof TrackingRoute
-  AgenciesAgencyRoute: typeof AgenciesAgencyRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   BriefDateRoute: typeof BriefDateRoute
   DayDateRoute: typeof DayDateRoute
-  EventsIdRoute: typeof EventsIdRoute
   SignalsFamilyRoute: typeof SignalsFamilyRoute
-  AgenciesIndexRoute: typeof AgenciesIndexRoute
   BriefIndexRoute: typeof BriefIndexRoute
-  EventsIndexRoute: typeof EventsIndexRoute
   ApiPublicBriefRoute: typeof ApiPublicBriefRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
   ApiPublicOpenapiDotjsonRoute: typeof ApiPublicOpenapiDotjsonRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
+  ApiPublicOgBriefDateRoute: typeof ApiPublicOgBriefDateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -463,18 +510,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/calendar': {
-      id: '/calendar'
-      path: '/calendar'
-      fullPath: '/calendar'
-      preLoaderRoute: typeof CalendarRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/data': {
-      id: '/data'
-      path: '/data'
-      fullPath: '/data'
-      preLoaderRoute: typeof DataRouteImport
+    '/_admin': {
+      id: '/_admin'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AdminRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/data-all': {
@@ -498,25 +538,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevelopersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/evidence': {
-      id: '/evidence'
-      path: '/evidence'
-      fullPath: '/evidence'
-      preLoaderRoute: typeof EvidenceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/failures': {
       id: '/failures'
       path: '/failures'
       fullPath: '/failures'
       preLoaderRoute: typeof FailuresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/impact': {
-      id: '/impact'
-      path: '/impact'
-      fullPath: '/impact'
-      preLoaderRoute: typeof ImpactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/key-data': {
@@ -540,18 +566,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/method': {
-      id: '/method'
-      path: '/method'
-      fullPath: '/method'
-      preLoaderRoute: typeof MethodRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap': {
@@ -568,32 +587,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sources': {
-      id: '/sources'
+    '/_admin/admin': {
+      id: '/_admin/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminAdminRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/calendar': {
+      id: '/_admin/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AdminCalendarRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/data': {
+      id: '/_admin/data'
+      path: '/data'
+      fullPath: '/data'
+      preLoaderRoute: typeof AdminDataRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/evidence': {
+      id: '/_admin/evidence'
+      path: '/evidence'
+      fullPath: '/evidence'
+      preLoaderRoute: typeof AdminEvidenceRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/impact': {
+      id: '/_admin/impact'
+      path: '/impact'
+      fullPath: '/impact'
+      preLoaderRoute: typeof AdminImpactRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/method': {
+      id: '/_admin/method'
+      path: '/method'
+      fullPath: '/method'
+      preLoaderRoute: typeof AdminMethodRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/settings': {
+      id: '/_admin/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/sources': {
+      id: '/_admin/sources'
       path: '/sources'
       fullPath: '/sources'
-      preLoaderRoute: typeof SourcesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AdminSourcesRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
-    '/tracking': {
-      id: '/tracking'
+    '/_admin/tracking': {
+      id: '/_admin/tracking'
       path: '/tracking'
       fullPath: '/tracking'
-      preLoaderRoute: typeof TrackingRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AdminTrackingRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
-    '/agencies/': {
-      id: '/agencies/'
-      path: '/agencies'
-      fullPath: '/agencies/'
-      preLoaderRoute: typeof AgenciesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/agencies/$agency': {
-      id: '/agencies/$agency'
-      path: '/agencies/$agency'
-      fullPath: '/agencies/$agency'
-      preLoaderRoute: typeof AgenciesAgencyRouteImport
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/brief/': {
@@ -638,26 +699,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevelopersMcpRouteImport
       parentRoute: typeof DevelopersRoute
     }
-    '/events/': {
-      id: '/events/'
-      path: '/events'
-      fullPath: '/events/'
-      preLoaderRoute: typeof EventsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/events/$id': {
-      id: '/events/$id'
-      path: '/events/$id'
-      fullPath: '/events/$id'
-      preLoaderRoute: typeof EventsIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/signals/$family': {
       id: '/signals/$family'
       path: '/signals/$family'
       fullPath: '/signals/$family'
       preLoaderRoute: typeof SignalsFamilyRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_admin/agencies/': {
+      id: '/_admin/agencies/'
+      path: '/agencies'
+      fullPath: '/agencies/'
+      preLoaderRoute: typeof AdminAgenciesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/agencies/$agency': {
+      id: '/_admin/agencies/$agency'
+      path: '/agencies/$agency'
+      fullPath: '/agencies/$agency'
+      preLoaderRoute: typeof AdminAgenciesAgencyRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/events/': {
+      id: '/_admin/events/'
+      path: '/events'
+      fullPath: '/events/'
+      preLoaderRoute: typeof AdminEventsIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/_admin/events/$id': {
+      id: '/_admin/events/$id'
+      path: '/events/$id'
+      fullPath: '/events/$id'
+      preLoaderRoute: typeof AdminEventsIdRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/api/public/brief': {
       id: '/api/public/brief'
@@ -687,8 +762,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicV1SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/og/brief/$date': {
+      id: '/api/public/og/brief/$date'
+      path: '/api/public/og/brief/$date'
+      fullPath: '/api/public/og/brief/$date'
+      preLoaderRoute: typeof ApiPublicOgBriefDateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface AdminRouteRouteChildren {
+  AdminAdminRoute: typeof AdminAdminRoute
+  AdminCalendarRoute: typeof AdminCalendarRoute
+  AdminDataRoute: typeof AdminDataRoute
+  AdminEvidenceRoute: typeof AdminEvidenceRoute
+  AdminImpactRoute: typeof AdminImpactRoute
+  AdminMethodRoute: typeof AdminMethodRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminSourcesRoute: typeof AdminSourcesRoute
+  AdminTrackingRoute: typeof AdminTrackingRoute
+  AdminAgenciesAgencyRoute: typeof AdminAgenciesAgencyRoute
+  AdminEventsIdRoute: typeof AdminEventsIdRoute
+  AdminAgenciesIndexRoute: typeof AdminAgenciesIndexRoute
+  AdminEventsIndexRoute: typeof AdminEventsIndexRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminAdminRoute: AdminAdminRoute,
+  AdminCalendarRoute: AdminCalendarRoute,
+  AdminDataRoute: AdminDataRoute,
+  AdminEvidenceRoute: AdminEvidenceRoute,
+  AdminImpactRoute: AdminImpactRoute,
+  AdminMethodRoute: AdminMethodRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminSourcesRoute: AdminSourcesRoute,
+  AdminTrackingRoute: AdminTrackingRoute,
+  AdminAgenciesAgencyRoute: AdminAgenciesAgencyRoute,
+  AdminEventsIdRoute: AdminEventsIdRoute,
+  AdminAgenciesIndexRoute: AdminAgenciesIndexRoute,
+  AdminEventsIndexRoute: AdminEventsIndexRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
 
 interface DevelopersRouteChildren {
   DevelopersApiRoute: typeof DevelopersApiRoute
@@ -708,35 +826,27 @@ const DevelopersRouteWithChildren = DevelopersRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CalendarRoute: CalendarRoute,
-  DataRoute: DataRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   DataAllRoute: DataAllRoute,
   DataMapRoute: DataMapRoute,
   DevelopersRoute: DevelopersRouteWithChildren,
-  EvidenceRoute: EvidenceRoute,
   FailuresRoute: FailuresRoute,
-  ImpactRoute: ImpactRoute,
   KeyDataRoute: KeyDataRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   McpRoute: McpRoute,
-  MethodRoute: MethodRoute,
-  SettingsRoute: SettingsRoute,
+  SearchRoute: SearchRoute,
   SitemapRoute: SitemapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  SourcesRoute: SourcesRoute,
-  TrackingRoute: TrackingRoute,
-  AgenciesAgencyRoute: AgenciesAgencyRoute,
+  AdminLoginRoute: AdminLoginRoute,
   BriefDateRoute: BriefDateRoute,
   DayDateRoute: DayDateRoute,
-  EventsIdRoute: EventsIdRoute,
   SignalsFamilyRoute: SignalsFamilyRoute,
-  AgenciesIndexRoute: AgenciesIndexRoute,
   BriefIndexRoute: BriefIndexRoute,
-  EventsIndexRoute: EventsIndexRoute,
   ApiPublicBriefRoute: ApiPublicBriefRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
   ApiPublicOpenapiDotjsonRoute: ApiPublicOpenapiDotjsonRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
+  ApiPublicOgBriefDateRoute: ApiPublicOgBriefDateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
