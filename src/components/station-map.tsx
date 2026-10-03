@@ -1,6 +1,7 @@
 // Table of TMD 3-hour stations nearest Bangkok with their latest reading (no map tiles → SSR-safe).
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { tmdTime } from "@/lib/bkk-geo";
 
 const POS: Record<string, [number, number]> = {
   "48455": [13.727, 100.56], "48454": [13.705, 100.567], "48453": [13.667, 100.606], "48456": [13.917, 100.6], "48429": [13.686, 100.767],
@@ -20,20 +21,21 @@ export function StationMap() {
       {!latest.length ? <p className="mt-2 text-sm text-muted-foreground">ยังไม่มีค่าสถานี — รอรอบดึงกรมอุตุฯ ราย 3 ชม.</p> : (
         <div className="mt-2 grid gap-4 ">
           <div className="overflow-x-auto"><table className="min-w-[520px] text-sm">
-            <thead><tr className="text-left"><th>สถานี</th><th>°C</th><th>ฝน 24 ชม.</th><th>เวลา</th></tr></thead>
+            <thead><tr className="text-left"><th>สถานี</th><th>°C</th><th>ฝน 24 ชม.</th><th>รายงานรอบ</th><th>รับเมื่อ</th></tr></thead>
             <tbody>
               {latest.map((w) => (
                 <tr key={w.station_id} className="border-t border-border">
                   <td className="py-1 pr-2">{w.name} <span className="text-xs text-muted-foreground">{w.dist_km} กม.</span></td>
                   <td>{w.temp ?? "—"}</td><td>{w.rain24 ?? "—"} มม.</td>
-                  <td className="text-xs">{w.obs_date} {w.obs_time?.slice(-5) ?? ""}</td>
+                  <td className="text-xs">{w.obs_date} {tmdTime(w.obs_time) ? `${tmdTime(w.obs_time)} น.` : ""}</td>
+                  <td className="text-xs text-muted-foreground">{new Date(w.received_at).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.</td>
                 </tr>
               ))}
             </tbody>
           </table></div>
         </div>
       )}
-      <p className="mt-1 text-xs text-muted-foreground">ที่มา: กรมอุตุนิยมวิทยา ตรวจอากาศราย 3 ชม. · อุณหภูมิ = สูงสุดของวัน ณ รายงานล่าสุด</p>
+      <p className="mt-1 text-xs text-muted-foreground">ที่มา: กรมอุตุนิยมวิทยา ตรวจอากาศราย 3 ชม. · รายงานทุก 3 ชม. (01, 04, 07, 10, 13, 16, 19, 22 น.) · อุณหภูมิ = สูงสุดของวัน ณ รายงานล่าสุด</p>
     </section>
   );
 }
