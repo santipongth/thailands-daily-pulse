@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as DataRouteImport } from './routes/data'
+import { Route as DataAllRouteImport } from './routes/data-all'
 import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as FailuresRouteImport } from './routes/failures'
 import { Route as ImpactRouteImport } from './routes/impact'
@@ -45,6 +46,11 @@ const CalendarRoute = CalendarRouteImport.update({
 const DataRoute = DataRouteImport.update({
   id: '/data',
   path: '/data',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataAllRoute = DataAllRouteImport.update({
+  id: '/data-all',
+  path: '/data-all',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EvidenceRoute = EvidenceRouteImport.update({
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
+  '/data-all': typeof DataAllRoute
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
+  '/data-all': typeof DataAllRoute
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
@@ -196,6 +204,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
+  '/data-all': typeof DataAllRoute
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/'
     | '/calendar'
     | '/data'
+    | '/data-all'
     | '/evidence'
     | '/failures'
     | '/impact'
@@ -246,6 +256,7 @@ export interface FileRouteTypes {
     | '/'
     | '/calendar'
     | '/data'
+    | '/data-all'
     | '/evidence'
     | '/failures'
     | '/impact'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/'
     | '/calendar'
     | '/data'
+    | '/data-all'
     | '/evidence'
     | '/failures'
     | '/impact'
@@ -295,6 +307,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarRoute: typeof CalendarRoute
   DataRoute: typeof DataRoute
+  DataAllRoute: typeof DataAllRoute
   EvidenceRoute: typeof EvidenceRoute
   FailuresRoute: typeof FailuresRoute
   ImpactRoute: typeof ImpactRoute
@@ -337,6 +350,13 @@ declare module '@tanstack/react-router' {
       path: '/data'
       fullPath: '/data'
       preLoaderRoute: typeof DataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data-all': {
+      id: '/data-all'
+      path: '/data-all'
+      fullPath: '/data-all'
+      preLoaderRoute: typeof DataAllRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/evidence': {
@@ -479,6 +499,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarRoute: CalendarRoute,
   DataRoute: DataRoute,
+  DataAllRoute: DataAllRoute,
   EvidenceRoute: EvidenceRoute,
   FailuresRoute: FailuresRoute,
   ImpactRoute: ImpactRoute,
