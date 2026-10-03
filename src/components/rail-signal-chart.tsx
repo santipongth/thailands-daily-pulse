@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Signal } from "@/lib/signals";
-import { BLOCK_TH, bkkBlock, bkkDate, isServiceAlert } from "@/lib/rail";
+import { BLOCK_TH, bkkBlock, bkkDate, isServiceAlert, incidentPosts } from "@/lib/rail";
 import { WeeklyComparison } from "@/components/weekly-comparison";
 import { shiftDate } from "@/lib/signals";
 
@@ -14,7 +14,7 @@ export function RailSignalChart({ s }: { s: Signal }) {
   const { data, isPending, isError } = useQuery({
     queryKey: ["rail-signal", line, day],
     queryFn: async () => {
-      const { data, error } = await supabase.from("social_posts").select("text,posted_at,received_at,url,rail_status,rail_reason,rail_day").eq("source", `${line} (X)`)
+      const { data, error } = await supabase.from("social_posts").select("source,text,posted_at,received_at,url,rail_status,rail_reason,rail_day").eq("source", `${line} (X)`)
       .gte("received_at", new Date(Date.parse(day + "T00:00:00+07:00") - 15 * 86400e3).toISOString())
       .lt("received_at", new Date(Date.parse(day + "T00:00:00+07:00") + 86400e3).toISOString()).order("posted_at");
       if (error) throw error;
@@ -25,8 +25,9 @@ export function RailSignalChart({ s }: { s: Signal }) {
   if (isError) return <p className="mt-5 border-t border-editorial-rule pt-4 text-xs text-muted-foreground">ข้อมูลไม่พอสำหรับเทียบ · โหลดประกาศย้อนหลังไม่ได้</p>;
   const alerts = data.filter((p) => isServiceAlert(p.text));
   const dayOf = (p: any) => p.rail_day ?? bkkDate(p.posted_at);
-  const todays = alerts.filter((p: any) => dayOf(p) === day && (p.rail_status ?? "counted") === "counted");
-  const past = alerts.filter((p: any) => dayOf(p) < day && (p.rail_status ?? "counted") === "counted");
+  const counted = incidentPosts(alerts.filter((p: any) => (p.rail_status ?? "counted") === "counted"));
+  const todays = counted.filter((p: any) => dayOf(p) === day);
+  const past = counted.filter((p: any) => dayOf(p) < day);
   const previousStart = shiftDate(day, -13), latestStart = shiftDate(day, -6);
   const previousCount = past.filter((p: any) => dayOf(p) >= previousStart && dayOf(p) < latestStart).length;
   const latestCount = [...past, ...todays].filter((p: any) => dayOf(p) >= latestStart && dayOf(p) <= day).length;

@@ -3,7 +3,7 @@
 // metrics rail_bts / rail_mrt (kind 'events') — the only way rail notices become signals.
 import { firecrawlMarkdown } from "./http.server";
 import { parseXPosts } from "./fm91.server";
-import { RAIL_ACCOUNTS, isDisruption, bkkDate, classifyRail } from "./rail";
+import { RAIL_ACCOUNTS, isDisruption, bkkDate, classifyRail, incidentPosts } from "./rail";
 
 export const RAIL_SOURCE = "รถไฟฟ้า BTS/MRT (X)";
 
@@ -41,11 +41,12 @@ export async function refreshRail(admin: any) {
   const today = bkkDate(ran_at);
   const values: Record<string, number> = {}; const dates: Record<string, string> = {};
   if (okLines.length) {
-    const { data } = await admin.from("social_posts").select("source").in("source", okLines.map((l) => `${l} (X)`))
+    const { data } = await admin.from("social_posts").select("source,posted_at").in("source", okLines.map((l) => `${l} (X)`))
       .eq("rail_day", today).eq("rail_status", "counted");
+    const incidents = incidentPosts(data ?? []);
     for (const l of okLines) {
       const id = `rail_${l.toLowerCase()}`;
-      values[id] = (data ?? []).filter((p: any) => p.source === `${l} (X)`).length;
+      values[id] = incidents.filter((p: any) => p.source === `${l} (X)`).length;
       dates[id] = today;
     }
   }
