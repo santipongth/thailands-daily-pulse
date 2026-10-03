@@ -8,8 +8,12 @@ type TickerSignal = Signal & {
   metric: Metric;
 };
 
-async function getTickerSignals(): Promise<{ signals: TickerSignal[]; updatedAt: string | null }> {
+type TickerPost = { post_id: string; url: string; text: string; summary: string | null; posted_at: string };
+
+async function getTickerSignals(): Promise<{ signals: TickerSignal[]; updatedAt: string | null; posts: TickerPost[] }> {
   const date = bkkToday();
+  const since = new Date(Date.now() - 12 * 3600e3).toISOString();
+  const { data: posts } = await supabase.from("social_posts").select("post_id,url,text,summary,posted_at").eq("is_bkk", true).gte("posted_at", since).order("posted_at", { ascending: false }).limit(3);
   const [{ data: signals, error: signalError }, { data: families, error: familyError }, { data: metrics, error: metricError }, { data: latest, error: latestError }] = await Promise.all([
     supabase.from("signals").select("*").eq("signal_date", date).order("score", { ascending: false }).limit(8),
     supabase.from("families").select("*").order("sort"),
@@ -28,7 +32,7 @@ async function getTickerSignals(): Promise<{ signals: TickerSignal[]; updatedAt:
     return family && metric ? [{ ...(signal as Signal), family, metric }] : [];
   });
 
-  return { signals: joined, updatedAt: latest?.received_at ?? null };
+  return { signals: joined, updatedAt: latest?.received_at ?? null, posts: (posts ?? []) as TickerPost[] };
 }
 
 function changeText(signal: TickerSignal) {
@@ -39,7 +43,7 @@ function changeText(signal: TickerSignal) {
   return `${direction}${fmt(Math.abs(change), metric.decimals)} ${metric.unit}`;
 }
 
-function TickerItems({ signals, duplicate = false }: { signals: TickerSignal[]; duplicate?: boolean }) {
+function TickerItems({ signals, posts, duplicate = false }: { signals: TickerSignal[]; posts: TickerPost[]; duplicate?: boolean }) {
   return (
     <div className="flex shrink-0 items-stretch" aria-hidden={duplicate || undefined}>
       {signals.map((signal) => {
@@ -61,6 +65,14 @@ function TickerItems({ signals, duplicate = false }: { signals: TickerSignal[]; 
           </Link>
         );
       })}
+      {posts.map((p) => (
+        <a key={p.post_id} href={p.url} target="_blank" rel="noreferrer" tabIndex={duplicate ? -1 : undefined}
+          className="flex min-w-max items-center gap-3 border-r border-ticker-grid px-5 py-2.5 outline-none transition-colors hover:bg-ticker-hover focus-visible:bg-ticker-hover">
+          <span className="text-[11px] font-semibold text-ticker-accent">FM91</span>
+          <span className="max-w-[28rem] truncate text-ticker-foreground">{p.summary ?? p.text}</span>
+          <span className="text-[11px] text-ticker-muted">{new Date(p.posted_at).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.</span>
+        </a>
+      ))}
     </div>
   );
 }
@@ -72,6 +84,7 @@ export function DailyTicker() {
     staleTime: 5 * 60 * 1000,
   });
   const signals = data?.signals ?? [];
+  const posts = data?.posts ?? [];
   const time = data?.updatedAt
     ? new Date(data.updatedAt).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })
     : "—";
@@ -87,12 +100,12 @@ export function DailyTicker() {
         <div className="ticker-viewport min-w-0 flex-1 overflow-hidden">
           {isError ? (
             <p className="px-5 py-2.5 text-xs text-ticker-muted">ยังอ่านตัวเลขล่าสุดไม่ได้</p>
-          ) : signals.length === 0 ? (
+          ) : signals.length === 0 && posts.length === 0 ? (
             <p className="px-5 py-2.5 text-xs text-ticker-muted">ยังไม่มีการเปลี่ยนแปลงเกินเกณฑ์</p>
           ) : (
             <div className="ticker-track flex w-max">
-              <TickerItems signals={signals} />
-              <TickerItems signals={signals} duplicate />
+              <TickerItems signals={signals} posts={posts} />
+              <TickerItems signals={signals} posts={posts} duplicate />
             </div>
           )}
         </div>
