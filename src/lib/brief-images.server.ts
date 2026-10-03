@@ -18,7 +18,7 @@ const SCENE: Record<string, string> = {
 };
 
 const prompt = (fam: string) =>
-  `Photorealistic Thai newspaper front-page news photo: ${SCENE[fam] ?? SCENE.calm}. Documentary photojournalism style, natural colours, sharp, 35mm. Absolutely no text, letters, numbers, signs with writing, logos or watermarks anywhere in the image.`;
+  `Photorealistic Thai newspaper front-page news photo: ${SCENE[fam] ?? SCENE["calm"]}. Documentary photojournalism style, natural colours, sharp, 35mm. Absolutely no text, letters, numbers, signs with writing, logos or watermarks anywhere in the image.`;
 
 async function generate(p: string, key: string): Promise<Uint8Array> {
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -42,7 +42,7 @@ async function generate(p: string, key: string): Promise<Uint8Array> {
 }
 
 export async function ensureBriefImages(admin: any, date: string): Promise<{ made: number; error?: string }> {
-  const key = process.env.LOVABLE_API_KEY;
+  const key = process.env["LOVABLE_API_KEY"];
   if (!key) return { made: 0, error: "no LOVABLE_API_KEY" };
   const { data: paused } = await admin.from("app_settings").select("value").eq("key", "brief_images_paused").maybeSingle();
   if (paused?.value) return { made: 0, error: `paused: ${paused.value}` };
