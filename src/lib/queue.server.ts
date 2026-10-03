@@ -7,6 +7,14 @@ type Run = { source: string; ok: boolean; rows: number; error: string | null; ra
 type Result = { values: Record<string, number>; runs: Run[]; dates?: Record<string, string> | undefined };
 type Ctx = { admin: any; date: string };
 
+/** Station/road rows for the public tables, linked to the newest raw file of that source. */
+async function saveSnapshots(admin: any, source: string, rows: import("./connectors.server").Snap[]) {
+  const { data: ev } = await admin.from("raw_evidence").select("id").eq("source", source).order("id", { ascending: false }).limit(1).maybeSingle();
+  const received_at = new Date().toISOString();
+  const { error } = await admin.from("station_snapshots").insert(rows.map((r) => ({ ...r, source, evidence_id: ev?.id ?? null, received_at })));
+  if (error) console.error("station_snapshots insert failed", error.message);
+}
+
 const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = {
   connector: async ({ admin, date }, source) => {
     const { CONNECTORS, normalizeOut } = await import("./connectors.server");
@@ -14,7 +22,8 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     if (!c) throw new Error(`unknown connector ${source}`);
     const ran_at = new Date().toISOString();
     try {
-      const { values, dates, note, sample } = normalizeOut(await c.run(date, { admin }));
+      const { values, dates, note, sample, rows } = normalizeOut(await c.run(date, { admin }));
+      if (rows?.length) await saveSnapshots(admin, source, rows);
       return { values, dates, runs: [{ source, ok: true, rows: Object.keys(values).length, error: note ?? null, ran_at, kind: "api", sample: sample ?? null }] };
     } catch (e) {
       return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: "api" }] };
@@ -73,6 +82,10 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     } catch (e) {
       return { values: {}, runs: [{ ...base, ok: false, rows: 0, error: String((e as Error).message).slice(0, 200) }] };
     }
+  },
+  rail: async ({ admin }) => {
+    const { refreshRail } = await import("./rail.server");
+    return { values: {}, runs: [await refreshRail(admin)] };
   },
   news: async ({ admin }) => {
     const { collectNews } = await import("./news.server");
