@@ -42,7 +42,6 @@ export function SignalCard({ s, family, metric, history, news }: { s: Signal; fa
         <span className={s.severity === "high" ? "font-semibold text-up" : ""}>{sevLabel[s.severity]}</span>
       </div>
       <h3 className="mt-3 font-display text-2xl leading-snug break-words group-hover:underline">{s.title}</h3>
-      <SignalDates s={s} history={history} />
       <div className="mt-4 flex items-end justify-between gap-3">
         <div>
           <div className={`font-display text-3xl tabular-nums ${tone}`}>
