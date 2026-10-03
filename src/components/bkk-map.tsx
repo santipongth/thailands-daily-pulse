@@ -3,6 +3,7 @@
 import "leaflet/dist/leaflet.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import type * as Leaflet from "leaflet";
 import { LAYERS, isStale, layerLabel, loadMapData, nearestPerLayer, summarise, type LayerId, type Pt } from "@/lib/bkk-map-data";
 import { EditorialDataSection } from "@/components/editorial-data-section";
@@ -202,7 +203,10 @@ function PtCard({ p }: { p: Pt }) {
       <p className="mt-1 flex items-center gap-2"><span className={`bkk-dot map-b${p.band}`} aria-hidden /><span className="font-medium">{p.label}</span></p>
       {p.advice && <p className="mt-1 border-l-2 border-foreground pl-2">{p.advice}</p>}
       <p className="mt-1 text-xs text-muted-foreground">อัปเดต {time(p.at)}{isStale(p.at) ? " · ค่าเก่ากว่า 6 ชม." : ""}{p.approx ? " · ตำแหน่งโดยประมาณจากชื่อถนน" : ""}</p>
-      <a href={p.url} target="_blank" rel="noopener" className="mt-1 inline-block text-xs underline">{p.agency} ↗</a>
+      <div className="mt-1 flex flex-wrap gap-3 text-xs">
+        <Link to="/station/$kind/$id" params={{ kind: p.layer, id: p.key.slice(p.layer.length + 1).replace(" (X)", "") }} className="font-semibold underline">ดูแนวโน้ม →</Link>
+        <a href={p.url} target="_blank" rel="noopener" className="underline">{p.agency} ↗</a>
+      </div>
     </div>
   );
 }

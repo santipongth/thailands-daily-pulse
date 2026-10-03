@@ -24,6 +24,7 @@ export function SourcePerformance() {
       {isLoading && <p className="mt-3 text-sm text-muted-foreground">กำลังวิเคราะห์…</p>}
       {error && <p className="mt-3 text-sm text-destructive">โหลดไม่สำเร็จ (ต้องเข้าสู่ระบบผู้ดูแล)</p>}
       {data && <FloodCard ps={data.filter((p) => /^(ThaiWater|กทม\.|ปภ\.)/.test(p.source))} />}
+      {data && <FloodCard title="รถไฟฟ้า BTS/MRT และข่าวทั่วไป" note="รถไฟฟ้าดึงทุกชั่วโมง 05:00–24:00 น. (ช่วงเปิดให้บริการ) นอกช่วงทุก 3 ชม. · ตัวอย่างล่าสุดบอกจำนวนโพสต์ที่อ่าน/เก็บ" ps={data.filter((p) => /^(รถไฟฟ้า|ข่าวทั่วไป)/.test(p.source))} />}
       <ul className="mt-4 divide-y divide-editorial-rule border-y-2 border-editorial-ink">
         {(data ?? []).map((p) => <PerfRow key={p.source} p={p} />)}
       </ul>
@@ -96,11 +97,12 @@ function PerfRow({ p }: { p: Perf & { config: any; trend: Day[]; dataAgeMin: num
 }
 
 /** Flood / local-water summary: success rate, main failure cause and whether a suggestion is waiting. */
-function FloodCard({ ps }: { ps: Perf[] }) {
+function FloodCard({ ps, title = "สรุปน้ำท่วม / น้ำท้องถิ่น", note }: { ps: Perf[]; title?: string; note?: string }) {
   if (!ps.length) return null;
   return (
     <div className="mt-4 border-2 border-editorial-ink p-3">
-      <h3 className="font-semibold">สรุปน้ำท่วม / น้ำท้องถิ่น</h3>
+      <h3 className="font-semibold">{title}</h3>
+      {note && <p className="text-xs text-muted-foreground">{note}</p>}
       <table className="mt-2 w-full text-sm">
         <thead><tr className="text-left text-xs text-muted-foreground"><th>แหล่ง</th><th>สำเร็จ</th><th>สาเหตุหลักที่ล้มเหลว</th><th>คำแนะนำ</th></tr></thead>
         <tbody>

@@ -435,6 +435,7 @@ export type Database = {
           created_at: string
           family_id: string | null
           id: number
+          kind: string
           link: string
           published_at: string
           source: string
@@ -445,6 +446,7 @@ export type Database = {
           created_at?: string
           family_id?: string | null
           id?: number
+          kind?: string
           link: string
           published_at: string
           source: string
@@ -455,6 +457,7 @@ export type Database = {
           created_at?: string
           family_id?: string | null
           id?: number
+          kind?: string
           link?: string
           published_at?: string
           source?: string
