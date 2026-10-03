@@ -101,7 +101,7 @@ svg, canvas { max-width: 100%; }
   --font-editorial: "Instrument Serif", "Noto Serif Thai", serif;
   --font-editorial-body: "IBM Plex Sans Thai", "Noto Sans Thai", sans-serif;
   --font-sans: "IBM Plex Sans Thai", system-ui, sans-serif;
-  --font-display: "Noto Serif Thai", Georgia, serif;
+  --font-display: "Instrument Serif", "Noto Serif Thai", serif;
 }
 
 :root {
