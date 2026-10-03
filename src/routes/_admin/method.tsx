@@ -23,8 +23,8 @@ const methodQuery = queryOptions({
   },
 });
 
-export const Route = createFileRoute("/method")({
-  staticData: { sitemap: true },
+export const Route = createFileRoute("/_admin/method")({
+  staticData: { sitemap: false },
   loader: ({ context }) => context.queryClient.ensureQueryData(methodQuery),
   head: () => ({
     meta: [

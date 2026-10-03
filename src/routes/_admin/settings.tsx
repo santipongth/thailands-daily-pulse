@@ -10,8 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSourcePrefs } from "@/hooks/use-source-prefs";
 import { SOURCES } from "@/lib/sources";
 
-export const Route = createFileRoute("/settings")({
-  staticData: { sitemap: true },
+export const Route = createFileRoute("/_admin/settings")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "ตั้งค่าความไวของสัญญาณ — Thailand Daily Signals" },

@@ -120,7 +120,7 @@ export async function refreshSocial(): Promise<{ fetched: number; added: number;
     const posts = parseXPosts(md);
     fetched = posts.length;
     if (!posts.length) throw new Error("ไม่พบโพสต์ที่อ่านได้ในหน้า X ของ FM91");
-    const { data: ev } = await admin.from("raw_evidence").select("id").eq("job_id", job!.id).order("id", { ascending: false }).limit(1).maybeSingle();
+    const { data: ev } = await admin.from("raw_evidence").select("id").or(`job_id.eq.${job!.id},last_job_id.eq.${job!.id}`).order("id", { ascending: false }).limit(1).maybeSingle();
     const { data: known } = await admin.from("social_posts").select("post_id").in("post_id", posts.map((p) => p.post_id));
     const seen = new Set((known ?? []).map((k) => k.post_id));
     const fresh = posts.filter((p) => !seen.has(p.post_id)).slice(0, 10);

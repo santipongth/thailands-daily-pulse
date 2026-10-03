@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireAdmin } from "./admin-middleware";
 
 export const refreshData = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ maxAgeHours: z.number().min(1).max(24).default(3) }).parse(d ?? {}))
@@ -13,8 +14,8 @@ export const refreshData = createServerFn({ method: "POST" })
     }
   });
 
-/** Manual retry from the failures page; at most once per 10 minutes for everyone. */
-export const retrySources = createServerFn({ method: "POST" }).handler(async () => {
+/** Manual forced retry (admin only); at most once per 10 minutes. */
+export const retrySources = createServerFn({ method: "POST" }).middleware([requireAdmin]).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: l } = await supabaseAdmin.from("job_locks").select("locked_until").eq("name", "manual_retry").maybeSingle();
   if (l && new Date(l.locked_until) > new Date()) return { refreshed: false, wait_until: l.locked_until as string };

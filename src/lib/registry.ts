@@ -13,13 +13,13 @@ export const registryQuery = queryOptions({
       supabase.from("source_registry").select("*").order("sort"),
       supabase.from("source_runs").select("source,ok,ran_at,last_ok_at,error"),
       supabase.from("observations").select("metric_id,observed_on").eq("is_demo", false).gte("observed_on", since).order("observed_on", { ascending: false }).limit(1000),
-      supabase.from("raw_evidence").select("source,fetched_at").order("fetched_at", { ascending: false }).limit(500),
+      supabase.from("raw_evidence").select("source,fetched_at,last_seen_at").order("fetched_at", { ascending: false }).limit(500),
     ]);
     if (reg.error) throw reg.error;
     const latest: Record<string, string> = {};
     for (const o of obs.data ?? []) latest[o.metric_id] ??= o.observed_on;
     const lastEv: Record<string, string> = {};
-    for (const e of ev.data ?? []) lastEv[e.source] ??= e.fetched_at;
+    for (const e of ev.data ?? []) { const t = e.last_seen_at && e.last_seen_at > e.fetched_at ? e.last_seen_at : e.fetched_at; if (!lastEv[e.source] || t > lastEv[e.source]!) lastEv[e.source] = t; }
     const registry = (reg.data ?? []) as RegistryRow[];
     return { registry, completeness: computeCompleteness(bkkToday(), registry, (runs.data ?? []) as RunRow[], latest, lastEv) };
   },

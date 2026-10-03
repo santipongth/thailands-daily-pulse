@@ -15,6 +15,12 @@ function json(value: unknown, status = 200) { return new Response(JSON.stringify
 export const Route = createFileRoute("/api/public/v1/$")({ staticData: { sitemap: false }, server: { handlers: {
   OPTIONS: async () => new Response(null, { status: 204, headers: cors }),
   GET: async ({ request, params }) => {
+    const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "anon";
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: allowed } = await supabaseAdmin.rpc("hit_rate_limit", { _bucket: `api:${ip}`, _limit: 120 });
+      if (allowed === false) return new Response(JSON.stringify({ error: { code: "rate_limited", message: "Too many requests: max 120 per minute" } }), { status: 429, headers: { ...cors, "Retry-After": "60", "Cache-Control": "no-store" } });
+    } catch { /* limiter unavailable: serve anyway */ }
     const resource = params._splat?.replace(/^\/+|\/+$/g, "") ?? "";
     if (!API_RESOURCES.some(([path]) => path === resource) || !map[resource]) return json({ error: { code: "not_found", message: "Unknown public resource" } }, 404);
     const url = new URL(request.url); const limit = boundedLimit(url.searchParams.get("limit")); const date = url.searchParams.get("date"); const id = url.searchParams.get("id");

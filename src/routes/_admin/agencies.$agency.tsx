@@ -24,7 +24,7 @@ const agencyQuery = (key: string) =>
     },
   });
 
-export const Route = createFileRoute("/agencies/$agency")({
+export const Route = createFileRoute("/_admin/agencies/$agency")({
   staticData: { sitemap: false },
   loader: async ({ context, params }) => {
     const d = await context.queryClient.ensureQueryData(agencyQuery(params.agency));

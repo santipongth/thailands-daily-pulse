@@ -118,7 +118,7 @@ export async function drain(admin: any, date: string, budgetMs = 240e3, maxJobs 
     if (res && Object.keys(res.values).length) {
       // Four times per value: refers-to (observed_on/period), published (unknown here), received, effective.
       const now = new Date().toISOString();
-      const { data: ev } = await admin.from("raw_evidence").select("id").eq("job_id", job.id).order("id", { ascending: false }).limit(1).maybeSingle();
+      const { data: ev } = await admin.from("raw_evidence").select("id").or(`job_id.eq.${job.id},last_job_id.eq.${job.id}`).order("id", { ascending: false }).limit(1).maybeSingle();
       const rows = Object.entries(res.values).map(([metric_id, value]) => {
         const d = res!.dates?.[metric_id] ?? date;
         return { metric_id, value, observed_on: d, period_start: d, period_end: d, effective_from: d, is_demo: false, received_at: now, created_at: now, evidence_id: ev?.id ?? null };

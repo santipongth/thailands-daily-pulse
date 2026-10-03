@@ -18,7 +18,7 @@ const eventQuery = (id: string) =>
     },
   });
 
-export const Route = createFileRoute("/events/$id")({
+export const Route = createFileRoute("/_admin/events/$id")({
   staticData: { sitemap: false },
   loader: ({ context, params }) => context.queryClient.ensureQueryData(eventQuery(params.id)),
   head: ({ params }) => ({

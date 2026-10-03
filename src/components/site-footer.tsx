@@ -11,7 +11,7 @@ export function SiteFooter() {
         </div>
         <nav aria-label="ลิงก์ข้อมูล" className="text-sm">
           <p className="mb-2 font-semibold">ข้อมูลและวิธีการ</p>
-          <ul className="space-y-2"><li><Link to="/sitemap" className="hover:underline">แผนผังเว็บไซต์</Link></li><li><Link to="/sources" className="hover:underline">แหล่งข้อมูล</Link></li><li><Link to="/data-map" className="hover:underline">แผนผังข้อมูล</Link></li><li><Link to="/method" className="hover:underline">วิธีคำนวณ</Link></li><li><Link to="/evidence" className="hover:underline">หลักฐานข้อมูล</Link></li></ul>
+          <ul className="space-y-2"><li><Link to="/sitemap" className="hover:underline">แผนผังเว็บไซต์</Link></li><li><Link to="/data-map" className="hover:underline">แผนผังข้อมูล</Link></li><li><Link to="/search" className="hover:underline">ค้นหา</Link></li><li><Link to="/admin" className="hover:underline">ผู้ดูแลระบบ</Link></li></ul>
         </nav>
         <nav aria-label="ลิงก์นักพัฒนา" className="text-sm">
           <p className="mb-2 font-semibold">สำหรับนักพัฒนาและ AI</p>

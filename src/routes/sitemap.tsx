@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Masthead } from "@/components/masthead";
 const groups = [
-  ["ข้อมูลวันนี้", [["วันนี้", "/"], ["Daily Brief", "/brief"], ["ข้อมูลสำคัญ", "/key-data"], ["ข้อมูลทั้งหมด", "/data-all"], ["ปฏิทินวันหยุดและภาษี", "/calendar"]]],
-  ["คลังและหลักฐาน", [["เหตุการณ์", "/events"], ["ข้อมูลดิบ", "/data"], ["ไฟล์หลักฐาน", "/evidence"], ["ติดตามข้อมูล", "/tracking"], ["แหล่งข้อมูล", "/sources"], ["แผนผังข้อมูล", "/data-map"], ["หน่วยงาน", "/agencies"]]],
-  ["วิธีการ", [["วิธีคำนวณ", "/method"], ["สูตรผลกระทบ", "/impact"], ["การตั้งค่า", "/settings"]]],
+  ["ข้อมูลวันนี้", [["วันนี้", "/"], ["Daily Brief", "/brief"], ["ข้อมูลสำคัญ", "/key-data"], ["ข้อมูลทั้งหมด", "/data-all"], ["ค้นหา", "/search"]]],
+  ["คลังและหลักฐาน", [["แผนผังข้อมูล", "/data-map"], ["ผู้ดูแลระบบ (ต้องเข้าสู่ระบบ)", "/admin"]]],
   ["สำหรับนักพัฒนา", [["Developer Document", "/developers"], ["Public API", "/developers/api"], ["MCP Server", "/developers/mcp"]]],
 ] as const;
 export const Route = createFileRoute("/sitemap")({ staticData: { sitemap: true }, head: () => ({ meta: [
