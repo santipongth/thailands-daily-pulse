@@ -75,7 +75,15 @@ export const CONNECTORS: Connector[] = [
     source: "กระทรวงแรงงาน (ค่าแรงขั้นต่ำ กทม.)",
     run: async (date) => {
       const { WAGE_URL, parseBangkokWage } = await import("./daily-prices");
-      const { price, date: effective } = parseBangkokWage(await text(WAGE_URL), date);
+      let page = "";
+      try {
+        page = await text(WAGE_URL);
+        if (/Incapsula|Request unsuccessful|Access Denied/i.test(page)) throw new Error("เว็บไซต์ปิดกั้นการเข้าถึง");
+      } catch {
+        const { firecrawlMarkdown } = await import("./http.server");
+        page = await firecrawlMarkdown(WAGE_URL, 1000);
+      }
+      const { price, date: effective } = parseBangkokWage(page, date);
       return { values: { wage_bkk: price }, dates: { wage_bkk: effective }, sample: `ค่าแรงขั้นต่ำกรุงเทพฯ ${price} บาท/วัน · มีผล ${effective}` };
     },
   },
