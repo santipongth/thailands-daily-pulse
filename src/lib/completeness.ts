@@ -32,6 +32,7 @@ export function computeCompleteness(today: string, registry: RegistryRow[], runs
     if (failing) return { source: r.source, status: "unverifiable", data_date, last_ok_at, reason: `รอบล่าสุดดึงไม่ได้: ${(rs.find((x) => x.error)?.error ?? "").slice(0, 120)}` };
     const bad = rs.filter((x) => !x.ok).length;
     if (bad) return { source: r.source, status: "ok", data_date, last_ok_at, reason: `ดึงได้บางส่วน — ${bad} จาก ${rs.length} แหล่งย่อยดึงไม่ได้` };
+    if (r.source === "FM91 Trafficpro (X)" && rs.some((x) => x.ok && x.error?.includes("ไม่มีโพสต์ใหม่"))) return { source: r.source, status: "ok", data_date, last_ok_at, reason: "ดึงได้ แต่ไม่มีโพสต์ใหม่ที่ผ่านการคัดกรอง" };
     return { source: r.source, status: "ok", data_date, last_ok_at, reason: age === 0 ? "ข้อมูลของวันนี้" : `ข้อมูลวันที่ ${data_date} (ยังอยู่ในรอบอัปเดต)` };
   });
 }

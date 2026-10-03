@@ -50,11 +50,11 @@ function Today() {
   useEffect(() => {
     if (date !== today) return;
     refresh({ data: { maxAgeHours: readIntervalHours() } }).then((r) => {
-      if (r.refreshed) {
+      if (r?.refreshed) {
         qc.invalidateQueries({ queryKey: ["day", date] });
         router.invalidate();
       }
-    });
+    }).catch(() => { /* Scheduled collection failure is shown in source status. */ });
   }, [date]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fam = new Map(data.families.map((f) => [f.id, f]));

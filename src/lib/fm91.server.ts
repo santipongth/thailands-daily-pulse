@@ -24,7 +24,7 @@ export function parseXPosts(md: string): RawPost[] {
   return out;
 }
 
-async function scrape(): Promise<string> {
+export async function scrape(): Promise<string> {
   const key = process.env["FIRECRAWL_API_KEY"];
   if (!key) throw new Error("FIRECRAWL_API_KEY ไม่ได้ตั้งค่า");
   let lastError: Error = new Error("ดึงโพสต์ FM91 ไม่สำเร็จ");
@@ -150,7 +150,7 @@ export async function refreshSocial(): Promise<{ fetched: number; added: number;
   }
   const ok = !error;
   await admin.from("ingest_jobs").update({ status: ok ? "done" : "failed", rows: added, error, finished_at: new Date().toISOString(), attempts: 1 }).eq("id", job!.id);
-  await admin.from("source_runs").upsert({ source: FM91_SOURCE, ran_at: ranAt, ok, rows: added, error, url: FM91_URL, kind: "api", run_kind: "social", ...(ok ? { last_ok_at: ranAt } : {}) });
+  await admin.from("source_runs").upsert({ source: FM91_SOURCE, ran_at: ranAt, ok, rows: added, error: ok && added === 0 ? "ดึงสำเร็จ แต่ไม่มีโพสต์ใหม่ที่ผ่านการคัดกรอง" : error, url: FM91_URL, kind: "api", run_kind: "social", ...(ok ? { last_ok_at: ranAt } : {}) });
   await admin.from("source_run_history").insert({ source: FM91_SOURCE, ran_at: ranAt, ok, rows: added, error, run_kind: "social" });
   await admin.from("job_locks").upsert({ name: "social_run", locked_until: new Date().toISOString() });
   return { fetched, added, ...(error ? { skipped: error } : {}) };

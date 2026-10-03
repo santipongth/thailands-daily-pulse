@@ -222,7 +222,7 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
   const newsStale = !!opts.force || !lastNews || Date.now() - new Date(lastNews.locked_until).getTime() >= STALE_MS;
   // Longdo has its own hourly cadence, independent of the broader 3-hour observation gate.
   const { data: lastLongdo } = await admin.from("source_runs").select("ran_at").eq("source", "Longdo Traffic Index").maybeSingle();
-  const longdoDue = !lastLongdo?.ran_at || Math.floor(new Date(lastLongdo.ran_at).getTime() / 3600e3) < Math.floor(Date.now() / 3600e3);
+  const longdoDue = !lastLongdo?.ran_at || !Number.isFinite(new Date(lastLongdo.ran_at).getTime()) || Math.floor(new Date(lastLongdo.ran_at).getTime() / 3600e3) < Math.floor(Date.now() / 3600e3);
   if (!liveStale && !newsStale && !longdoDue) {
     const { count: due } = await admin.from("ingest_jobs").select("id", { count: "exact", head: true }).eq("status", "queued").lte("run_after", new Date().toISOString());
     const { data: b } = await admin.from("daily_briefs").select("brief_date").eq("brief_date", date).maybeSingle();
