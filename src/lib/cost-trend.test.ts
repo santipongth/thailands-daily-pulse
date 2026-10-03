@@ -23,3 +23,21 @@ describe("periodStats", () => {
     expect(pctChange(110, 100)).toBeCloseTo(10);
   });
 });
+
+import { weeklyCalc, blocks } from "./cost-trend";
+describe("weeklyCalc", () => {
+  const obs = ["01","02","03","06","07","08","09","10"].map((d, i) => ({ observed_on: `2026-10-${d}`, value: i < 3 ? 100 : 110 }));
+  it("applies lag, coverage and trust like SQL", () => {
+    const r = weeklyCalc(obs, { id: "x", threshold_pct: 3, lag_days: 4, expected_days: 5, trust: "medium" }, "2026-10-12");
+    expect(r.priceDate).toBe("2026-10-10");
+    expect(r.daysPrev).toBe(3);
+    expect(r.coverage).toBeCloseTo(Math.sqrt(5 / 3), 5);
+    expect(r.severity).not.toBeNull();
+  });
+  it("reports missing data within lag", () => {
+    expect(weeklyCalc(obs, { id: "x", threshold_pct: 3, lag_days: 1, expected_days: 5, trust: "high" }, "2026-10-20").priceDate).toBeNull();
+  });
+  it("builds blocks", () => {
+    expect(blocks(obs, "2026-10-10", 7, 2, 5).length).toBe(2);
+  });
+});

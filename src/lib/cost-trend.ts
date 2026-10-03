@@ -48,3 +48,45 @@ export function periodStats(obs: { observed_on: string; value: number }[], from:
 }
 export const shiftDays = addDays;
 export const pctChange = (a: number | null, b: number | null) => (a == null || b == null || b === 0 ? null : ((a - b) / b) * 100);
+
+export type WeeklyMetric = { id: string; threshold_pct: number | null; lag_days: number; expected_days: number; trust: string };
+export type WeeklyCalc = {
+  priceDate: string | null; lagDays: number; curAvg: number | null; prevAvg: number | null; daysCur: number; daysPrev: number;
+  pct: number | null; coverage: number; trustMul: number; effective: number | null; ratio: number | null;
+  severity: "high" | "medium" | "low" | null; reason: string;
+};
+/** Mirrors the SQL weekly rule in detect_core: latest price within the metric's arrival lag, 7d vs prior 7d,
+ *  ≥3 real days each, threshold × trust (medium 1.5) × coverage sqrt(expected / days). `threshold` overrides (reader's own). */
+export function weeklyCalc(obs: { observed_on: string; value: number }[], m: WeeklyMetric, date: string, threshold?: number): WeeklyCalc {
+  const lag = Math.max(m.lag_days, 1);
+  const th = threshold ?? m.threshold_pct;
+  const trustMul = m.trust === "medium" ? 1.5 : 1;
+  const latest = [...obs].filter((o) => o.observed_on <= date && o.observed_on >= addDays(date, -lag)).sort((a, b) => b.observed_on.localeCompare(a.observed_on))[0];
+  const base = { lagDays: lag, trustMul, coverage: 1, effective: null, ratio: null, severity: null, pct: null, curAvg: null, prevAvg: null, daysCur: 0, daysPrev: 0 };
+  if (!latest) return { ...base, priceDate: null, reason: `ไม่มีราคาภายใน ${lag} วัน (ช่วงที่แหล่งนี้มักส่งข้อมูลช้า)` };
+  const d = latest.observed_on;
+  const c = periodStats(obs, addDays(d, -6), d), p = periodStats(obs, addDays(d, -13), addDays(d, -7));
+  const r0 = { ...base, priceDate: d, curAvg: c.avg, prevAvg: p.avg, daysCur: c.days, daysPrev: p.days };
+  if (c.days < 3 || p.days < 3 || !p.avg) return { ...r0, reason: `ข้อมูลไม่พอ (ต้องมีอย่างน้อย 3 วันต่อสัปดาห์: ${c.days}/${p.days})` };
+  const pct = ((c.avg! - p.avg) / Math.abs(p.avg)) * 100;
+  const coverage = Math.max(1, Math.sqrt(m.expected_days / Math.min(c.days, p.days)));
+  if (th == null) return { ...r0, pct, coverage, reason: "ไม่มีเกณฑ์ (ใช้เปรียบเทียบเท่านั้น)" };
+  const effective = th * coverage * trustMul;
+  const ratio = Math.abs(pct) / effective;
+  const severity = ratio >= 3 ? "high" : ratio >= 1.5 ? "medium" : ratio >= 1 ? "low" : null;
+  return { ...r0, pct, coverage, effective, ratio, severity, reason: severity ? `เปลี่ยน ${Math.abs(pct).toFixed(1)}% ≥ เกณฑ์จริง ${effective.toFixed(2)}%` : `เปลี่ยน ${Math.abs(pct).toFixed(1)}% < เกณฑ์จริง ${effective.toFixed(2)}%` };
+}
+
+export type Block = { from: string; to: string; avg: number | null; days: number; pct: number | null; crosses: boolean };
+/** Consecutive blocks of `size` days ending at `end` (oldest first); pct vs the previous block, real readings only. */
+export function blocks(obs: { observed_on: string; value: number }[], end: string, size: number, count: number, threshold: number | null): Block[] {
+  const out: Block[] = [];
+  for (let i = count; i >= 0; i--) {
+    const to = addDays(end, -i * size), from = addDays(to, -(size - 1));
+    const s = periodStats(obs, from, to);
+    const prev = out.at(-1);
+    const pct = prev && prev.avg && s.avg != null && prev.days >= 3 && s.days >= 3 ? ((s.avg - prev.avg) / Math.abs(prev.avg)) * 100 : null;
+    out.push({ from, to, avg: s.avg, days: s.days, pct, crosses: pct != null && threshold != null && Math.abs(pct) >= threshold });
+  }
+  return out.slice(1);
+}
