@@ -8,7 +8,7 @@ export function parseTimes(s: string): string[] {
   const out = s.split(/[,\s]+/).filter(Boolean).map((t) => {
     const m = t.replace(".", ":").match(/^(\d{1,2}):?(\d{2})?$/);
     if (!m) return "";
-    const v = `${m[1].padStart(2, "0")}:${m[2] ?? "00"}`;
+    const v = `${(m[1] ?? "").padStart(2, "0")}:${m[2] ?? "00"}`;
     return TIME_RE.test(v) ? v : "";
   }).filter(Boolean);
   return [...new Set(out)].sort();
