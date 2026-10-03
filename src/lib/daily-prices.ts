@@ -1,6 +1,16 @@
 /** Do not mistake a page refresh for a new price or a new wage announcement. */
 export const LPG_URL = "https://www.eppo.go.th/wp-json/oil-api/v1/lpg-prices";
-export const WAGE_URL = "https://www.mol.go.th/minimum-wage";
+export const WAGE_URL = "https://www.mol.go.th/news/เริ่ม-1-กรกฎาคมนี้-กระทรวงแรงงาน-ปรับใหม่ค่าแรงขั้นต่ำ-สอดรับเศรษฐกิจ-ยกระดับคุณภาพชีวิตแรงงาน";
+export const WAGE_INDEX_URL = "https://www.mol.go.th/อัตราค่าจ้างขั้นต่ำ";
+
+export function verifyWageNotice(index: string, effective: string) {
+  if (/Incapsula|incident_id|Request unsuccessful|Access Denied/i.test(index)) throw new Error("ดัชนีประกาศค่าแรงกระทรวงแรงงานถูกปิดกั้น");
+  const normalized = index.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
+  // The ministry index identifies the governing notice; an old article alone cannot establish today's rate.
+  const notices = [...normalized.matchAll(/อัตราค่าจ้างขั้นต่ำ\s*\(ฉบับที่\s*(\d+)\)/g)].map((m) => Number(m[1]));
+  if (!notices.length || Math.max(...notices) !== 14 || effective !== "2025-07-01")
+    throw new Error("ประกาศค่าแรงล่าสุดไม่ตรงกับประกาศที่ใช้ดึงอัตรา — ต้องตรวจสอบฉบับใหม่");
+}
 
 export function thaiPriceDate(raw: unknown) {
   const match = String(raw ?? "").match(/(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(25\d{2}|20\d{2})/);
@@ -20,13 +30,15 @@ export function parseLpg(data: any, today: string) {
 }
 
 export function parseBangkokWage(page: string, today: string) {
-  if (/Incapsula|incident_id|Access Denied/i.test(page)) throw new Error("เว็บไซต์กระทรวงแรงงานปิดกั้นการเข้าถึง");
+  if (/Incapsula|incident_id|Request unsuccessful|Access Denied/i.test(page)) throw new Error("เว็บไซต์กระทรวงแรงงานปิดกั้นการเข้าถึง");
   const plain = page.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
-  const match = plain.match(/(?:กรุงเทพมหานคร|กรุงเทพฯ).{0,120}?(?:วันละ|อัตรา(?:ค่าจ้าง)?(?:ขั้นต่ำ)?).{0,40}?(\d{3,4})\s*บาท/);
-  const date = plain.match(/(?:มีผล(?:บังคับ)?ใช้|ตั้งแต่วันที่)\s*(\d{1,2})\s*(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s*(25\d{2}|20\d{2})/);
+  const match = plain.match(/(?:กรุงเทพมหานคร|กรุงเทพฯ).{0,120}?(?:วันละ|อัตรา(?:ค่าจ้าง)?(?:ขั้นต่ำ)?).{0,40}?(\d{3,4})\s*บาท/)
+    ?? plain.match(/(?:อัตราค่าจ้างขั้นต่ำเป็นวันละ|\b\d{1,2}\s*กลุ่ม\s*ได้แก่.{0,30}?วันละ)\s*(\d{3,4})\s*บาท.{0,60}?กรุงเทพมหานคร/)
+    ?? plain.match(/(?:•|-)\s*(\d{3,4})\s*บาท:\s*กรุงเทพมหานคร/);
+  const date = plain.match(/(?:มีผล(?:บังคับ)?ใช้(?:ตั้งแต่วันที่)?|ตั้งแต่วันที่)\s*(\d{1,2})\s*(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s*(25\d{2}|20\d{2})/);
   if (!match || !date) throw new Error("ไม่พบค่าแรงกรุงเทพฯ และวันมีผลบังคับใช้ในประกาศเดียวกัน");
   const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-  const iso = `${Number(date[3]) > 2400 ? Number(date[3]) - 543 : date[3]}-${String(months.indexOf(date[2] ?? "") + 1).padStart(2, "0")}-${String(date[1]).padStart(2, "0")}`;
+  const iso = `${Number(date[3]) > 2400 ? Number(date[3]) - 543 : date[3]}-${String(months.indexOf(date[2]!) + 1).padStart(2, "0")}-${String(date[1]).padStart(2, "0")}`;
   const price = Number(match[1]);
   if (iso > today || price < 300 || price > 1500) throw new Error("ข้อมูลค่าแรงหรือวันมีผลไม่สมเหตุสมผล");
   return { price, date: iso };
