@@ -71,21 +71,41 @@ export const evidenceDiff = createServerFn({ method: "POST" })
     return { ...base, status: "changed", lines: lines.slice(0, 200), truncated: lines.length > 200 || a.length > 2000 || b.length > 2000 };
   });
 
-/** TMD daily forecast for Bangkok & vicinity, parsed into a plain-Thai summary. Falls back to the last archived raw file. */
+/** TMD daily forecast for Bangkok & vicinity. Order: region RSS (www.tmd.go.th, often blocked by its
+ *  incomplete certificate) → data.tmd.go.th 7-day forecast (today's rows for Bangkok + 5 provinces) → last archived RSS. */
 export const getBkkForecast = createServerFn({ method: "GET" }).handler(async () => {
   const { TMD_BKK_URL, parseBkkForecast } = await import("./tmd-forecast");
+  const { politeFetch } = await import("./http.server");
   let xml = "";
-  let from: "live" | "archive" = "live";
+  try { xml = await (await politeFetch(TMD_BKK_URL, { timeoutMs: 15000, tries: 1 })).text(); } catch (e) { console.warn("tmd region forecast failed", (e as Error).message); }
+  if (xml.includes("<item>")) return { ...parseBkkForecast(xml), from: "live" as const, sourceUrl: TMD_BKK_URL };
   try {
-    const r = await fetch(TMD_BKK_URL, { headers: { "user-agent": "Mozilla/5.0 ThailandDailySignals" }, signal: AbortSignal.timeout(10000) });
-    if (r.ok) xml = await r.text();
-  } catch (e) { console.warn("tmd forecast live fetch failed", e); }
-  if (!xml.includes("<item>")) {
-    from = "archive";
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row } = await supabaseAdmin.from("raw_evidence").select("storage_path").ilike("url", "%region-daily-forecast%").order("fetched_at", { ascending: false }).limit(1).maybeSingle();
-    if (row) { const { data: b } = await supabaseAdmin.storage.from("evidence").download(row.storage_path); xml = b ? await b.text() : ""; }
-  }
+    const { TMD7D_URL, parseTmd7d } = await import("./tmd7d");
+    const today = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+    const rows = parseTmd7d(await (await politeFetch(TMD7D_URL, { timeoutMs: 60000, tries: 2 })).text(), today);
+    const bkk = rows.find((r) => r.province === "กรุงเทพมหานคร");
+    if (bkk) {
+      const mx = rows.map((r) => r.max).filter((x): x is number => x != null);
+      const mn = rows.map((r) => r.min).filter((x): x is number => x != null);
+      const rain = bkk.rainPct ?? 0;
+      const advice: string[] = [];
+      if (rain >= 30 || /ฝน/.test(bkk.descTh)) advice.push("พกร่ม เผื่อเวลาเดินทาง");
+      if (/คะนอง/.test(bkk.descTh)) advice.push("ระวังลมกระโชกแรง หลีกเลี่ยงต้นไม้ใหญ่และป้ายโฆษณา");
+      if (Math.max(...mx, 0) >= 35) advice.push("อากาศร้อน ดื่มน้ำบ่อย ๆ");
+      return {
+        title: "พยากรณ์อากาศ 7 วัน (วันนี้)", published: null, validFrom: today, icon: null, conditionEn: "",
+        conditionTh: bkk.descTh || "—", rainChanceTh: bkk.rainPct != null ? `ฝนตก ${bkk.rainPct}% ของพื้นที่` : null,
+        minRange: mn.length ? [Math.min(...mn), Math.max(...mn)] as [number, number] : null,
+        maxRange: mx.length ? [Math.min(...mx), Math.max(...mx)] as [number, number] : null,
+        windTh: null,
+        provinces: rows.filter((r) => r.max != null && r.min != null).map((r) => ({ name: r.province, max: r.max!, min: r.min! })),
+        advice, summary: "", from: "7d" as const, sourceUrl: TMD7D_URL,
+      };
+    }
+  } catch (e) { console.warn("tmd 7-day forecast failed", (e as Error).message); }
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: row } = await supabaseAdmin.from("raw_evidence").select("storage_path").ilike("url", "%region-daily-forecast%").order("fetched_at", { ascending: false }).limit(1).maybeSingle();
+  if (row) { const { data: b } = await supabaseAdmin.storage.from("evidence").download(row.storage_path); xml = b ? await b.text() : ""; }
   if (!xml.includes("<item>")) return null;
-  return { ...parseBkkForecast(xml), from };
+  return { ...parseBkkForecast(xml), from: "archive" as const, sourceUrl: TMD_BKK_URL };
 });
