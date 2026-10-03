@@ -964,6 +964,57 @@ export type Database = {
         }
         Relationships: []
       }
+      weather_station_obs: {
+        Row: {
+          descr: string | null
+          dist_km: number | null
+          id: number
+          kind: string
+          name: string
+          obs_date: string
+          obs_time: string | null
+          rain_pct: number | null
+          rain24: number | null
+          received_at: string
+          source_url: string
+          station_id: string
+          temp: number | null
+          tmin: number | null
+        }
+        Insert: {
+          descr?: string | null
+          dist_km?: number | null
+          id?: number
+          kind: string
+          name: string
+          obs_date: string
+          obs_time?: string | null
+          rain_pct?: number | null
+          rain24?: number | null
+          received_at?: string
+          source_url: string
+          station_id: string
+          temp?: number | null
+          tmin?: number | null
+        }
+        Update: {
+          descr?: string | null
+          dist_km?: number | null
+          id?: number
+          kind?: string
+          name?: string
+          obs_date?: string
+          obs_time?: string | null
+          rain_pct?: number | null
+          rain24?: number | null
+          received_at?: string
+          source_url?: string
+          station_id?: string
+          temp?: number | null
+          tmin?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

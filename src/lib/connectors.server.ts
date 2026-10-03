@@ -22,6 +22,24 @@ const blocks = (xml: string, tag: string) => xml.split(`<${tag}>`).slice(1).map(
 const field = (b: string, tag: string) => b.match(new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`))?.[1] ?? "";
 const prevDay = (d: string) => { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() - 1); return t.toISOString().slice(0, 10); };
 
+/** Fetch a JSON URL through Firecrawl (real browser, stealth proxy, Thai location). */
+async function firecrawlJson(url: string): Promise<any> {
+  const key = process.env["FIRECRAWL_API_KEY"];
+  if (!key) throw new Error("ยังไม่ได้เชื่อม Firecrawl");
+  const r = await fetch("https://api.firecrawl.dev/v2/scrape", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ url, formats: ["rawHtml"], onlyMainContent: false, location: { country: "TH" }, maxAge: 0, timeout: 120000 }),
+  });
+  const fc: any = await r.json().catch(() => null);
+  if (!r.ok || !fc?.success) throw new Error(`Firecrawl ตอบ ${r.status} ${fc?.error ?? ""}`.trim());
+  const st = fc.data?.metadata?.statusCode;
+  if (st && st !== 200) throw new Error(`${st} — ปลายทางบล็อก Firecrawl ด้วย`);
+  const raw: string = fc.data?.rawHtml ?? "";
+  const body = (raw.match(/<pre[^>]*>([\s\S]*)<\/pre>/)?.[1] ?? raw).replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(body);
+}
+
 export const CONNECTORS: Connector[] = [
   {
     source: "PTT (thai-oil-api)",
@@ -63,27 +81,18 @@ export const CONNECTORS: Connector[] = [
   {
     // Chao Phraya Dam release (station C.13 ท้ายเขื่อนเจ้าพระยา) only exists in ThaiWater's water-level list.
     source: "ThaiWater (สสน.)",
-    run: async () => {
+    run: async (_date, ctx) => {
       const URL_TW = "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/thailand_main";
+      // Order is set by app_settings.thaiwater_mode: 'firecrawl_first' or 'direct_first' (default).
+      const { data: ms } = ctx?.admin ? await ctx.admin.from("app_settings").select("value").eq("key", "thaiwater_mode").maybeSingle() : { data: null };
+      const order: Array<"direct" | "firecrawl"> = ms?.value === "firecrawl_first" ? ["firecrawl", "direct"] : ["direct", "firecrawl"];
+      const errs: string[] = [];
       let d: any;
-      try { d = await json(URL_TW); }
-      catch (e) {
-        // Fallback: Firecrawl (real browser, stealth proxy, TH location) — ThaiWater blocks the hosting address.
-        const key = process.env["FIRECRAWL_API_KEY"];
-        if (!key) throw e;
-        const r = await fetch("https://api.firecrawl.dev/v2/scrape", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ url: URL_TW, formats: ["rawHtml"], onlyMainContent: false, location: { country: "TH" }, proxy: "auto", maxAge: 0, timeout: 120000 }),
-        });
-        const fc: any = await r.json().catch(() => null);
-        if (!r.ok || !fc?.success) throw new Error(`${(e as Error).message} · Firecrawl [${r.status}] ${fc?.error ?? ""}`.slice(0, 280));
-        const raw: string = fc.data?.rawHtml ?? "";
-        const body = (raw.match(/<pre[^>]*>([\s\S]*)<\/pre>/)?.[1] ?? raw).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
-        const st = fc.data?.metadata?.statusCode;
-        if (st && st !== 200) throw new Error(`${(e as Error).message} · Firecrawl ก็ถูก ThaiWater จำกัดคำขอ (${st})`);
-        d = JSON.parse(body);
+      for (const way of order) {
+        try { d = way === "direct" ? await json(URL_TW) : await firecrawlJson(URL_TW); break; }
+        catch (e) { errs.push(`${way === "direct" ? "ตรง" : "Firecrawl"}: ${(e as Error).message}`); }
       }
+      if (!d) throw new Error(`ThaiWater ดึงไม่ได้ทั้ง 2 ทาง — ${errs.join(" · ")}`.slice(0, 290));
       const wl: any[] = d?.waterlevel?.data?.data ?? d?.waterlevel?.data ?? [];
       const c13 = wl.find((x) => String(x?.station?.tele_station_oldcode ?? "").trim() === "C.13");
       const q = pos(c13?.discharge);
@@ -131,9 +140,15 @@ export const CONNECTORS: Connector[] = [
     // www.tmd.go.th has an incomplete certificate chain (hosting returns 526), so figures come from
     // data.tmd.go.th WeatherForecast7Days — today's กรุงเทพมหานคร row.
     source: "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล",
-    run: async (date) => {
+    run: async (date, ctx) => {
       const { TMD7D_URL, parseTmd7d } = await import("./tmd7d");
       const rows = parseTmd7d(await text(TMD7D_URL), date);
+      if (ctx?.admin && rows.length) {
+        await ctx.admin.from("weather_station_obs").upsert(rows.map((r) => ({
+          station_id: `p:${r.province}`, name: r.province, kind: "7d", obs_date: date, temp: r.max ?? null, tmin: r.min ?? null,
+          rain_pct: r.rainPct ?? null, descr: r.descTh, source_url: TMD7D_URL, received_at: new Date().toISOString(),
+        })), { onConflict: "station_id,obs_date,kind" });
+      }
       const bkk = rows.find((r) => r.province === "กรุงเทพมหานคร");
       if (!bkk) throw new Error(`ไม่พบพยากรณ์ กรุงเทพมหานคร ของวันที่ ${date} ในไฟล์ 7 วัน`);
       const o: Values = {};
@@ -147,8 +162,22 @@ export const CONNECTORS: Connector[] = [
     // 3-hourly reading: a running max per day is kept in app_settings (key tmax3h:YYYY-MM-DD).
     source: "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)",
     run: async (date, ctx) => {
-      const { TMD3H_URL, parseTmd3h } = await import("./tmd3h");
-      const r = parseTmd3h(await text(TMD3H_URL));
+      const { TMD3H_URL, parseTmd3h, parseNearStations } = await import("./tmd3h");
+      const xml3 = await text(TMD3H_URL);
+      const r = parseTmd3h(xml3);
+      // Nearest stations: one row per station/day — temp = highest reading so far that day, rain = latest 24-h total.
+      if (ctx?.admin) {
+        const near = parseNearStations(xml3);
+        if (near.length) {
+          const { data: ex } = await ctx.admin.from("weather_station_obs").select("station_id,obs_date,temp").eq("kind", "3h").in("station_id", near.map((n) => n.id)).in("obs_date", [...new Set(near.map((n) => n.date))]);
+          await ctx.admin.from("weather_station_obs").upsert(near.map((n) => {
+            const old = (ex ?? []).find((e: any) => e.station_id === n.id && e.obs_date === n.date);
+            const t = [n.temp, old?.temp == null ? undefined : Number(old.temp)].filter((x): x is number => x !== undefined);
+            return { station_id: n.id, name: n.name, kind: "3h", obs_date: n.date, obs_time: n.time, temp: t.length ? Math.max(...t) : null,
+              rain24: n.rain24 ?? null, dist_km: n.km, source_url: TMD3H_URL, received_at: new Date().toISOString() };
+          }), { onConflict: "station_id,obs_date,kind" });
+        }
+      }
       if (!r.stationFound) throw new Error(r.stations ? "ไม่พบสถานี 48455 BANGKOK METROPOLIS ในไฟล์" : "กรมอุตุฯ ยังไม่มีรายการสถานีในรอบนี้ (ไฟล์ว่าง)");
       const day = r.date ?? date;
       const values: Values = {}, dates: Record<string, string> = {};

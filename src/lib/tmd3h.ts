@@ -29,3 +29,21 @@ export function parseTmd3h(xml: string): Bkk3h {
     stations: blocks.length,
   };
 }
+
+/** Stations nearest Bangkok (WMO id → km from Bangkok centre). */
+export const NEAR_BKK: Record<string, number> = { "48455": 7.1, "48454": 9.0, "48453": 15.1, "48456": 21.3, "48429": 29.7 };
+export type NearObs = { id: string; name: string; date: string; time: string; temp?: number | undefined; rain24?: number | undefined; km: number };
+
+export function parseNearStations(xml: string): NearObs[] {
+  const out: NearObs[] = [];
+  for (const b of xml.split(/<Station>/).slice(1).map((x) => x.split("</Station>")[0] ?? "")) {
+    const id = tag(b, "WmoStationNumber");
+    const km = NEAR_BKK[id];
+    if (km === undefined) continue;
+    const time = tag(b, "DateTime");
+    const m = time.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (!m) continue;
+    out.push({ id, name: tag(b, "StationNameThai") || tag(b, "StationNameEnglish"), date: `${m[3]}-${m[1]}-${m[2]}`, time, temp: num(tag(b, "AirTemperature")), rain24: num(tag(b, "Rainfall24Hr")), km });
+  }
+  return out.sort((a, b) => a.km - b.km);
+}

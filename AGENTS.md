@@ -27,10 +27,7 @@
 - Backfill (`backfill.server.ts`, `/api/public/ingest?mode=backfill`, cron-secret) only for sources that publish history (none now); real rows replace demo rows, never real ones; then detect/rank/brief replayed oldest→newest, briefs left unpublished (archive editions).
 - Household impact per signal = `impactFor` in impact.ts: `USAGE` holds per-metric usage with source/method/official flag (official = gov per-person or national figure converted per household; else labelled example); user overrides only on /impact via localStorage, briefs always use official — one formula, recomputable.
 - Brief data window = 00:00 → 05:45 Bangkok on the brief day (forced `?mode=early` runs 00:10/03:00/05:00 + 05:30 daily); on freeze/publish signals whose observation `received_at` is after it are excluded (become brief_updates); window stored in `daily_briefs.data_window` (first/last received, excluded with reason) and shown on brief, /events and /impact — honest cutoff.
-- All crawler/API fetches go through `politeFetch` (`http.server.ts`): browser header profile, 120s timeout, retry 429/5xx/timeout max 3 — headless browsers can't run in the Worker runtime; 429-failed jobs re-queue after 15 min.
 - The masthead ticker reads today's ranked signals directly and links each item to its family page; it never creates fallback numbers or changes detection logic .
-- Bangkok forecast figures come from data.tmd.go.th WeatherForecast7Days (`tmd7d.ts`, today's row) because www.tmd.go.th has a broken cert chain (526); `getBkkForecast` tries region RSS → 7-day → archived RSS.
-- Calendar: `holidays` + `tax_deadlines` (rdtax) on /calendar + homepage aside; dates, never signals. Earthquake signal = `quake_th` from TMD RSS (`quake.ts`), Thai-province epicentres only, level bands {4,5}.
-- Holidays: Kapook yearly page (`kapook.ts`, job `holidays`); URL in `app_settings.holiday_url`, set on /calendar via `setHolidayUrl` — new year = new link.
-- Air/weather: GISTDA pm25_bkk; TMD Weather3Hours station 48455 (`tmd3h.ts`, decode XML char refs) → rain_bkk (24h, report date) and tmax_bkk = yesterday's max of 3-hourly readings (running max in app_settings `tmax3h:date`). Water: RID reservoir API → Pasak/Khun Dan; ThaiWater C.13 → cp_dam_q.
-- /tracking: per-source fetch window, missing metrics, cut reasons (registry+run history+obs+data_window), read-only.
+- /tracking: read-only per-source window/missing/cut reasons.
+
+- Source-specific fetch rules live in `src/lib/AGENTS.md`.

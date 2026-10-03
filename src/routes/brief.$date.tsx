@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { shiftDate, thaiDate } from "@/lib/signals";
 import { STATUS_TH, type Completeness } from "@/lib/completeness";
 import { AllMetricsCompare } from "@/components/all-metrics-compare";
+import { DamsBox, StationCompare } from "@/components/brief-dams-weather";
 
 const hm = (s: string) => new Date(s).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" });
 
@@ -110,6 +111,8 @@ function BriefPage() {
                 </ul>
               </section>
             )}
+            <DamsBox date={date} cutoff={data.cutoff_at ?? (data as any).data_window?.to ?? null} />
+            <StationCompare date={date} />
             <AllMetricsCompare date={date} cutoff={data.cutoff_at ?? (data as any).data_window?.to ?? null} completeness={Array.isArray(data.completeness) ? (data.completeness as Completeness[]) : null} />
             <div className="mt-10"><HouseholdBasket date={date} /></div>
             <Link to="/day/$date" params={{ date }} className="mt-4 inline-block text-sm underline">ดูอันดับสัญญาณทั้งหมดของวันนี้ เทียบเมื่อวาน →</Link>
