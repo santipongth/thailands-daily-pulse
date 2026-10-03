@@ -1,10 +1,10 @@
 import { causeOf } from "./perf";
 
-/** Retention: queue rows (done/failed) and run history are kept 30 days; raw evidence is never deleted here.
+/** Retention: queue rows (done/failed) and run history are kept 90 days (also pruned daily in SQL by prune_old_data); raw evidence is never deleted here.
  *  Station snapshots are kept 90 days. Before pruning, per-source daily performance is rolled up (kept forever). */
 export async function pruneOldJobs(a: any) {
   await rollupPerf(a).catch((e) => console.error("perf rollup failed", e));
-  const cut = new Date(Date.now() - 30 * 86400e3).toISOString();
+  const cut = new Date(Date.now() - 90 * 86400e3).toISOString();
   // raw_evidence.job_id references ingest_jobs: detach before deleting old jobs (evidence itself is kept).
   await a.from("raw_evidence").update({ job_id: null }).lt("fetched_at", cut).not("job_id", "is", null);
   const { data: jobs } = await a.from("ingest_jobs").delete().in("status", ["done", "failed"]).lt("created_at", cut).select("id");

@@ -55,6 +55,7 @@ function Settings() {
         </fieldset>
         <p className="mt-6 text-sm text-muted-foreground">ตัวเลขที่ประกาศเป็นรอบ เช่น ผลสลาก จะแสดงเสมอในวันที่ประกาศ</p>
         <SourceSettings />
+        <PruneStatus />
         <SourceControl />
         </div>
       </main>
@@ -149,4 +150,14 @@ function UpdateTimes() {
       <p className="mt-1 text-xs text-muted-foreground">เมื่อถึงเวลาที่เลือก ระบบจะอัปเดตและแจ้งผลขณะเปิดเว็บไว้ หรือแจ้งทันทีที่คุณเปิดเว็บครั้งถัดไป (ไม่มีระบบบัญชี จึงทำงานบนเครื่องนี้เท่านั้น)</p>
     </div>
   );
+}
+
+function PruneStatus() {
+  const { data } = useQuery({ queryKey: ["prune-last"], queryFn: async () => {
+    const { data } = await supabase.from("app_settings").select("value").eq("key", "prune_last").maybeSingle();
+    return data?.value ? (JSON.parse(data.value) as { ran_at: string; deleted: Record<string, number> }) : null;
+  } });
+  if (!data) return <p className="mt-8 text-sm text-muted-foreground">ล้างข้อมูลเก่าอัตโนมัติ (เก็บ 90 วัน, ทุกวัน 03:30 น.): ยังไม่เคยรัน</p>;
+  const total = Object.values(data.deleted).reduce((a, b) => a + b, 0);
+  return <p className="mt-8 text-sm text-muted-foreground">ล้างข้อมูลเก่าอัตโนมัติ (เก็บ 90 วัน, ทุกวัน 03:30 น.) · ล่าสุด {new Date(data.ran_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", dateStyle: "medium", timeStyle: "short" })} · ลบไป {total} แถว · ไฟล์หลักฐาน ค่าข้อมูลรายวัน สัญญาณ และฉบับ Brief ไม่ถูกลบ</p>;
 }

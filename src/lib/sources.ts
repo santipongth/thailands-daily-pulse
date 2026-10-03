@@ -6,6 +6,7 @@ export type SourceInfo = { source: string; agency: string; kind: "api" | "crawle
 
 export const SOURCES: SourceInfo[] = [
   { source: "สำนักงานสลากกินแบ่งรัฐบาล (GLO)", agency: "สำนักงานสลากกินแบ่งรัฐบาล", kind: "api", metrics: ["lotto"] },
+  { source: "กรมการค้าภายใน (ราคาขายปลีก กทม.)", agency: "กรมการค้าภายใน", kind: "crawler", metrics: ["dit_pork", "dit_chicken", "dit_egg", "dit_rice", "dit_morning_glory", "dit_palm_oil", "dit_lime", "dit_chili"] },
   { source: "CheckRaka (ราคาอาหาร)", agency: "CheckRaka", kind: "crawler", metrics: ["pork", "egg", "chicken", "rice_jasmine", "morning_glory", "palm_oil", "chili", "lime"] },
   { source: "RakaKaset (ราคาเกษตร)", agency: "RakaKaset", kind: "crawler", metrics: ["palm", "rubber", "latex", "rice_farm", "cassava", "corn", "hog_farm"] },
   { source: "Longdo Traffic Index", agency: "Longdo Traffic", kind: "api", metrics: ["traffic_idx"] },
@@ -40,6 +41,7 @@ export const AGENCIES: Agency[] = [
   { key: "gistda", label: "GISTDA (PM2.5 กรุงเทพฯ)", category: "government", sources: ["GISTDA PM2.5 (กรุงเทพฯ)"] },
   { key: "pcd", label: "กรมควบคุมมลพิษ (Air4Thai)", category: "government", sources: ["Air4Thai PM2.5 (กรมควบคุมมลพิษ)"] },
   { key: "rail", label: "รถไฟฟ้า BTS / MRT", category: "other", sources: ["รถไฟฟ้า BTS/MRT (X)"] },
+  { key: "dit", label: "กรมการค้าภายใน", category: "government", sources: ["กรมการค้าภายใน (ราคาขายปลีก กทม.)"] },
   { key: "rd", label: "กรมสรรพากร", category: "government", sources: ["กรมสรรพากร (ปฏิทินภาษี)"] },
   { key: "glo", label: "สำนักงานสลากกินแบ่งรัฐบาล", category: "government", sources: ["สำนักงานสลากกินแบ่งรัฐบาล (GLO)"] },
   { key: "gold", label: "สมาคมค้าทองคำ", category: "other", sources: ["สมาคมค้าทองคำ"] },

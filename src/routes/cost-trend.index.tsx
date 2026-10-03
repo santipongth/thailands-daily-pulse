@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BASKET } from "@/lib/impact";
 import { costTrend, GROUP_TH } from "@/lib/cost-trend";
 
-export const Route = createFileRoute("/cost-trend")({
+export const Route = createFileRoute("/cost-trend/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
@@ -72,7 +72,7 @@ function CostTrend() {
           <div className="overflow-x-auto"><table className="mt-2 w-full min-w-[520px] text-sm">
             <thead><tr className="border-b border-editorial-ink text-left text-muted-foreground"><th className="py-2">รายการ</th><th>ราคาเริ่ม ({r.start})</th><th>ราคาล่าสุด</th><th>ผลต่อวัน</th></tr></thead>
             <tbody>{r.items.map((i) => (
-              <tr key={i.metric_id} className="border-b border-editorial-rule"><td className="py-2 font-medium">{i.label}</td>
+              <tr key={i.metric_id} className="border-b border-editorial-rule"><td className="py-2 font-medium"><Link to="/cost-trend/$item" params={{ item: i.metric_id }} className="underline">{i.label}</Link></td>
                 <td className="tabular-nums">{i.start == null ? <span className="text-xs text-muted-foreground">ข้อมูลไม่ครบช่วง</span> : b2(i.start)}</td>
                 <td className="tabular-nums">{i.end == null ? "—" : b2(i.end)}</td>
                 <td className="tabular-nums">{i.deltaDay == null ? "—" : `${sign(i.deltaDay)} ฿`}</td></tr>

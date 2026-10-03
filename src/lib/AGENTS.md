@@ -31,3 +31,5 @@
 - `/api/public/health`: no-store JSON (db, queue backlog, latest brief, per-source fresh/stale/paused), 503 only when DB fails or today's brief missing after 06:30; rate-limited like API v1; never exposes errors or paths.
 - `/cost-trend` uses pure `costTrend` (cost-trend.ts): BASKET × real prices, carry-forward, items missing at range start excluded from net — same basket as briefs.
 - `/raw-log` (admin) lists raw_evidence fetches with values read via `observations.evidence_id`; TMD 3h run `sample` names the station actually used.
+- Cost of living: DIT (กรมการค้าภายใน) retail Bangkok prices via `dit.ts` POST form → metrics `dit_*` (comparison only, no thresholds, not in BASKET); `/cost-trend/$item` compares week/month on real readings only (`periodStats`), multiple sources side by side.
+- Retention: SQL `prune_old_data()` via pg_cron daily 03:30 Bangkok (90 days; raw evidence, signals, briefs, daily stats never deleted); dam runs respect a 3h schedule to avoid ThaiWater 429.

@@ -38,3 +38,13 @@ export function costTrend(obs: Obs[], end: string, days: number) {
   const net = comparable.reduce((s, i) => s + i.deltaDay!, 0);
   return { start, series, items, netDay: net, netMonth: net * 30, partial: items.some((i) => i.deltaDay == null) };
 }
+
+export type PeriodStats = { avg: number | null; min: number | null; max: number | null; days: number };
+/** Stats over real readings only (no carry-forward) with observed_on in [from, to]. */
+export function periodStats(obs: { observed_on: string; value: number }[], from: string, to: string): PeriodStats {
+  const v = obs.filter((o) => o.observed_on >= from && o.observed_on <= to).map((o) => Number(o.value));
+  if (!v.length) return { avg: null, min: null, max: null, days: 0 };
+  return { avg: v.reduce((a, b) => a + b, 0) / v.length, min: Math.min(...v), max: Math.max(...v), days: v.length };
+}
+export const shiftDays = addDays;
+export const pctChange = (a: number | null, b: number | null) => (a == null || b == null || b === 0 ? null : ((a - b) / b) * 100);

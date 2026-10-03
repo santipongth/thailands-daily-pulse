@@ -64,6 +64,29 @@ async function firecrawlJson(url: string): Promise<any> {
 
 export const CONNECTORS: Connector[] = [
   {
+    // กรมการค้าภายใน: official Bangkok retail prices (weekdays). Comparison-only metrics dit_* (no thresholds).
+    source: "กรมการค้าภายใน (ราคาขายปลีก กทม.)",
+    run: async (date) => {
+      const { DIT_ITEMS, DIT_URL, ditGroup, ditFormDate, parseDit } = await import("./dit");
+      const from = new Date(Date.parse(date + "T00:00:00Z") - 14 * 86400e3).toISOString().slice(0, 10);
+      const values: Values = {}; const dates: Record<string, string> = {}; const miss: string[] = [];
+      for (const it of DIT_ITEMS) {
+        try {
+          const body = new URLSearchParams({ protype: "1", progroup: ditGroup(it.product), proname: it.product, day1: ditFormDate(from), day2: ditFormDate(date) });
+          const res = await politeFetch(DIT_URL, { method: "POST", body, headers: { "content-type": "application/x-www-form-urlencoded" } });
+          if (!res.ok) throw new Error(`${res.status}`);
+          const last = parseDit(await res.text()).rows.at(-1);
+          if (!last) throw new Error("ไม่มีราคา 14 วันล่าสุด");
+          values[it.metric] = last.avg; dates[it.metric] = last.date;
+        } catch (e) { miss.push(`${it.label}: ${(e as Error).message}`); }
+        await new Promise((ok) => setTimeout(ok, 400));
+      }
+      if (!Object.keys(values).length) throw new Error(`ดึงราคากรมการค้าภายในไม่ได้ — ${miss.join("; ")}`.slice(0, 280));
+      const d = Object.values(dates).sort().at(-1);
+      return { values, dates, ...(miss.length ? { note: miss.join("; ").slice(0, 280) } : {}), sample: `ราคาวันที่ ${d}: หมู ${values["dit_pork"] ?? "—"} · ไข่ ${values["dit_egg"] ?? "—"} · ไก่ ${values["dit_chicken"] ?? "—"}` };
+    },
+  },
+  {
     // Bangkok + 3 neighbouring provinces: ThaiWater telemetry stations reporting today; % of lower bank.
     source: "ThaiWater สถานี กทม.และปริมณฑล",
     run: async (date) => {
