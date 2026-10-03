@@ -1,6 +1,7 @@
 import { fmt } from "@/lib/signals";
 
-export type WeekSummary = { label: string; value: number | null; coverage: string };
+export type WeekSummary = { label: string; value: number | null; coverage: string; arrivals?: { date: string; received: string }[] };
+const receivedLabel = (iso: string) => new Date(iso).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
 /** A common comparison frame; missing readings remain missing, not zero. */
 export function WeeklyComparison({ weeks, unit, decimals, note, children }: {
@@ -24,6 +25,7 @@ export function WeeklyComparison({ weeks, unit, decimals, note, children }: {
           <p className="text-xs text-muted-foreground">{w.label}</p>
           <p className="mt-1 font-display text-xl tabular-nums leading-tight">{w.value == null ? "—" : fmt(w.value, decimals)} <span className="font-editorial-body text-xs font-normal text-muted-foreground">{unit}</span></p>
           <p className="mt-1 text-xs text-muted-foreground">{w.coverage}</p>
+          {!!w.arrivals?.length && <div className="mt-2 text-xs text-muted-foreground"><p className="font-semibold">วันที่ข้อมูลเข้าจริง</p><ul className="mt-1 space-y-1 border-l border-editorial-rule pl-2">{w.arrivals.map((a, i) => <li key={`${a.date}-${i}`}>ข้อมูล {a.date} · รับ {receivedLabel(a.received)} น.</li>)}</ul></div>}
         </div>)}
       </div>
       {children}

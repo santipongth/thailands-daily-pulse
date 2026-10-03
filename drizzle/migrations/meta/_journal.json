@@ -323,6 +323,13 @@
       "when": 1791054500447,
       "tag": "0045_link_arrival_evidence_to_signal_versions",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1791055314696,
+      "tag": "0046_daily_price_source_metadata",
+      "breakpoints": true
     }
   ]
 }

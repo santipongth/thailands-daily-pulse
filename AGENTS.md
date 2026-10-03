@@ -12,6 +12,7 @@
 # AGENTS.md
 
 - Detection is SQL `detect_signals(date)`: per-metric kind delta/level/release, thresholds, `min_pct`/`max_gap_days`/`vol_k`×30-obs stddev, `families.trust` (medium 1.5x, demo capped medium); passed rules stored in `signals.checks` — consistent and explainable.
+- Daily-life price and wage connectors preserve source-effective dates separately from received timestamps; weekly cards show both and never synthesize missing days — prevents stale agency pages from becoming fresh signals.
 - Ranking is SQL `rank_signals(date)`: severity × z/vol_k × trust × `reach` × evidence factor (1.0 if source raw file changed that Bangkok day, else 0.8; `family_evidence_source`); demo zeroed on real days; breakdown in `checks.score` — auditable, never news-driven.
 - Ingest: Postgres queue `ingest_jobs` (one job/source, `claim_ingest_job()` SKIP LOCKED, 3 attempts; `queue.server.ts`), hourly cron `/api/public/ingest` (3-hour general freshness gate, separate hourly Longdo gate by UTC hour), daily 05:30 `?mode=daily`, gold/FX/RakaKaset only at 05:00 Bangkok daily (05:30 retries failures; `DAILY_05`), dams-only `?mode=dams` hourly :20 (10-min lease, independent of brief), `run_kind` hourly/daily/manual — isolated failures without redundant Longdo runs.
 - Brief: cron 05:45 `?step=freeze` (cutoff) and 05:55 `?step=publish`; items from real signals with event_id/version, data date, score and evidence; AI writes only intro (rejected if new numbers); frozen once published, later event versions go to `brief_updates`; completeness stored per edition.

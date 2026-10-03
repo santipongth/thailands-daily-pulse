@@ -1,0 +1,1 @@
+COMMENT ON TABLE public.source_registry IS 'Public provenance and cadence for agency data sources; freshness is evaluated from observation dates, not page refresh dates.';

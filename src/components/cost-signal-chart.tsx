@@ -9,7 +9,8 @@ import { WeeklyComparison } from "@/components/weekly-comparison";
 /** Cost-of-living signal: last week vs this week (real prices only) + 14-day daily line with gaps. */
 export function CostSignalChart({ s, metric, history }: { s: Signal; metric: Metric; history: Obs[] }) {
   const end: string = s.checks?.price_date ?? s.signal_date;
-  const rows = history.filter((o) => o.is_demo === s.is_demo && o.observed_on >= shiftDays(end, -13) && o.observed_on <= end).map((o) => ({ observed_on: o.observed_on, value: Number(o.value) }));
+  const rows = history.filter((o) => o.metric_id === s.metric_id && o.is_demo === s.is_demo && o.observed_on >= shiftDays(end, -13) && o.observed_on <= end).map((o) => ({ observed_on: o.observed_on, value: Number(o.value), received_at: o.received_at }));
+  const arrivals = (from: string, to: string) => rows.filter((r) => r.observed_on >= from && r.observed_on <= to).map((r) => ({ date: r.observed_on, received: r.received_at }));
   const cur = periodStats(rows, shiftDays(end, -6), end), prev = periodStats(rows, shiftDays(end, -13), shiftDays(end, -7));
   const line: { d: string; v: number | null }[] = [];
   for (let d = shiftDays(end, -13); d <= end; d = shiftDays(d, 1)) line.push({ d: d.slice(5), v: rows.find((r) => r.observed_on === d)?.value ?? null });
@@ -20,8 +21,8 @@ export function CostSignalChart({ s, metric, history }: { s: Signal; metric: Met
   const qty = s.metric_id.startsWith("dit_") && metric.unit !== "บาท/กก." ? undefined : BASKET.find((b) => b.metric_id === basketId)?.qty;
   const impact = qty != null && cur.avg != null && prev.avg != null ? (cur.avg - prev.avg) * qty : null;
   return <WeeklyComparison weeks={[
-    { label: "7 วันก่อนหน้า", value: prev.days >= 3 ? prev.avg : null, coverage: `มีราคา ${prev.days} วันจาก 7 วัน` },
-    { label: "7 วันล่าสุด", value: cur.days >= 3 ? cur.avg : null, coverage: `มีราคา ${cur.days} วันจาก 7 วัน` },
+    { label: "7 วันก่อนหน้า", value: prev.days >= 3 ? prev.avg : null, coverage: `มีราคา ${prev.days} วันจาก 7 วัน`, arrivals: arrivals(shiftDays(end, -13), shiftDays(end, -7)) },
+    { label: "7 วันล่าสุด", value: cur.days >= 3 ? cur.avg : null, coverage: `มีราคา ${cur.days} วันจาก 7 วัน`, arrivals: arrivals(shiftDays(end, -6), end) },
   ]} unit={metric.unit} decimals={metric.decimals} note={`ราคาเฉลี่ยจากวันที่มีราคาจริงอย่างน้อย 3 วันต่อช่วง ไม่เติมวันที่ขาด${end !== s.signal_date ? ` · เทียบถึงวันที่ของราคา ${end} (ได้รับ ${s.signal_date})` : ""}`}>
     <div className="mt-4 border-t border-editorial-rule pt-3">
       <p className="text-xs text-muted-foreground">ราคา 14 วันล่าสุด · ช่องว่างคือวันที่ไม่มีราคา</p>

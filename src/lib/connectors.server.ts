@@ -64,6 +64,22 @@ async function firecrawlJson(url: string): Promise<any> {
 
 export const CONNECTORS: Connector[] = [
   {
+    source: "สนพ. (ราคา LPG ถัง 15 กก.)",
+    run: async (date) => {
+      const { LPG_URL, parseLpg } = await import("./daily-prices");
+      const { price, date: observed } = parseLpg(await json(LPG_URL), date);
+      return { values: { lpg: price }, dates: { lpg: observed }, sample: `ปตท. ถัง 15 กก. ${price} บาท · วันที่ประกาศราคา ${observed}` };
+    },
+  },
+  {
+    source: "กระทรวงแรงงาน (ค่าแรงขั้นต่ำ กทม.)",
+    run: async (date) => {
+      const { WAGE_URL, parseBangkokWage } = await import("./daily-prices");
+      const { price, date: effective } = parseBangkokWage(await text(WAGE_URL), date);
+      return { values: { wage_bkk: price }, dates: { wage_bkk: effective }, sample: `ค่าแรงขั้นต่ำกรุงเทพฯ ${price} บาท/วัน · มีผล ${effective}` };
+    },
+  },
+  {
     // ค่า Ft (PEA page, same nationwide incl. MEA Bangkok) × official residential tariff → ฿/unit for a 200-unit home.
     source: "การไฟฟ้า (ค่า Ft / อัตราค่าไฟ)",
     run: async () => {
@@ -148,13 +164,18 @@ export const CONNECTORS: Connector[] = [
   },
   {
     source: "PTT (thai-oil-api)",
-    run: async () => {
+    run: async (date) => {
       const o: Values = {};
-      const p = (await json("https://api.chnwt.dev/thai-oil-api/latest"))?.response?.stations?.ptt;
+      const response = (await json("https://api.chnwt.dev/thai-oil-api/latest"))?.response;
+      const { thaiPriceDate } = await import("./daily-prices");
+      const observed = thaiPriceDate(response?.date);
+      if (observed > date) throw new Error(`ราคาน้ำมันลงวันที่ ${observed} ยังไม่ถึงวันอ้างอิง`);
+      const p = response?.stations?.ptt;
       put(o, "gsh95", pos(p?.gasohol_95?.price));
       put(o, "e20", pos(p?.gasohol_e20?.price));
       put(o, "diesel", pos(p?.diesel?.price));
-      return o;
+      if (!Object.keys(o).length) throw new Error("ไม่พบราคาน้ำมัน ปตท. ที่ตรวจสอบได้");
+      return { values: o, dates: Object.fromEntries(Object.keys(o).map((k) => [k, observed])), sample: `ราคาน้ำมัน ปตท. ลงวันที่ ${observed}` };
     },
   },
   {
