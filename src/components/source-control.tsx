@@ -1,3 +1,4 @@
+import { registryQuery } from "@/lib/registry";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -19,6 +20,8 @@ const sel = "border border-editorial-rule bg-background px-2 py-1.5";
 export function SourceControl() {
   const list = useServerFn(listSourceConfig);
   const { data, isLoading, error } = useQuery({ queryKey: ["source-config"], queryFn: () => list() });
+  const { data: reg } = useQuery(registryQuery);
+  const lastData = new Map((reg?.completeness ?? []).map((c) => [c.source, c.data_date as string | null]));
   return (
     <section className="mt-12">
       <h2 className="section-heading text-3xl">จัดการแหล่งข้อมูล (ผู้ดูแล)</h2>
@@ -33,7 +36,7 @@ export function SourceControl() {
           <div key={g} className="mt-6">
             <h3 className="font-display text-xl">{label} <span className="text-sm text-muted-foreground">({items.length})</span></h3>
             <ul className="mt-2 divide-y divide-editorial-rule border-y-2 border-editorial-ink">
-              {items.map((s) => <Row key={s.source} source={s.source} config={s.config} run={s.run} breaker={s.breaker} info={s.info} />)}
+              {items.map((s) => <Row key={s.source} source={s.source} config={s.config} run={s.run} breaker={s.breaker} info={s.info} dataDate={lastData.get(s.source)} />)}
             </ul>
           </div>
         );
@@ -64,7 +67,7 @@ function groupOf(s: string): (typeof GROUPS)[number][0] {
   return "calendar";
 }
 
-function Row({ source, config, run, breaker, info }: { source: string; config: Partial<Cfg> | null; run: { ok: boolean; ran_at: string; rows: number; error: string | null; sample: string | null; last_ok_at?: string | null } | null; breaker: { fail_streak: number; open_until: string | null } | null; info?: { owner: string; url: string | null; cadence: string } | null }) {
+function Row({ source, config, run, breaker, info, dataDate }: { source: string; config: Partial<Cfg> | null; run: { ok: boolean; ran_at: string; rows: number; error: string | null; sample: string | null; last_ok_at?: string | null } | null; breaker: { fail_streak: number; open_until: string | null } | null; info?: { owner: string; url: string | null; cadence: string } | null; dataDate?: string | null }) {
   const qc = useQueryClient();
   const save = useServerFn(saveSourceConfig);
   const runNow = useServerFn(runSourceNow);
@@ -98,6 +101,7 @@ function Row({ source, config, run, breaker, info }: { source: string; config: P
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         {info ? <>{info.owner} · รอบปกติ: {info.cadence}{info.url && <> · <a href={info.url} target="_blank" rel="noreferrer" className="underline">ลิงก์แหล่ง</a></>}</> : "ไม่มีข้อมูลทะเบียนแหล่ง"}
+        {" · "}<span className="font-medium text-foreground">ข้อมูลล่าสุด: {dataDate ?? (dataDate === null ? "ยังไม่มี" : "ไม่ใช่แหล่งตัวเลข")}</span>
         {" · "}สำเร็จล่าสุด: {run?.last_ok_at ? dt(run.last_ok_at) : run?.ok ? dt(run.ran_at) : "ยังไม่เคย"}
         {run?.sample && <> · {run.sample}</>}
       </p>
