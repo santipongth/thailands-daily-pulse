@@ -6,18 +6,28 @@ import { supabase } from "@/integrations/supabase/client";
 const DAMS = ["cp_dam_q", "dam_pasak_pct", "dam_pasak_out", "dam_khundan_pct"];
 const fmt = (v: number, d = 2) => Number(v).toLocaleString("th-TH", { maximumFractionDigits: d });
 const hm = (t: string) => new Date(t).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+const bkDay = (t: string) => new Date(t).toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" });
+const label = (e: string | null) => {
+  if (!e) return "ไม่ทราบสาเหตุ (ไม่มีข้อความจากปลายทาง)";
+  const fc = /firecrawl/i.test(e);
+  if (/429/.test(e)) return fc ? "ถูกจำกัดคำขอ (429) — ปลายทางบล็อกทั้งเซิร์ฟเวอร์และ Firecrawl" : "ถูกจำกัดคำขอ (429) — ปลายทางบล็อกเซิร์ฟเวอร์";
+  if (/\b5\d\d\b/.test(e)) return "เซิร์ฟเวอร์ปลายทางขัดข้อง (5xx)";
+  if (/timeout|timed out|abort/i.test(e)) return "ปลายทางตอบช้าเกินเวลา (หมดเวลา)";
+  return e.slice(0, 120);
+};
 
 export function DamsMonitor() {
   const { data } = useQuery({
     queryKey: ["dams-monitor"],
     queryFn: async () => {
-      const [m, o, h, r] = await Promise.all([
+      const [m, o, h, r, dd] = await Promise.all([
         supabase.from("metrics").select("id,name_th,unit,decimals").in("id", DAMS),
         supabase.from("observations").select("metric_id,observed_on,value,received_at").in("metric_id", DAMS).eq("is_demo", false).order("observed_on"),
         supabase.from("source_run_history").select("source,ran_at,ok,rows,error,run_kind").like("source", "ThaiWater%").order("ran_at", { ascending: false }).limit(10),
         supabase.from("dam_readings").select("metric_id,value,read_at").gte("read_at", new Date(Date.now() - 48 * 3600e3).toISOString()).order("read_at"),
+        supabase.from("source_run_history").select("ran_at,ok,error").like("source", "ThaiWater%").gte("ran_at", new Date(Date.now() - 31 * 864e5).toISOString()).order("ran_at", { ascending: false }).limit(1000),
       ]);
-      return { m: m.data ?? [], o: o.data ?? [], h: h.data ?? [], r: r.data ?? [] };
+      return { m: m.data ?? [], o: o.data ?? [], h: h.data ?? [], r: r.data ?? [], d: dd.data ?? [] };
     },
     refetchInterval: 5 * 60e3,
   });
@@ -110,6 +120,28 @@ export function DamsMonitor() {
                 <td className="text-xs">{r.ok ? (r.error?.includes("Firecrawl") ? "ผ่าน Firecrawl" : "ดึงตรง") : r.error ?? "ไม่ทราบสาเหตุ (ไม่มีข้อความจากปลายทาง)"}</td>
               </tr>
             )) : <tr><td colSpan={4} className="text-muted-foreground">ยังไม่มีประวัติการดึงใน 30 วัน</td></tr>}
+          </tbody>
+        </table>
+        <h3 className="mt-4 text-sm font-semibold">สรุปรายวัน 30 วัน (เวลาไทย)</h3>
+        <table className="mt-1 w-full text-sm">
+          <thead><tr className="text-left"><th>วันที่</th><th>ครั้ง</th><th>สำเร็จ</th><th>ไม่สำเร็จ</th><th>สำเร็จล่าสุด</th><th>เหตุผลที่พบบ่อยสุด</th></tr></thead>
+          <tbody>
+            {Array.from({ length: 30 }, (_, i) => bkDay(new Date(Date.now() - i * 864e5).toISOString())).map((d) => {
+              const rs = data.d.filter((x) => bkDay(x.ran_at) === d);
+              if (!rs.length) return <tr key={d} className="border-t border-border"><td className="py-1 pr-2">{d}</td><td colSpan={5} className="text-muted-foreground">ไม่มีรอบดึงวันนี้ (ยังไม่เริ่มเก็บประวัติ หรือไม่มีรอบที่ตั้งไว้)</td></tr>;
+              const ok = rs.filter((x) => x.ok), bad = rs.filter((x) => !x.ok);
+              const cnt = new Map<string, { n: number; raw: string }>();
+              for (const x of bad) { const l = label(x.error); const e = cnt.get(l) ?? { n: 0, raw: x.error ?? "" }; e.n++; cnt.set(l, e); }
+              const top = [...cnt.entries()].sort((a, b) => b[1].n - a[1].n)[0];
+              return (
+                <tr key={d} className="border-t border-border align-top">
+                  <td className="py-1 pr-2 whitespace-nowrap">{d}</td><td className="pr-2">{rs.length}</td>
+                  <td className="pr-2 font-semibold">{ok.length}</td><td className={bad.length ? "pr-2 text-destructive" : "pr-2"}>{bad.length}</td>
+                  <td className="pr-2">{ok[0] ? hm(ok[0].ran_at) : "ไม่สำเร็จเลย"}</td>
+                  <td className="text-xs">{top ? <details><summary className="cursor-pointer">{top[0]} ({top[1].n} ครั้ง)</summary><div className="break-all text-muted-foreground">{top[1].raw || "ไม่มีข้อความจากปลายทาง"}</div></details> : "ไม่มีความล้มเหลว"}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </section>
