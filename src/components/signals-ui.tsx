@@ -55,9 +55,9 @@ export function SignalCard({ s, family, metric, history, news }: { s: Signal; fa
         <Sparkline values={history.filter((o) => o.is_demo === s.is_demo).map((o) => Number(o.value))} className={tone} />
       </div>
     </Link>
-      {family.id === "food" && <CostSignalChart s={s} metric={metric} />}
+      {family.id === "food" && <CostSignalChart s={s} metric={metric} history={history} />}
       {family.id === "rail" && <RailSignalChart s={s} />}
-      {family.id !== "food" && family.id !== "rail" && <MetricSignalChart s={s} metric={metric} />}
+      {family.id !== "food" && family.id !== "rail" && <MetricSignalChart s={s} metric={metric} history={history} />}
       <div className="mt-4 border-t border-editorial-rule pt-3 text-xs leading-relaxed text-muted-foreground">
         ที่มา: {s.metric_id.startsWith("dit_") ? "กรมการค้าภายใน (ราคาขายปลีก กทม.)" : family.source_name}{s.checks?.price_date && s.checks.price_date !== s.signal_date ? ` · ราคาวันที่ ${s.checks.price_date}` : ""}
         {s.is_demo && <span className="ml-2"><DataBadge demo /></span>}

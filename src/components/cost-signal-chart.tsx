@@ -1,8 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { supabase } from "@/integrations/supabase/client";
-import type { Metric, Signal } from "@/lib/signals";
+import type { Metric, Obs, Signal } from "@/lib/signals";
 import { fmt } from "@/lib/signals";
 import { periodStats, shiftDays } from "@/lib/cost-trend";
 import { BASKET } from "@/lib/impact";
@@ -10,15 +8,9 @@ import { DIT_ITEMS } from "@/lib/dit";
 import { WeeklyComparison } from "@/components/weekly-comparison";
 
 /** Cost-of-living signal: last week vs this week (real prices only) + 14-day daily line with gaps. */
-export function CostSignalChart({ s, metric }: { s: Signal; metric: Metric }) {
+export function CostSignalChart({ s, metric, history }: { s: Signal; metric: Metric; history: Obs[] }) {
   const end: string = s.checks?.price_date ?? s.signal_date;
-  const { data } = useQuery({
-    queryKey: ["cost-signal", s.metric_id, end],
-    queryFn: async () => (await supabase.from("observations").select("observed_on,value").eq("metric_id", s.metric_id).eq("is_demo", false)
-      .gte("observed_on", shiftDays(end, -13)).lte("observed_on", end).order("observed_on")).data ?? [],
-  });
-  if (!data?.length) return null;
-  const rows = data.map((o) => ({ observed_on: o.observed_on, value: Number(o.value) }));
+  const rows = history.filter((o) => o.is_demo === s.is_demo && o.observed_on >= shiftDays(end, -13) && o.observed_on <= end).map((o) => ({ observed_on: o.observed_on, value: Number(o.value) }));
   const cur = periodStats(rows, shiftDays(end, -6), end), prev = periodStats(rows, shiftDays(end, -13), shiftDays(end, -7));
   const line: { d: string; v: number | null }[] = [];
   for (let d = shiftDays(end, -13); d <= end; d = shiftDays(d, 1)) line.push({ d: d.slice(5), v: rows.find((r) => r.observed_on === d)?.value ?? null });
