@@ -1311,6 +1311,7 @@ export type Database = {
         Args: { _bucket: string; _limit: number }
         Returns: boolean
       }
+      prune_old_data: { Args: never; Returns: Json }
       rank_signals: { Args: { _d: string }; Returns: number }
       replay_signals: {
         Args: { _d: string }
