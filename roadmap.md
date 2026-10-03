@@ -23,4 +23,4 @@
 - [x] Remove the requested household calculation phrase
 - [x] Apply the Today editorial shell, typography, sections, tables, and states across content pages
 - [x] Verify PostgreSQL metadata/private-file storage boundaries and public API/MCP exposure
-- [ ] Validate metadata, MCP read-only tools, security, type safety, and responsive layouts at 320/390/768/1280
+- [x] Validate metadata, MCP read-only tools, security, type safety, and responsive layouts at 320/390/768/1280
