@@ -66,7 +66,7 @@ export const openApiDocument = {
         "400": err("Invalid query"), "429": err("Rate limited (Retry-After: 60)"), "500": err("Read failed"),
       },
     } }])),
-    "/../health": { get: { tags: ["Ops"], summary: "System health (absolute path /api/public/health)", operationId: "get_health", responses: { "200": { description: "ok or degraded: database, queue, brief, sources{fresh,stale,paused,items}" }, "503": { description: "Database down or today's brief missing after 06:30" } } } },
+    "/health": { servers: [{ url: `${SITE}/api/public` }], get: { tags: ["Ops"], summary: "System health (no-store)", operationId: "get_health", responses: { "200": { description: "ok or degraded: database, queue, brief, sources{fresh,stale,paused,items}" }, "503": { description: "Database down or today's brief missing after 06:30" } } } },
   },
   components: { schemas: { Error: errorSchema, Meta: metaSchema } },
 } as const;
