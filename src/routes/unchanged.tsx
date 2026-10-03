@@ -99,7 +99,7 @@ function Unchanged() {
                       {r.status === "same" && <div className="font-semibold text-foreground">นิ่งมา {r.days?.toLocaleString("th-TH")} วัน</div>}
                       {r.status === "stale" && <div className="font-semibold text-destructive">ค่าล่าสุด {thD(r.latest)}</div>}
                       {r.status !== "none" && <>
-                        <div>{r.effective ? `มีผลตั้งแต่ ${thD(r.effective)} (ตามแหล่ง)` : `ค่าเท่านี้ตั้งแต่ ${thD(r.since)}`}</div>
+                        <div>ค่าเท่านี้ตั้งแต่ {thD(r.since)}{r.effective === r.since && " (วันที่มีผลตามแหล่ง)"}</div>
                         <div>ตรวจล่าสุด {thT(r.checked)}</div>
                       </>}
                     </div>
