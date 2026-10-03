@@ -26,7 +26,7 @@ export function ForecastCompare({ date }: { date: string }) {
   return (
     <section className="mt-10">
       <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">พยากรณ์อากาศ กทม. (กรมอุตุฯ) วันนี้เทียบวันก่อนหน้า</h2>
-      <table className="mt-2 w-full text-sm">
+      <div className="overflow-x-auto"><table className="mt-2 min-w-[620px] w-full text-sm">
         <thead><tr className="text-left"><th>รายการ</th><th>ก่อนหน้า</th><th>วันนี้</th><th>เปลี่ยน</th></tr></thead>
         <tbody>
           {FC.map((id) => {
@@ -46,7 +46,7 @@ export function ForecastCompare({ date }: { date: string }) {
             );
           })}
         </tbody>
-      </table>
+      </table></div>
     </section>
   );
 }

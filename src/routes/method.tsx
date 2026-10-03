@@ -76,10 +76,10 @@ function Method() {
             <li>หลักฐานไฟล์ดิบ: {EVIDENCE_FACTOR.changed} เมื่อไฟล์ต้นฉบับของแหล่งในวันนั้นเปลี่ยนจากไฟล์ก่อนหน้า (SHA-256 ต่างกัน) · {EVIDENCE_FACTOR.unchanged} เมื่อไฟล์เหมือนเดิมหรือไม่มีไฟล์</li>
             <li>ข่าวหนังสือพิมพ์ไม่สร้างและไม่เพิ่มคะแนนสัญญาณ · วันที่มีข้อมูลจริง สัญญาณตัวอย่างได้คะแนน 0</li>
           </ul>
-          <table className="mt-4 w-full text-sm">
+          <div className="overflow-x-auto"><table className="mt-4 min-w-[560px] w-full text-sm">
             <thead><tr className="border-b-2 border-foreground text-left"><th className="py-1">กลุ่ม</th><th>ความน่าเชื่อถือ</th><th>ผลต่อครัวเรือน</th></tr></thead>
             <tbody>{data.families.map((f) => <tr key={f.id} className="border-b border-border"><td className="py-1">{f.emoji} {f.name_th}</td><td>{f.trust}</td><td>{n(f.reach)}</td></tr>)}</tbody>
-          </table>
+          </table></div>
         </section>
 
         <section>
@@ -199,7 +199,7 @@ function ReplayAndChecks() {
         </div>
         {replay.isLoading && <p className="mt-2 text-sm text-muted-foreground">กำลังคำนวณ…</p>}
         {replay.data && (
-          <table className="mt-3 w-full text-sm">
+          <div className="overflow-x-auto"><table className="mt-3 min-w-[720px] w-full text-sm">
             <thead><tr className="text-left text-muted-foreground"><th className="py-1">ตัวชี้วัด</th><th>Replay (ข้อมูลถึง 05:45)</th><th>ปัจจุบัน</th><th>ใน Brief ที่เผยแพร่</th></tr></thead>
             <tbody>
               {[...new Set([...rset, ...cset])].map((m) => (
@@ -212,7 +212,7 @@ function ReplayAndChecks() {
               ))}
               {rset.size + cset.size === 0 && <tr><td colSpan={4} className="py-2 text-muted-foreground">ไม่มีสัญญาณจากข้อมูลจริงในวันนี้ ทั้งแบบ replay และปัจจุบัน</td></tr>}
             </tbody>
-          </table>
+          </table></div>
         )}
         <p className="mt-2 text-xs text-muted-foreground">Replay ใช้เฉพาะค่าที่ "ระบบได้รับ" ก่อน 05:45 ของวันนั้น — ค่าที่มาถึงทีหลังไม่ถูกนำมาใช้ย้อนหลัง</p>
       </section>

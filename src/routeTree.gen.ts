@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as DataAllRouteImport } from './routes/data-all'
+import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as FailuresRouteImport } from './routes/failures'
 import { Route as ImpactRouteImport } from './routes/impact'
@@ -21,6 +22,7 @@ import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SourcesRouteImport } from './routes/sources'
 import { Route as TrackingRouteImport } from './routes/tracking'
@@ -29,6 +31,8 @@ import { Route as AgenciesAgencyRouteImport } from './routes/agencies.$agency'
 import { Route as BriefIndexRouteImport } from './routes/brief.index'
 import { Route as BriefDateRouteImport } from './routes/brief.$date'
 import { Route as DayDateRouteImport } from './routes/day.$date'
+import { Route as DevelopersApiRouteImport } from './routes/developers.api'
+import { Route as DevelopersMcpRouteImport } from './routes/developers.mcp'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsIdRouteImport } from './routes/events.$id'
 import { Route as SignalsFamilyRouteImport } from './routes/signals.$family'
@@ -55,6 +59,11 @@ const DataRoute = DataRouteImport.update({
 const DataAllRoute = DataAllRouteImport.update({
   id: '/data-all',
   path: '/data-all',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevelopersRoute = DevelopersRouteImport.update({
+  id: '/developers',
+  path: '/developers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EvidenceRoute = EvidenceRouteImport.update({
@@ -97,6 +106,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapRoute = SitemapRouteImport.update({
+  id: '/sitemap',
+  path: '/sitemap',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -136,6 +150,16 @@ const DayDateRoute = DayDateRouteImport.update({
   id: '/day/$date',
   path: '/day/$date',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DevelopersApiRoute = DevelopersApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => DevelopersRoute,
+} as any)
+const DevelopersMcpRoute = DevelopersMcpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => DevelopersRoute,
 } as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
   id: '/events/',
@@ -178,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
+  '/developers': typeof DevelopersRouteWithChildren
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
@@ -186,12 +211,15 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/method': typeof MethodRoute
   '/settings': typeof SettingsRoute
+  '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
   '/tracking': typeof TrackingRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
+  '/developers/api': typeof DevelopersApiRoute
+  '/developers/mcp': typeof DevelopersMcpRoute
   '/events/$id': typeof EventsIdRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies/': typeof AgenciesIndexRoute
@@ -207,6 +235,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
+  '/developers': typeof DevelopersRouteWithChildren
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
@@ -215,12 +244,15 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/method': typeof MethodRoute
   '/settings': typeof SettingsRoute
+  '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
   '/tracking': typeof TrackingRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
+  '/developers/api': typeof DevelopersApiRoute
+  '/developers/mcp': typeof DevelopersMcpRoute
   '/events/$id': typeof EventsIdRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies': typeof AgenciesIndexRoute
@@ -237,6 +269,7 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
+  '/developers': typeof DevelopersRouteWithChildren
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
@@ -245,12 +278,15 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/method': typeof MethodRoute
   '/settings': typeof SettingsRoute
+  '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
   '/tracking': typeof TrackingRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
+  '/developers/api': typeof DevelopersApiRoute
+  '/developers/mcp': typeof DevelopersMcpRoute
   '/events/$id': typeof EventsIdRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies/': typeof AgenciesIndexRoute
@@ -268,6 +304,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/data'
     | '/data-all'
+    | '/developers'
     | '/evidence'
     | '/failures'
     | '/impact'
@@ -276,12 +313,15 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/method'
     | '/settings'
+    | '/sitemap'
     | '/sitemap.xml'
     | '/sources'
     | '/tracking'
     | '/agencies/$agency'
     | '/brief/$date'
     | '/day/$date'
+    | '/developers/api'
+    | '/developers/mcp'
     | '/events/$id'
     | '/signals/$family'
     | '/agencies/'
@@ -297,6 +337,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/data'
     | '/data-all'
+    | '/developers'
     | '/evidence'
     | '/failures'
     | '/impact'
@@ -305,12 +346,15 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/method'
     | '/settings'
+    | '/sitemap'
     | '/sitemap.xml'
     | '/sources'
     | '/tracking'
     | '/agencies/$agency'
     | '/brief/$date'
     | '/day/$date'
+    | '/developers/api'
+    | '/developers/mcp'
     | '/events/$id'
     | '/signals/$family'
     | '/agencies'
@@ -326,6 +370,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/data'
     | '/data-all'
+    | '/developers'
     | '/evidence'
     | '/failures'
     | '/impact'
@@ -334,12 +379,15 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/method'
     | '/settings'
+    | '/sitemap'
     | '/sitemap.xml'
     | '/sources'
     | '/tracking'
     | '/agencies/$agency'
     | '/brief/$date'
     | '/day/$date'
+    | '/developers/api'
+    | '/developers/mcp'
     | '/events/$id'
     | '/signals/$family'
     | '/agencies/'
@@ -356,6 +404,7 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   DataRoute: typeof DataRoute
   DataAllRoute: typeof DataAllRoute
+  DevelopersRoute: typeof DevelopersRouteWithChildren
   EvidenceRoute: typeof EvidenceRoute
   FailuresRoute: typeof FailuresRoute
   ImpactRoute: typeof ImpactRoute
@@ -364,6 +413,7 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   MethodRoute: typeof MethodRoute
   SettingsRoute: typeof SettingsRoute
+  SitemapRoute: typeof SitemapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SourcesRoute: typeof SourcesRoute
   TrackingRoute: typeof TrackingRoute
@@ -409,6 +459,13 @@ declare module '@tanstack/react-router' {
       path: '/data-all'
       fullPath: '/data-all'
       preLoaderRoute: typeof DataAllRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developers': {
+      id: '/developers'
+      path: '/developers'
+      fullPath: '/developers'
+      preLoaderRoute: typeof DevelopersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/evidence': {
@@ -467,6 +524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap': {
+      id: '/sitemap'
+      path: '/sitemap'
+      fullPath: '/sitemap'
+      preLoaderRoute: typeof SitemapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -523,6 +587,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DayDateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/developers/api': {
+      id: '/developers/api'
+      path: '/api'
+      fullPath: '/developers/api'
+      preLoaderRoute: typeof DevelopersApiRouteImport
+      parentRoute: typeof DevelopersRoute
+    }
+    '/developers/mcp': {
+      id: '/developers/mcp'
+      path: '/mcp'
+      fullPath: '/developers/mcp'
+      preLoaderRoute: typeof DevelopersMcpRouteImport
+      parentRoute: typeof DevelopersRoute
+    }
     '/events/': {
       id: '/events/'
       path: '/events'
@@ -575,11 +653,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DevelopersRouteChildren {
+  DevelopersApiRoute: typeof DevelopersApiRoute
+  DevelopersMcpRoute: typeof DevelopersMcpRoute
+}
+
+const DevelopersRouteChildren: DevelopersRouteChildren = {
+  DevelopersApiRoute: DevelopersApiRoute,
+  DevelopersMcpRoute: DevelopersMcpRoute,
+}
+
+const DevelopersRouteWithChildren = DevelopersRoute._addFileChildren(
+  DevelopersRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarRoute: CalendarRoute,
   DataRoute: DataRoute,
   DataAllRoute: DataAllRoute,
+  DevelopersRoute: DevelopersRouteWithChildren,
   EvidenceRoute: EvidenceRoute,
   FailuresRoute: FailuresRoute,
   ImpactRoute: ImpactRoute,
@@ -588,6 +681,7 @@ const rootRouteChildren: RootRouteChildren = {
   McpRoute: McpRoute,
   MethodRoute: MethodRoute,
   SettingsRoute: SettingsRoute,
+  SitemapRoute: SitemapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SourcesRoute: SourcesRoute,
   TrackingRoute: TrackingRoute,
