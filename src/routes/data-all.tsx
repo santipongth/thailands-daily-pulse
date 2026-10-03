@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { makeReasonOf, srcOf, type Run, type Release } from "@/lib/missing-reason";
 import { StationMap } from "@/components/station-map";
 import { DamsMonitor } from "@/components/dams-monitor";
+import { LatestLottery } from "@/components/latest-lottery";
 
 // Every metric the site really collected (is_demo = false): latest vs previous value, change, daily chart.
 const allQuery = queryOptions({
@@ -63,7 +64,8 @@ function DataAll() {
           return (
             <section key={f.id} className="mt-8">
               <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">{f.emoji} {f.name_th}</h2>
-              <div className="overflow-x-auto">
+              {f.id === "lottery" ? <div className="mt-2"><LatestLottery /></div> : null}
+              <div className={f.id === "lottery" && !data.obs.some((o) => o.metric_id === "lotto") ? "hidden" : "overflow-x-auto"}>
                 <table className="mt-2 w-full text-sm">
                   <thead><tr className="text-left"><th>ตัวชี้วัด</th><th>ล่าสุด</th><th>ค่าเดิม</th><th>เปลี่ยน</th><th className="w-40">30 วัน</th></tr></thead>
                   <tbody>
