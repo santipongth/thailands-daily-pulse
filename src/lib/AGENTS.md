@@ -30,3 +30,4 @@
 - Circuit breaker `source_breaker` (`breaker.server.ts`): 3 finished failed rounds → pause 4h, each failed probe → 6h, success resets; applied after `applySourceConfig`; manual + 05:xx Bangkok rounds bypass — saves Firecrawl quota without starving the brief.
 - `/api/public/health`: no-store JSON (db, queue backlog, latest brief, per-source fresh/stale/paused), 503 only when DB fails or today's brief missing after 06:30; rate-limited like API v1; never exposes errors or paths.
 - `/cost-trend` uses pure `costTrend` (cost-trend.ts): BASKET × real prices, carry-forward, items missing at range start excluded from net — same basket as briefs.
+- `/raw-log` (admin) lists raw_evidence fetches with values read via `observations.evidence_id`; TMD 3h run `sample` names the station actually used.
