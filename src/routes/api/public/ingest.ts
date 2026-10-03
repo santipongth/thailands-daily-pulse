@@ -36,12 +36,15 @@ export const Route = createFileRoute("/api/public/ingest")({
         }
         // mode=social (every 30 min): FM91 posts + AI relevance check; lease-guarded, max 10 new posts/run.
         if (new URL(request.url).searchParams.get("mode") === "social") {
+          // Same tick also runs sources an admin set to custom HH:MM times (≤30 min precision).
+          const { runCustomDue } = await import("@/lib/ingest.server");
+          const custom = await runCustomDue().catch((e) => ({ queued: 0, error: String(e).slice(0, 200) }));
           const { refreshSocial, FM91_SOURCE } = await import("@/lib/fm91.server");
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
           const { data: cfg } = await supabaseAdmin.from("source_config").select("enabled,schedule").eq("source", FM91_SOURCE).maybeSingle();
           // Admin turned it off or chose its own schedule (then the hourly queue runs it) → skip the 30-min default.
-          if (cfg && (!cfg.enabled || cfg.schedule !== "default")) return Response.json({ fetched: 0, added: 0, skipped: cfg.enabled ? "admin schedule" : "disabled by admin" });
-          return Response.json(await refreshSocial());
+          if (cfg && (!cfg.enabled || cfg.schedule !== "default")) return Response.json({ fetched: 0, added: 0, skipped: cfg.enabled ? "admin schedule" : "disabled by admin", custom });
+          return Response.json({ ...(await refreshSocial()), custom });
         }
         // mode=early (00:10/03:00/05:00 Bangkok): forced collection so overnight price changes land before the 05:45 cutoff.
         if (new URL(request.url).searchParams.get("mode") === "early") return Response.json(await refreshIfStale(3, { force: true, runKind: "daily" }));
