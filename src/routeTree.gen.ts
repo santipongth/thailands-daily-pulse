@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as DataAllRouteImport } from './routes/data-all'
+import { Route as DataMapRouteImport } from './routes/data-map'
 import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as FailuresRouteImport } from './routes/failures'
@@ -60,6 +61,11 @@ const DataRoute = DataRouteImport.update({
 const DataAllRoute = DataAllRouteImport.update({
   id: '/data-all',
   path: '/data-all',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataMapRoute = DataMapRouteImport.update({
+  id: '/data-map',
+  path: '/data-map',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DevelopersRoute = DevelopersRouteImport.update({
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
+  '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
+  '/data-map': typeof DataMapRoute
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
@@ -276,6 +284,7 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
+  '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
@@ -312,6 +321,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/data'
     | '/data-all'
+    | '/data-map'
     | '/developers'
     | '/evidence'
     | '/failures'
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/data'
     | '/data-all'
+    | '/data-map'
     | '/evidence'
     | '/failures'
     | '/impact'
@@ -379,6 +390,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/data'
     | '/data-all'
+    | '/data-map'
     | '/developers'
     | '/evidence'
     | '/failures'
@@ -414,6 +426,7 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   DataRoute: typeof DataRoute
   DataAllRoute: typeof DataAllRoute
+  DataMapRoute: typeof DataMapRoute
   DevelopersRoute: typeof DevelopersRouteWithChildren
   EvidenceRoute: typeof EvidenceRoute
   FailuresRoute: typeof FailuresRoute
@@ -469,6 +482,13 @@ declare module '@tanstack/react-router' {
       path: '/data-all'
       fullPath: '/data-all'
       preLoaderRoute: typeof DataAllRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data-map': {
+      id: '/data-map'
+      path: '/data-map'
+      fullPath: '/data-map'
+      preLoaderRoute: typeof DataMapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/developers': {
@@ -691,6 +711,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   DataRoute: DataRoute,
   DataAllRoute: DataAllRoute,
+  DataMapRoute: DataMapRoute,
   DevelopersRoute: DevelopersRouteWithChildren,
   EvidenceRoute: EvidenceRoute,
   FailuresRoute: FailuresRoute,

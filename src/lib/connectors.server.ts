@@ -22,6 +22,23 @@ const blocks = (xml: string, tag: string) => xml.split(`<${tag}>`).slice(1).map(
 const field = (b: string, tag: string) => b.match(new RegExp(`<${tag}[^>]*>([^<]*)</${tag}>`))?.[1] ?? "";
 const prevDay = (d: string) => { const t = new Date(d + "T00:00:00Z"); t.setUTCDate(t.getUTCDate() - 1); return t.toISOString().slice(0, 10); };
 
+const jsonWith = async (url: string, h: Record<string, string>) =>
+  (await politeFetch(url, { headers: { accept: "application/json, */*", ...h } })).json() as Promise<any>;
+/** Site-wide request mode from app_settings: auto (default) | direct | firecrawl (| firecrawl_first legacy). */
+async function readMode(ctx: { admin?: any } | undefined, key: string): Promise<string> {
+  if (!ctx?.admin) return "auto";
+  const { data } = await ctx.admin.from("app_settings").select("value").eq("key", key).maybeSingle();
+  return data?.value ?? "auto";
+}
+/** Try each way in order; throw with every attempt's real error when all fail. */
+async function tryWays(name: string, ways: Array<[string, () => Promise<any>]>): Promise<any> {
+  const errs: string[] = [];
+  for (const [label, fn] of ways) {
+    try { return await fn(); } catch (e) { errs.push(`${label}: ${(e as Error).message}`); }
+  }
+  throw new Error(`${name} ดึงไม่ได้ทุกวิธี — ${errs.join(" · ")}`.slice(0, 290));
+}
+
 /** Fetch a JSON URL through Firecrawl (real browser, stealth proxy, Thai location). */
 async function firecrawlJson(url: string): Promise<any> {
   const key = process.env["FIRECRAWL_API_KEY"];
@@ -82,18 +99,15 @@ export const CONNECTORS: Connector[] = [
     // Chao Phraya Dam release (station C.13 ท้ายเขื่อนเจ้าพระยา) only exists in ThaiWater's water-level list.
     source: "ThaiWater (สสน.)",
     run: async (_date, ctx) => {
-      const URL_TW = "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/thailand_main";
-      // Order is set by app_settings.thaiwater_mode: 'firecrawl_first' or 'direct_first' (default).
-      const { data: ms } = ctx?.admin ? await ctx.admin.from("app_settings").select("value").eq("key", "thaiwater_mode").maybeSingle() : { data: null };
-      const order: Array<"direct" | "firecrawl"> = ms?.value === "firecrawl_first" ? ["firecrawl", "direct"] : ["direct", "firecrawl"];
-      const errs: string[] = [];
-      let d: any;
-      for (const way of order) {
-        try { d = way === "direct" ? await json(URL_TW) : await firecrawlJson(URL_TW); break; }
-        catch (e) { errs.push(`${way === "direct" ? "ตรง" : "Firecrawl"}: ${(e as Error).message}`); }
-      }
-      if (!d) throw new Error(`ThaiWater ดึงไม่ได้ทั้ง 2 ทาง — ${errs.join(" · ")}`.slice(0, 290));
-      const wl: any[] = d?.waterlevel?.data?.data ?? d?.waterlevel?.data ?? [];
+      const BASE = "https://api-v3.thaiwater.net/api/v1/thaiwater30/public/";
+      const mode = await readMode(ctx, "thaiwater_mode");
+      const tw = (u: string) => jsonWith(BASE + u, { referer: "https://www.thaiwater.net/", origin: "https://www.thaiwater.net" });
+      const ways: Array<[string, () => Promise<any>]> = [];
+      if (mode !== "firecrawl") ways.push(["ตรง (waterlevel_load)", () => tw("waterlevel_load")], ["ตรง (thailand_main)", () => tw("thailand_main")]);
+      if (mode !== "direct") ways.push(["Firecrawl", () => firecrawlJson(BASE + "waterlevel_load")]);
+      if (mode === "firecrawl_first") ways.unshift(ways.pop()!);
+      const d = await tryWays("ThaiWater", ways);
+      const wl: any[] = [d?.waterlevel_data?.data, d?.waterlevel_data, d?.waterlevel?.data?.data, d?.waterlevel?.data].find(Array.isArray) ?? [];
       const c13 = wl.find((x) => String(x?.station?.tele_station_oldcode ?? "").trim() === "C.13");
       const q = pos(c13?.discharge);
       if (q === undefined) throw new Error("ไม่พบค่าระบายน้ำสถานี C.13 ท้ายเขื่อนเจ้าพระยา ในไฟล์");
@@ -222,8 +236,13 @@ export const CONNECTORS: Connector[] = [
   },
   {
     source: "Longdo Traffic Index",
-    run: async () => {
-      const d = await json("https://traffic.longdo.com/api/json/traffic/index");
+    run: async (_date, ctx) => {
+      const U = "https://traffic.longdo.com/api/json/traffic/index";
+      const mode = await readMode(ctx, "longdo_mode");
+      const ways: Array<[string, () => Promise<any>]> = [];
+      if (mode !== "firecrawl") ways.push(["ตรง", () => jsonWith(U, { referer: "https://traffic.longdo.com/", origin: "https://traffic.longdo.com" })]);
+      if (mode !== "direct") ways.push(["Firecrawl", () => firecrawlJson(U)]);
+      const d = await tryWays("Longdo", ways);
       const v = Number(d?.index);
       return Number.isFinite(v) ? { traffic_idx: v } : {};
     },
