@@ -107,7 +107,7 @@ export const CONNECTORS: Connector[] = [
       if (mode !== "direct") ways.push(["Firecrawl", () => firecrawlJson(BASE + "waterlevel_load")]);
       if (mode === "firecrawl_first") ways.unshift(ways.pop()!);
       const d = await tryWays("ThaiWater", ways);
-      const wl: any[] = d?.waterlevel?.data?.data ?? d?.waterlevel?.data ?? [];
+      const wl: any[] = [d?.waterlevel_data?.data, d?.waterlevel_data, d?.waterlevel?.data?.data, d?.waterlevel?.data].find(Array.isArray) ?? [];
       const c13 = wl.find((x) => String(x?.station?.tele_station_oldcode ?? "").trim() === "C.13");
       const q = pos(c13?.discharge);
       if (q === undefined) throw new Error("ไม่พบค่าระบายน้ำสถานี C.13 ท้ายเขื่อนเจ้าพระยา ในไฟล์");
