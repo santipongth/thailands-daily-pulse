@@ -93,11 +93,12 @@ function Today() {
             <p className="text-sm font-semibold text-editorial-red">สรุปประจำวัน</p>
             <h1 className="mt-2 font-editorial text-4xl leading-tight text-editorial-ink sm:text-5xl">Thailand Daily Signals</h1>
             <p className="mt-4 font-editorial-body text-xl font-medium leading-relaxed sm:text-2xl">
-              {data.brief?.body ?? (data.signals.length ? fallback : "วันนี้ยังไม่มีอะไรเปลี่ยนแปลงอย่างมีนัยสำคัญ")}
+              {data.brief?.body ?? (data.signals.length ? fallback : "ยังไม่มีข้อมูลที่ตรวจสอบได้เปลี่ยนเกินเกณฑ์ในวันนี้")}
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              {data.brief ? (data.brief.published_at ? "สรุปเช้า 06:00 น. · บทนำเรียบเรียงโดย AI จากข้อมูลจริง" : "สรุประหว่างวัน · บทนำเรียบเรียงโดย AI จากข้อมูลจริง") : "กำลังเตรียมสรุป"} · พบ {data.signals.length} สัญญาณ จาก {data.families.length} กลุ่มข้อมูล
+              {data.brief ? (data.brief.published_at ? "สรุปฉบับเช้า · บทนำเรียบเรียงโดย AI จากข้อมูลในฉบับ" : "สรุประหว่างวัน · บทนำเรียบเรียงโดย AI จากข้อมูลในฉบับ") : "กำลังเตรียมสรุป"} · ขณะนี้พบ {data.signals.length} สัญญาณ จาก {data.families.length} กลุ่มข้อมูล
             </p>
+            {data.brief?.published_at && data.signals.length !== (Array.isArray(data.brief.items) ? data.brief.items.length : 0) && <p className="mt-2 text-sm text-muted-foreground">สัญญาณปัจจุบันอาจต่างจากฉบับเช้าที่ปิดรับข้อมูลแล้ว ดูรายการล่าสุดด้านล่าง</p>}
             {Array.isArray(data.brief?.items) && data.brief!.items.length > 0 && (
               <div className="mt-6">
                 <BriefItems items={(data.brief!.items as BriefItem[]).slice(0, 4)} />
@@ -184,7 +185,7 @@ function Today() {
         {date === today && <div className="mt-12"><LatestLottery /></div>}
 
         <section className="mt-14 border-t border-foreground pt-4">
-          <h2 className="font-display text-lg">เงียบวันนี้ <span className="text-sm font-normal text-muted-foreground">— ไม่มีอะไรเปลี่ยนอย่างมีนัยสำคัญ</span></h2>
+           <h2 className="font-editorial text-2xl text-editorial-red">หมวดที่ยังไม่มีสัญญาณ <span className="font-editorial-body text-sm font-normal text-muted-foreground">— แหล่งที่ตรวจไม่ได้ไม่ถือว่าไม่มีการเปลี่ยนแปลง</span></h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {quiet.map((f) => {
               const m = data.metrics.find((x) => x.family_id === f.id);
@@ -195,7 +196,7 @@ function Today() {
                   <div className="min-w-0">
                     <div className="truncate">{f.emoji} {f.name_th}</div>
                     <div className="truncate text-xs text-muted-foreground tabular-nums">
-                      {m && last ? `${m.name_th} ${fmt(last.value, m.decimals)} ${m.unit}` : "ไม่มีข้อมูลใหม่"}
+                       {m && last ? `${m.name_th} ${fmt(last.value, m.decimals)} ${m.unit}` : "ยังไม่มีค่าที่แสดงได้"}
                     </div>
                   </div>
                   {m && m.kind !== "release" && <Sparkline values={h.map((o) => Number(o.value))} className="text-muted-foreground" />}

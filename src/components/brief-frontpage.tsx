@@ -63,7 +63,7 @@ export function BriefFrontPage({ date, items, edition, cutoff }: { date: string;
         <div className="tds-grid flex min-w-0 flex-col justify-center px-3 py-2">
           <p className="truncate font-display text-xl font-black sm:text-2xl">Thailand Daily Signals</p>
           <p className="flex flex-wrap items-center gap-x-3 text-[11px]">
-            <span className="inline-flex items-center gap-1"><span className="ticker-live-dot inline-block h-2 w-2 rounded-full bg-press-green" />ข้อมูลจริงจากหน่วยงานรัฐ</span>
+             <span className="inline-flex items-center gap-1"><span className="ticker-live-dot inline-block h-2 w-2 rounded-full bg-press-green" />ข้อมูลจากแหล่งที่ระบุ</span>
             <span>{thaiDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
             <span>ฉบับที่ {edition ?? 1}</span>
             {cutoff && <span>ตัดข้อมูล {new Date(cutoff).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น.</span>}

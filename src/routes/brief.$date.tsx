@@ -73,11 +73,11 @@ function BriefPage() {
           {date < bkkToday() && <Link to="/brief/$date" params={{ date: shiftDate(date, 1) }} className="col-span-2 text-right hover:underline sm:col-span-1">วันถัดไป →</Link>}
         </nav>
         <header className="my-8 border-b-4 border-editorial-red pb-5 text-center">
-          <p className="font-editorial text-3xl italic text-editorial-red">สรุปข่าวประจำวัน · Thailand Daily Signals</p>
+           <p className="font-editorial text-3xl italic text-editorial-red">สรุปสัญญาณประจำวัน · Thailand Daily Signals</p>
           <h1 className="mt-3 font-editorial-body text-2xl font-semibold leading-relaxed text-editorial-ink sm:text-3xl">{thaiDate(date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</h1>
         </header>
-        {!data ? (
-          <p className="mt-6 text-muted-foreground">ยังไม่มี Brief ของวันนี้ ฉบับถัดไปเผยแพร่เวลา 06:00 น.</p>
+         {!data ? (
+           <p className="mt-6 text-muted-foreground">ยังไม่มีสรุปของวันนี้ ฉบับถัดไปมีกำหนดเผยแพร่เวลา 06:00 น.</p>
         ) : (
           <>
             <div className="mx-auto max-w-3xl"><BriefFrontPage date={date} items={(data.items ?? []) as BriefItem[]} edition={data.edition} cutoff={data.cutoff_at} /></div>
