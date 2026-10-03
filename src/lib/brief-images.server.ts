@@ -1,3 +1,4 @@
+import { aiUrl } from "./ai-endpoint";
 // AI illustrations for the Daily Brief front page. Images carry no text/numbers; labelled as AI on screen.
 // Generated once per brief date (missing slots only); 402/403 pauses via app_settings.brief_images_paused.
 const MODEL = "openai/gpt-image-2.5-sunburst";
@@ -42,7 +43,7 @@ async function generate(p: string, key: string): Promise<Uint8Array> {
 }
 
 export async function ensureBriefImages(admin: any, date: string): Promise<{ made: number; error?: string | undefined }> {
-  const key = process.env["LOVABLE_API_KEY"];
+  const key = (process.env["AI_API_KEY"] || process.env["LOVABLE_API_KEY"]);
   if (!key) return { made: 0, error: "no LOVABLE_API_KEY" };
   const { data: paused } = await admin.from("app_settings").select("value").eq("key", "brief_images_paused").maybeSingle();
   if (paused?.value) return { made: 0, error: `paused: ${paused.value}` };
