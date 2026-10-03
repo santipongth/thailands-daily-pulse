@@ -38,14 +38,16 @@ function Item() {
       return { obs: obs ?? [], mets: mets ?? [] };
     },
   });
-  if (!ids.length) return <Shell><p className="mt-6">ไม่พบสินค้านี้ · <Link to="/cost-trend" className="underline">กลับหน้าค่าครองชีพ</Link></p></Shell>;
   const end = today();
+  if (!ids.length) return <Shell><p className="mt-6">ไม่พบสินค้านี้ · <Link to="/cost-trend" className="underline">กลับหน้าค่าครองชีพ</Link></p></Shell>;
   const ranges = [
     { label: "สัปดาห์นี้ vs สัปดาห์ก่อน", cur: [shiftDays(end, -6), end], prev: [shiftDays(end, -13), shiftDays(end, -7)] },
     { label: "30 วันนี้ vs 30 วันก่อน", cur: [shiftDays(end, -29), end], prev: [shiftDays(end, -59), shiftDays(end, -30)] },
   ] as const;
   const srcName = (id: string) => (id.startsWith("dit_") ? "กรมการค้าภายใน (ราคาขายปลีก กทม.)" : "CheckRaka (รวบรวมหลายแหล่ง)");
-  const dates = [...new Set((data?.obs ?? []).map((o) => o.observed_on))].sort();
+  const first = (data?.obs ?? []).map((o) => o.observed_on).sort()[0];
+  const dates: string[] = [];
+  if (first) for (let d = first; d <= end; d = shiftDays(d, 1)) dates.push(d); // every calendar day so missing days show as gaps
   const chart = dates.map((d) => Object.fromEntries([["date", d.slice(5)], ...ids.map((id) => [id, data!.obs.find((o) => o.metric_id === id && o.observed_on === d)?.value ?? null])]));
   return (
     <Shell>
