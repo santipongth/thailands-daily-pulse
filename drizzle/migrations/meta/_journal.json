@@ -183,6 +183,13 @@
       "when": 1791021961410,
       "tag": "0025_dam_readings",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791023165160,
+      "tag": "0026_brief_images",
+      "breakpoints": true
     }
   ]
 }

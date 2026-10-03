@@ -32,6 +32,36 @@ export type Database = {
         }
         Relationships: []
       }
+      brief_images: {
+        Row: {
+          brief_date: string
+          created_at: string
+          family_id: string | null
+          id: number
+          prompt: string
+          slot: string
+          storage_path: string
+        }
+        Insert: {
+          brief_date: string
+          created_at?: string
+          family_id?: string | null
+          id?: number
+          prompt: string
+          slot: string
+          storage_path: string
+        }
+        Update: {
+          brief_date?: string
+          created_at?: string
+          family_id?: string | null
+          id?: number
+          prompt?: string
+          slot?: string
+          storage_path?: string
+        }
+        Relationships: []
+      }
       brief_updates: {
         Row: {
           body: string | null
