@@ -38,12 +38,12 @@ function useLocal() {
 }
 
 const box = "border-t-2 border-editorial-ink bg-editorial-surface p-4 shadow-[var(--shadow-editorial)]";
-const Src = ({ s, at }: { s: string; at?: string | null }) => (
+const Src = ({ s, at }: { s: string; at?: string | null | undefined }) => (
   <p className="mt-1 text-xs text-muted-foreground">ที่มา: <a href={LINKS[s]} target="_blank" rel="noreferrer" className="underline">{s}</a>{at ? ` · ดึงเมื่อ ${when(at)}` : ""}</p>
 );
 
 /** Key-data summary: Bangkok flood box, PM2.5 GISTDA vs Air4Thai, rail notices. */
-export function LocalSummary({ gistda }: { gistda?: { value: number; date: string } | null }) {
+export function LocalSummary({ gistda }: { gistda?: { value: number; date: string } | null | undefined }) {
   const { data, isLoading } = useLocal();
   if (isLoading || !data) return <p className="mt-6 text-sm text-muted-foreground">กำลังโหลดข้อมูลน้ำท่วมและอากาศ…</p>;
   const tw = [...(data.snaps[TW] ?? [])].sort((a, b) => (b.pct ?? 0) - (a.pct ?? 0));
