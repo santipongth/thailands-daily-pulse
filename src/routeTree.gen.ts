@@ -13,12 +13,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as DataRouteImport } from './routes/data'
 import { Route as DataAllRouteImport } from './routes/data-all'
+import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as EvidenceRouteImport } from './routes/evidence'
 import { Route as FailuresRouteImport } from './routes/failures'
 import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as KeyDataRouteImport } from './routes/key-data'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SitemapRouteImport } from './routes/sitemap'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SourcesRouteImport } from './routes/sources'
 import { Route as TrackingRouteImport } from './routes/tracking'
@@ -27,11 +31,16 @@ import { Route as AgenciesAgencyRouteImport } from './routes/agencies.$agency'
 import { Route as BriefIndexRouteImport } from './routes/brief.index'
 import { Route as BriefDateRouteImport } from './routes/brief.$date'
 import { Route as DayDateRouteImport } from './routes/day.$date'
+import { Route as DevelopersIndexRouteImport } from './routes/developers.index'
+import { Route as DevelopersApiRouteImport } from './routes/developers.api'
+import { Route as DevelopersMcpRouteImport } from './routes/developers.mcp'
 import { Route as EventsIndexRouteImport } from './routes/events.index'
 import { Route as EventsIdRouteImport } from './routes/events.$id'
 import { Route as SignalsFamilyRouteImport } from './routes/signals.$family'
 import { Route as ApiPublicBriefRouteImport } from './routes/api/public/brief'
 import { Route as ApiPublicIngestRouteImport } from './routes/api/public/ingest'
+import { Route as ApiPublicOpenapiDotjsonRouteImport } from './routes/api/public/openapi[.]json'
+import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -51,6 +60,11 @@ const DataRoute = DataRouteImport.update({
 const DataAllRoute = DataAllRouteImport.update({
   id: '/data-all',
   path: '/data-all',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevelopersRoute = DevelopersRouteImport.update({
+  id: '/developers',
+  path: '/developers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EvidenceRoute = EvidenceRouteImport.update({
@@ -73,6 +87,16 @@ const KeyDataRoute = KeyDataRouteImport.update({
   path: '/key-data',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MethodRoute = MethodRouteImport.update({
   id: '/method',
   path: '/method',
@@ -81,6 +105,11 @@ const MethodRoute = MethodRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapRoute = SitemapRouteImport.update({
+  id: '/sitemap',
+  path: '/sitemap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -123,6 +152,21 @@ const DayDateRoute = DayDateRouteImport.update({
   path: '/day/$date',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevelopersIndexRoute = DevelopersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DevelopersRoute,
+} as any)
+const DevelopersApiRoute = DevelopersApiRouteImport.update({
+  id: '/api',
+  path: '/api',
+  getParentRoute: () => DevelopersRoute,
+} as any)
+const DevelopersMcpRoute = DevelopersMcpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => DevelopersRoute,
+} as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
   id: '/events/',
   path: '/events/',
@@ -148,31 +192,50 @@ const ApiPublicIngestRoute = ApiPublicIngestRouteImport.update({
   path: '/api/public/ingest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicOpenapiDotjsonRoute = ApiPublicOpenapiDotjsonRouteImport.update({
+  id: '/api/public/openapi.json',
+  path: '/api/public/openapi.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
+  id: '/api/public/v1/$',
+  path: '/api/public/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
+  '/developers': typeof DevelopersRouteWithChildren
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
   '/key-data': typeof KeyDataRoute
+  '/llms.txt': typeof LlmsDottxtRoute
+  '/mcp': typeof McpRoute
   '/method': typeof MethodRoute
   '/settings': typeof SettingsRoute
+  '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
   '/tracking': typeof TrackingRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
+  '/developers/api': typeof DevelopersApiRoute
+  '/developers/mcp': typeof DevelopersMcpRoute
   '/events/$id': typeof EventsIdRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/brief/': typeof BriefIndexRoute
+  '/developers/': typeof DevelopersIndexRoute
   '/events/': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
+  '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -183,21 +246,29 @@ export interface FileRoutesByTo {
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
   '/key-data': typeof KeyDataRoute
+  '/llms.txt': typeof LlmsDottxtRoute
+  '/mcp': typeof McpRoute
   '/method': typeof MethodRoute
   '/settings': typeof SettingsRoute
+  '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
   '/tracking': typeof TrackingRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
+  '/developers/api': typeof DevelopersApiRoute
+  '/developers/mcp': typeof DevelopersMcpRoute
   '/events/$id': typeof EventsIdRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies': typeof AgenciesIndexRoute
   '/brief': typeof BriefIndexRoute
+  '/developers': typeof DevelopersIndexRoute
   '/events': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
+  '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -205,25 +276,34 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/data': typeof DataRoute
   '/data-all': typeof DataAllRoute
+  '/developers': typeof DevelopersRouteWithChildren
   '/evidence': typeof EvidenceRoute
   '/failures': typeof FailuresRoute
   '/impact': typeof ImpactRoute
   '/key-data': typeof KeyDataRoute
+  '/llms.txt': typeof LlmsDottxtRoute
+  '/mcp': typeof McpRoute
   '/method': typeof MethodRoute
   '/settings': typeof SettingsRoute
+  '/sitemap': typeof SitemapRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sources': typeof SourcesRoute
   '/tracking': typeof TrackingRoute
   '/agencies/$agency': typeof AgenciesAgencyRoute
   '/brief/$date': typeof BriefDateRoute
   '/day/$date': typeof DayDateRoute
+  '/developers/api': typeof DevelopersApiRoute
+  '/developers/mcp': typeof DevelopersMcpRoute
   '/events/$id': typeof EventsIdRoute
   '/signals/$family': typeof SignalsFamilyRoute
   '/agencies/': typeof AgenciesIndexRoute
   '/brief/': typeof BriefIndexRoute
+  '/developers/': typeof DevelopersIndexRoute
   '/events/': typeof EventsIndexRoute
   '/api/public/brief': typeof ApiPublicBriefRoute
   '/api/public/ingest': typeof ApiPublicIngestRoute
+  '/api/public/openapi.json': typeof ApiPublicOpenapiDotjsonRoute
+  '/api/public/v1/$': typeof ApiPublicV1SplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -232,25 +312,34 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/data'
     | '/data-all'
+    | '/developers'
     | '/evidence'
     | '/failures'
     | '/impact'
     | '/key-data'
+    | '/llms.txt'
+    | '/mcp'
     | '/method'
     | '/settings'
+    | '/sitemap'
     | '/sitemap.xml'
     | '/sources'
     | '/tracking'
     | '/agencies/$agency'
     | '/brief/$date'
     | '/day/$date'
+    | '/developers/api'
+    | '/developers/mcp'
     | '/events/$id'
     | '/signals/$family'
     | '/agencies/'
     | '/brief/'
+    | '/developers/'
     | '/events/'
     | '/api/public/brief'
     | '/api/public/ingest'
+    | '/api/public/openapi.json'
+    | '/api/public/v1/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -261,46 +350,63 @@ export interface FileRouteTypes {
     | '/failures'
     | '/impact'
     | '/key-data'
+    | '/llms.txt'
+    | '/mcp'
     | '/method'
     | '/settings'
+    | '/sitemap'
     | '/sitemap.xml'
     | '/sources'
     | '/tracking'
     | '/agencies/$agency'
     | '/brief/$date'
     | '/day/$date'
+    | '/developers/api'
+    | '/developers/mcp'
     | '/events/$id'
     | '/signals/$family'
     | '/agencies'
     | '/brief'
+    | '/developers'
     | '/events'
     | '/api/public/brief'
     | '/api/public/ingest'
+    | '/api/public/openapi.json'
+    | '/api/public/v1/$'
   id:
     | '__root__'
     | '/'
     | '/calendar'
     | '/data'
     | '/data-all'
+    | '/developers'
     | '/evidence'
     | '/failures'
     | '/impact'
     | '/key-data'
+    | '/llms.txt'
+    | '/mcp'
     | '/method'
     | '/settings'
+    | '/sitemap'
     | '/sitemap.xml'
     | '/sources'
     | '/tracking'
     | '/agencies/$agency'
     | '/brief/$date'
     | '/day/$date'
+    | '/developers/api'
+    | '/developers/mcp'
     | '/events/$id'
     | '/signals/$family'
     | '/agencies/'
     | '/brief/'
+    | '/developers/'
     | '/events/'
     | '/api/public/brief'
     | '/api/public/ingest'
+    | '/api/public/openapi.json'
+    | '/api/public/v1/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -308,12 +414,16 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   DataRoute: typeof DataRoute
   DataAllRoute: typeof DataAllRoute
+  DevelopersRoute: typeof DevelopersRouteWithChildren
   EvidenceRoute: typeof EvidenceRoute
   FailuresRoute: typeof FailuresRoute
   ImpactRoute: typeof ImpactRoute
   KeyDataRoute: typeof KeyDataRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
+  McpRoute: typeof McpRoute
   MethodRoute: typeof MethodRoute
   SettingsRoute: typeof SettingsRoute
+  SitemapRoute: typeof SitemapRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SourcesRoute: typeof SourcesRoute
   TrackingRoute: typeof TrackingRoute
@@ -327,6 +437,8 @@ export interface RootRouteChildren {
   EventsIndexRoute: typeof EventsIndexRoute
   ApiPublicBriefRoute: typeof ApiPublicBriefRoute
   ApiPublicIngestRoute: typeof ApiPublicIngestRoute
+  ApiPublicOpenapiDotjsonRoute: typeof ApiPublicOpenapiDotjsonRoute
+  ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -359,6 +471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DataAllRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/developers': {
+      id: '/developers'
+      path: '/developers'
+      fullPath: '/developers'
+      preLoaderRoute: typeof DevelopersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/evidence': {
       id: '/evidence'
       path: '/evidence'
@@ -387,6 +506,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KeyDataRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/method': {
       id: '/method'
       path: '/method'
@@ -399,6 +532,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap': {
+      id: '/sitemap'
+      path: '/sitemap'
+      fullPath: '/sitemap'
+      preLoaderRoute: typeof SitemapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -457,6 +597,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DayDateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/developers/': {
+      id: '/developers/'
+      path: '/'
+      fullPath: '/developers/'
+      preLoaderRoute: typeof DevelopersIndexRouteImport
+      parentRoute: typeof DevelopersRoute
+    }
+    '/developers/api': {
+      id: '/developers/api'
+      path: '/api'
+      fullPath: '/developers/api'
+      preLoaderRoute: typeof DevelopersApiRouteImport
+      parentRoute: typeof DevelopersRoute
+    }
+    '/developers/mcp': {
+      id: '/developers/mcp'
+      path: '/mcp'
+      fullPath: '/developers/mcp'
+      preLoaderRoute: typeof DevelopersMcpRouteImport
+      parentRoute: typeof DevelopersRoute
+    }
     '/events/': {
       id: '/events/'
       path: '/events'
@@ -492,20 +653,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicIngestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/openapi.json': {
+      id: '/api/public/openapi.json'
+      path: '/api/public/openapi.json'
+      fullPath: '/api/public/openapi.json'
+      preLoaderRoute: typeof ApiPublicOpenapiDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/$': {
+      id: '/api/public/v1/$'
+      path: '/api/public/v1/$'
+      fullPath: '/api/public/v1/$'
+      preLoaderRoute: typeof ApiPublicV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface DevelopersRouteChildren {
+  DevelopersApiRoute: typeof DevelopersApiRoute
+  DevelopersMcpRoute: typeof DevelopersMcpRoute
+  DevelopersIndexRoute: typeof DevelopersIndexRoute
+}
+
+const DevelopersRouteChildren: DevelopersRouteChildren = {
+  DevelopersApiRoute: DevelopersApiRoute,
+  DevelopersMcpRoute: DevelopersMcpRoute,
+  DevelopersIndexRoute: DevelopersIndexRoute,
+}
+
+const DevelopersRouteWithChildren = DevelopersRoute._addFileChildren(
+  DevelopersRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarRoute: CalendarRoute,
   DataRoute: DataRoute,
   DataAllRoute: DataAllRoute,
+  DevelopersRoute: DevelopersRouteWithChildren,
   EvidenceRoute: EvidenceRoute,
   FailuresRoute: FailuresRoute,
   ImpactRoute: ImpactRoute,
   KeyDataRoute: KeyDataRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
+  McpRoute: McpRoute,
   MethodRoute: MethodRoute,
   SettingsRoute: SettingsRoute,
+  SitemapRoute: SitemapRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SourcesRoute: SourcesRoute,
   TrackingRoute: TrackingRoute,
@@ -519,6 +714,8 @@ const rootRouteChildren: RootRouteChildren = {
   EventsIndexRoute: EventsIndexRoute,
   ApiPublicBriefRoute: ApiPublicBriefRoute,
   ApiPublicIngestRoute: ApiPublicIngestRoute,
+  ApiPublicOpenapiDotjsonRoute: ApiPublicOpenapiDotjsonRoute,
+  ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

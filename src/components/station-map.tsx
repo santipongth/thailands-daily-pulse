@@ -22,7 +22,7 @@ export function StationMap() {
       <h2 className="border-b-2 border-foreground pb-1 font-display text-xl">แผนที่สถานีอากาศใกล้กรุงเทพฯ (ค่าล่าสุด)</h2>
       {!latest.length ? <p className="mt-2 text-sm text-muted-foreground">ยังไม่มีค่าสถานี — รอรอบดึงกรมอุตุฯ ราย 3 ชม.</p> : (
         <div className="mt-2 grid gap-4 md:grid-cols-[3fr_2fr]">
-          <svg viewBox="0 0 600 420" className="w-full border border-border bg-muted" role="img" aria-label="แผนที่สถานีอากาศ">
+          <svg viewBox="0 0 600 420" className="h-auto w-full min-w-0 border border-border bg-muted" role="img" aria-label="แผนที่สถานีอากาศ">
             {[100.5, 100.6, 100.7, 100.8].map((lo) => { const [x] = xy([13.6, lo]); return <line key={lo} x1={x} x2={x} y1={0} y2={420} stroke="var(--border)" />; })}
             {[13.7, 13.8, 13.9].map((la) => { const [, y] = xy([la, 100.4]); return <line key={la} y1={y} y2={y} x1={0} x2={600} stroke="var(--border)" />; })}
             <circle cx={cx} cy={cy} r={5} fill="var(--foreground)" />
@@ -37,7 +37,7 @@ export function StationMap() {
               );
             })}
           </svg>
-          <table className="text-sm">
+          <div className="overflow-x-auto"><table className="min-w-[520px] text-sm">
             <thead><tr className="text-left"><th>สถานี</th><th>°C</th><th>ฝน 24 ชม.</th><th>เวลา</th></tr></thead>
             <tbody>
               {latest.map((w) => (
@@ -48,7 +48,7 @@ export function StationMap() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
       <p className="mt-1 text-xs text-muted-foreground">ที่มา: กรมอุตุนิยมวิทยา ตรวจอากาศราย 3 ชม. · อุณหภูมิ = สูงสุดของวัน ณ รายงานล่าสุด</p>

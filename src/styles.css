@@ -4,6 +4,21 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html { overflow-x: hidden; }
+body { min-width: 320px; overflow-wrap: anywhere; }
+main { overflow-x: clip; }
+main section > table { display: block; width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-inline: contain; }
+main section > table > thead,
+main section > table > tbody { min-width: 640px; }
+main pre { max-width: 100%; }
+svg, canvas { max-width: 100%; }
+@media (max-width: 639px) {
+  main { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+  main h1 { line-height: 1.08; }
+  main h2 { line-height: 1.2; }
+  main section { min-width: 0; }
+}
+
 /*
  * Design system definition.
  *

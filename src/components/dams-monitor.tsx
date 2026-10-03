@@ -109,7 +109,7 @@ export function DamsMonitor() {
           ค่าล่าสุด: {cp ? <b>{fmt(Number(cp.value), 0)} ลบ.ม./วินาที ({cp.observed_on}, ได้รับ {hm(cp.received_at)})</b> : "ยังไม่มีค่า"}
           {" · "}ดึงสำเร็จล่าสุด: {lastOk ? hm(lastOk.ran_at) : "ไม่สำเร็จใน 10 ครั้งล่าสุด"}
         </p>
-        <table className="mt-2 w-full text-sm">
+        <div className="overflow-x-auto"><table className="mt-2 min-w-[680px] w-full text-sm">
           <thead><tr className="text-left"><th>เวลา</th><th>ผล</th><th>รอบ</th><th>ช่องทาง / เหตุผล</th></tr></thead>
           <tbody>
             {data.h.length ? data.h.map((r) => (
@@ -121,9 +121,9 @@ export function DamsMonitor() {
               </tr>
             )) : <tr><td colSpan={4} className="text-muted-foreground">ยังไม่มีประวัติการดึงใน 30 วัน</td></tr>}
           </tbody>
-        </table>
+        </table></div>
         <h3 className="mt-4 text-sm font-semibold">สรุปรายวัน 30 วัน (เวลาไทย)</h3>
-        <table className="mt-1 w-full text-sm">
+        <div className="overflow-x-auto"><table className="mt-1 min-w-[760px] w-full text-sm">
           <thead><tr className="text-left"><th>วันที่</th><th>ครั้ง</th><th>สำเร็จ</th><th>ไม่สำเร็จ</th><th>สำเร็จล่าสุด</th><th>เหตุผลที่พบบ่อยสุด</th></tr></thead>
           <tbody>
             {Array.from({ length: 30 }, (_, i) => bkDay(new Date(Date.now() - i * 864e5).toISOString())).map((d) => {
@@ -143,7 +143,7 @@ export function DamsMonitor() {
               );
             })}
           </tbody>
-        </table>
+        </table></div>
       </section>
     </>
   );
