@@ -136,12 +136,19 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     const ok = rows.length > 0;
     return { values: {}, runs: [{ ...base, ok, rows: rows.length, error: errs.length ? errs.join(" · ").slice(0, 300) : null, sample: ok ? `อ่านข่าว ${rows.length} รายการ (${per.join(", ")})` : null }] };
   },
-  news: async ({ admin }) => {
-    const { collectNews } = await import("./news.server");
-    const news = await collectNews();
-    if (news.length) await admin.from("news_items").upsert(news, { onConflict: "link", ignoreDuplicates: true });
-    await admin.from("job_locks").upsert({ name: "news_fetched", locked_until: new Date().toISOString() });
-    return { values: {}, runs: [] };
+  news: async ({ admin }, source) => {
+    const ran_at = new Date().toISOString();
+    try {
+      const { collectNews } = await import("./news.server");
+      const news = await collectNews();
+      let err: string | null = null;
+      if (news.length) err = (await admin.from("news_items").upsert(news, { onConflict: "link", ignoreDuplicates: true })).error?.message ?? null;
+      await admin.from("job_locks").upsert({ name: "news_fetched", locked_until: new Date().toISOString() });
+      // Tagged-only feed: zero matching items is a valid outcome, not a failure.
+      return { values: {}, runs: [{ source, ok: !err, rows: news.length, error: err, ran_at, kind: "rss", sample: `ข่าวที่ตรงคำค้น ${news.length} รายการ` }] };
+    } catch (e) {
+      return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: "rss" }] };
+    }
   },
 };
 

@@ -344,6 +344,13 @@
       "when": 1791056392171,
       "tag": "0048_wage_notice_long_effective_window",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1791059579470,
+      "tag": "0049_late_window_per_metric",
+      "breakpoints": true
     }
   ]
 }

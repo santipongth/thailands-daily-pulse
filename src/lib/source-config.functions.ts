@@ -13,12 +13,14 @@ export const listSourceConfig = createServerFn({ method: "POST" })
     const { allSources, loadConfigs } = await import("./source-config.server");
     const [list, cfg, { data: runs }, { data: br }] = await Promise.all([
       allSources(), loadConfigs(supabaseAdmin),
-      supabaseAdmin.from("source_runs").select("source,ok,ran_at,rows,error,sample"),
+      supabaseAdmin.from("source_runs").select("source,ok,ran_at,rows,error,sample,last_ok_at"),
       supabaseAdmin.from("source_breaker").select("source,fail_streak,open_until"),
     ]);
+    const { data: reg } = await supabaseAdmin.from("source_registry").select("source,owner,url,cadence");
+    const byReg = new Map((reg ?? []).map((r) => [r.source, r]));
     const byRun = new Map((runs ?? []).map((r) => [r.source, r]));
     const byBr = new Map((br ?? []).map((r) => [r.source, r]));
-    return list.map((s) => ({ source: s.source, config: cfg.get(s.source) ?? null, run: byRun.get(s.source) ?? null, breaker: byBr.get(s.source) ?? null }));
+    return list.map((s) => ({ source: s.source, config: cfg.get(s.source) ?? null, run: byRun.get(s.source) ?? null, breaker: byBr.get(s.source) ?? null, info: byReg.get(s.source) ?? null }));
   });
 
 /** Admin: lift a circuit-breaker pause now. */
