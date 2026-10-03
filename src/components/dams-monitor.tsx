@@ -52,9 +52,26 @@ export function DamsMonitor() {
                   </ResponsiveContainer>
                 </div>
                 {(() => {
-                  const hp = data.r.filter((x) => x.metric_id === id).map((x) => ({ t: hm(x.read_at), v: Number(x.value) }));
+                  const raw = data.r.filter((x) => x.metric_id === id);
+                  const hp = raw.map((x) => ({ t: hm(x.read_at), v: Number(x.value) }));
+                  const lr = raw.at(-1), pr = raw.at(-2);
+                  const target = lr ? new Date(lr.read_at).getTime() - 864e5 : 0;
+                  const yr = lr ? raw.filter((x) => Math.abs(new Date(x.read_at).getTime() - target) < 90 * 60e3).at(0) : undefined;
+                  const diff = (a?: { value: number }, b?: { value: number }) => {
+                    if (!a || !b) return null;
+                    const d = Number(a.value) - Number(b.value);
+                    return d === 0 ? "ไม่เปลี่ยน" : `${d > 0 ? "+" : ""}${fmt(d, m.decimals)}`;
+                  };
                   return (
                     <div className="mt-1 text-xs text-muted-foreground">
+                      {lr && (
+                        <div className="mb-1 text-foreground">
+                          รอบล่าสุด {hm(lr.read_at)}: <b>{fmt(Number(lr.value), m.decimals)}</b>
+                          {" · "}เทียบรอบก่อน: {pr ? `${diff(lr, pr)} (${hm(pr.read_at)})` : "ยังไม่มีรอบก่อน"}
+                          {" · "}เทียบชั่วโมงเดียวกันเมื่อวาน: {yr ? `${diff(lr, yr)} (${hm(yr.read_at)})` : "ยังไม่มีข้อมูลเมื่อวาน"}
+                          {" · "}เทียบวันก่อน: {ch === null ? "ยังไม่มีวันก่อน" : ch === 0 ? "ไม่เปลี่ยน" : `${ch > 0 ? "+" : ""}${fmt(ch, m.decimals)}`}
+                        </div>
+                      )}
                       รายชั่วโมง 48 ชม.: {hp.length ? `${hp.length} รอบ` : "ยังไม่มีรอบที่ได้ค่า"}
                       {hp.length > 0 && (
                         <div className="h-20">
