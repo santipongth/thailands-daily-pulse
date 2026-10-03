@@ -47,6 +47,22 @@ export async function firecrawlFetch(url: string): Promise<Response> {
   return new Response(body, { status: 200, headers: { "content-type": fc.data?.metadata?.contentType ?? "text/html" } });
 }
 
+/** Page as Markdown via Firecrawl (for sites behind a bot challenge; tables come out as Markdown tables). */
+export async function firecrawlMarkdown(url: string, waitFor = 5000): Promise<string> {
+  const key = process.env["FIRECRAWL_API_KEY"];
+  if (!key) throw new Error("ยังไม่ได้เชื่อม Firecrawl");
+  const r = await fetch("https://api.firecrawl.dev/v2/scrape", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ url, formats: ["markdown"], onlyMainContent: false, location: { country: "TH" }, maxAge: 0, waitFor, timeout: 120000 }),
+  });
+  const fc: any = await r.json().catch(() => null);
+  if (!r.ok || !fc?.success) throw new Error(`Firecrawl ตอบ ${r.status} ${fc?.error ?? ""}`.trim());
+  const st = fc.data?.metadata?.statusCode;
+  if (st && st !== 200) throw new Error(`${st} — ปลายทางตอบผิดปกติผ่าน Firecrawl`);
+  return String(fc.data?.markdown ?? "");
+}
+
 export async function politeFetch(url: string, init: RequestInit & { timeoutMs?: number; tries?: number } = {}): Promise<Response> {
   if (applyToFetch && reqMode === "firecrawl") return firecrawlFetch(url);
   if (applyToFetch && reqMode === "auto") {

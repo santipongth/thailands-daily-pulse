@@ -59,3 +59,28 @@ export const runSourceNow = createServerFn({ method: "POST" })
     const { data: run } = await admin.from("source_runs").select("ok,ran_at,rows,error,sample").eq("source", spec.source).maybeSingle();
     return { ok: true as const, run };
   });
+
+/** Per-source success rate, failure causes, hour-of-day pattern and a rule-based settings recommendation. */
+export const sourcePerformance = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
+  .inputValidator((d) => z.object({ days: z.union([z.literal(7), z.literal(30)]) }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin: admin } = await import("@/integrations/supabase/client.server");
+    const { analyse } = await import("./perf");
+    const { loadConfigs } = await import("./source-config.server");
+    const since = new Date(Date.now() - data.days * 86400e3).toISOString();
+    const [{ data: runs }, { data: ev }, cfg] = await Promise.all([
+      admin.from("source_run_history").select("source,ran_at,ok,error").gte("ran_at", since).order("ran_at").limit(20000),
+      admin.from("raw_evidence").select("source,fetched_at").gte("fetched_at", since).limit(20000),
+      loadConfigs(admin),
+    ]);
+    const bySrc = new Map<string, any[]>();
+    for (const r of runs ?? []) bySrc.set(r.source, [...(bySrc.get(r.source) ?? []), r]);
+    const files = new Map<string, number>();
+    for (const e of ev ?? []) files.set(e.source, (files.get(e.source) ?? 0) + 1);
+    return [...bySrc].map(([s, list]) => {
+      const f = files.get(s);
+      const firstDay = Math.max(1, Math.min(data.days, (Date.now() - Date.parse(list[0].ran_at)) / 86400e3));
+      return { ...analyse(s, list, firstDay, f === undefined ? null : f / firstDay, cfg.get(s) ?? null), config: cfg.get(s) ?? null };
+    }).sort((a, b) => a.rate - b.rate);
+  });

@@ -11,6 +11,9 @@ export const SOURCES: SourceInfo[] = [
   { source: "Longdo Traffic Index", agency: "Longdo Traffic", kind: "api", metrics: ["traffic_idx"] },
   { source: "สมาคมค้าทองคำ", agency: "สมาคมค้าทองคำ", kind: "api", metrics: ["gold_bar", "gold_orn"] },
   { source: "ThaiWater (สสน.)", agency: "สสน.", kind: "api", metrics: ["cp_dam_q"] },
+  { source: "ThaiWater สถานี กทม.และปริมณฑล", agency: "สสน.", kind: "api", metrics: ["flood_bank_max", "flood_over_bank"] },
+  { source: "กทม. ระบายน้ำ (น้ำท่วมถนน)", agency: "กรุงเทพมหานคร", kind: "crawler", metrics: ["bma_road_flood"] },
+  { source: "ปภ. แจ้งเตือนสาธารณภัย", agency: "กรมป้องกันและบรรเทาสาธารณภัย", kind: "crawler", metrics: ["ddpm_flood_warn"] },
   { source: "RID อ่างเก็บน้ำ (กรมชลประทาน)", agency: "กรมชลประทาน", kind: "api", metrics: ["dam_pasak_pct", "dam_pasak_out", "dam_khundan_pct"] },
   { source: "กรมอุตุฯ เตือนภัย", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["tmd_warn"] },
   { source: "กรมอุตุฯ แผ่นดินไหว", agency: "กรมอุตุนิยมวิทยา", kind: "api", metrics: ["quake_th"] },
@@ -31,7 +34,7 @@ export type Agency = { key: string; label: string; sources: string[]; newsAgency
 /** Agencies shown on /agencies, each grouping its sources (by source name). */
 export const AGENCIES: Agency[] = [
   { key: "tmd", label: "กรมอุตุนิยมวิทยา", category: "government", sources: ["กรมอุตุฯ เตือนภัย", "กรมอุตุฯ แผ่นดินไหว", "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล", "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)"], newsAgency: "กรมอุตุนิยมวิทยา" },
-  { key: "water", label: "สสน. / กรมชลประทาน", category: "government", sources: ["ThaiWater (สสน.)", "RID อ่างเก็บน้ำ (กรมชลประทาน)"], newsAgency: "กรมชลประทาน / สทนช." },
+  { key: "water", label: "สสน. / กรมชลประทาน", category: "government", sources: ["ThaiWater (สสน.)", "ThaiWater สถานี กทม.และปริมณฑล", "RID อ่างเก็บน้ำ (กรมชลประทาน)", "กทม. ระบายน้ำ (น้ำท่วมถนน)", "ปภ. แจ้งเตือนสาธารณภัย"], newsAgency: "กรมชลประทาน / สทนช." },
   { key: "gistda", label: "GISTDA (PM2.5 กรุงเทพฯ)", category: "government", sources: ["GISTDA PM2.5 (กรุงเทพฯ)"] },
   { key: "rd", label: "กรมสรรพากร", category: "government", sources: ["กรมสรรพากร (ปฏิทินภาษี)"] },
   { key: "glo", label: "สำนักงานสลากกินแบ่งรัฐบาล", category: "government", sources: ["สำนักงานสลากกินแบ่งรัฐบาล (GLO)"] },
