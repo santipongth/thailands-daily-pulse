@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Masthead } from "@/components/masthead";
 const groups = [
   ["ข้อมูลวันนี้", [["วันนี้", "/"], ["Daily Brief", "/brief"], ["ข้อมูลสำคัญ", "/key-data"], ["ข้อมูลทั้งหมด", "/data-all"], ["ปฏิทินวันหยุดและภาษี", "/calendar"]]],
-  ["คลังและหลักฐาน", [["เหตุการณ์", "/events"], ["ข้อมูลดิบ", "/data"], ["ไฟล์หลักฐาน", "/evidence"], ["ติดตามข้อมูล", "/tracking"], ["แหล่งข้อมูล", "/sources"], ["หน่วยงาน", "/agencies"]]],
+  ["คลังและหลักฐาน", [["เหตุการณ์", "/events"], ["ข้อมูลดิบ", "/data"], ["ไฟล์หลักฐาน", "/evidence"], ["ติดตามข้อมูล", "/tracking"], ["แหล่งข้อมูล", "/sources"], ["แผนผังข้อมูล", "/data-map"], ["หน่วยงาน", "/agencies"]]],
   ["วิธีการ", [["วิธีคำนวณ", "/method"], ["สูตรผลกระทบ", "/impact"], ["การตั้งค่า", "/settings"]]],
   ["สำหรับนักพัฒนา", [["Developer Document", "/developers"], ["Public API", "/developers/api"], ["MCP Server", "/developers/mcp"]]],
 ] as const;
