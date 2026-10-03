@@ -164,13 +164,18 @@ export const CONNECTORS: Connector[] = [
   },
   {
     source: "PTT (thai-oil-api)",
-    run: async () => {
+    run: async (date) => {
       const o: Values = {};
-      const p = (await json("https://api.chnwt.dev/thai-oil-api/latest"))?.response?.stations?.ptt;
+      const response = (await json("https://api.chnwt.dev/thai-oil-api/latest"))?.response;
+      const { thaiPriceDate } = await import("./daily-prices");
+      const observed = thaiPriceDate(response?.date);
+      if (observed > date) throw new Error(`ราคาน้ำมันลงวันที่ ${observed} ยังไม่ถึงวันอ้างอิง`);
+      const p = response?.stations?.ptt;
       put(o, "gsh95", pos(p?.gasohol_95?.price));
       put(o, "e20", pos(p?.gasohol_e20?.price));
       put(o, "diesel", pos(p?.diesel?.price));
-      return o;
+      if (!Object.keys(o).length) throw new Error("ไม่พบราคาน้ำมัน ปตท. ที่ตรวจสอบได้");
+      return { values: o, dates: Object.fromEntries(Object.keys(o).map((k) => [k, observed])), sample: `ราคาน้ำมัน ปตท. ลงวันที่ ${observed}` };
     },
   },
   {

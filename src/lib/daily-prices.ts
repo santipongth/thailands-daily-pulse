@@ -2,6 +2,13 @@
 export const LPG_URL = "https://www.eppo.go.th/wp-json/oil-api/v1/lpg-prices";
 export const WAGE_URL = "https://www.mol.go.th/minimum-wage";
 
+export function thaiPriceDate(raw: unknown) {
+  const match = String(raw ?? "").match(/(\d{1,2})\s+(มกราคม|กุมภาพันธ์|มีนาคม|เมษายน|พฤษภาคม|มิถุนายน|กรกฎาคม|สิงหาคม|กันยายน|ตุลาคม|พฤศจิกายน|ธันวาคม)\s+(25\d{2}|20\d{2})/);
+  if (!match) throw new Error("ไม่มีวันที่ประกาศราคาน้ำมัน");
+  const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+  return `${Number(match[3]) > 2400 ? Number(match[3]) - 543 : match[3]}-${String(months.indexOf(match[2]) + 1).padStart(2, "0")}-${String(match[1]).padStart(2, "0")}`;
+}
+
 export function parseLpg(data: any, today: string) {
   const p = data?.data?.ptt;
   const date = String(p?.lpg_ptt_date ?? "");
