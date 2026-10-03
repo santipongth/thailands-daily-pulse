@@ -67,11 +67,11 @@ function Agencies() {
                     {runs.length ? `ดึงได้ ${okCount}/${runs.length} แหล่ง` : "ยังไม่เคยดึง"}
                   </span>
                 </div>
-                <ul className="mt-3 space-y-1 text-sm tabular-nums">
+                  <ul className="mt-3 space-y-1 text-sm tabular-nums">
                   {latest.slice(0, 3).map(({ m, o }) => (
                     <li key={m!.id} className="flex justify-between gap-2"><span className="truncate text-muted-foreground">{m!.name_th}</span><span>{fmt(Number(o!.value), m!.decimals)} {m!.unit}</span></li>
                   ))}
-                  {!latest.length && <li className="text-muted-foreground">{runs.find((r) => !r.ok)?.error ?? (runs.some((r) => r.ok) ? "แหล่งนี้ไม่มีตัวเลขรายวัน" : "ยังไม่มีค่าจริง · ดูสถานะการดึงในหน้ารายละเอียด")}</li>}
+                  {!latest.length && <li className="break-words text-muted-foreground">{runs.find((r) => !r.ok)?.error ?? (runs.some((r) => r.ok) ? "แหล่งนี้ไม่มีตัวเลขรายวัน" : "ยังไม่มีค่าจริง · ดูสถานะการดึงในหน้ารายละเอียด")}</li>}
                 </ul>
                 <p className="mt-3 text-xs">
                   วันนี้: สัญญาณ {nSig}
