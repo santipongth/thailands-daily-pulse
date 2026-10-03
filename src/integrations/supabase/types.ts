@@ -1039,6 +1039,36 @@ export type Database = {
         }
         Relationships: []
       }
+      station_locations: {
+        Row: {
+          lat: number
+          lng: number
+          method: string
+          name: string
+          source: string
+          station_id: string
+          updated_at: string
+        }
+        Insert: {
+          lat: number
+          lng: number
+          method?: string
+          name: string
+          source: string
+          station_id: string
+          updated_at?: string
+        }
+        Update: {
+          lat?: number
+          lng?: number
+          method?: string
+          name?: string
+          source?: string
+          station_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       station_snapshots: {
         Row: {
           area: string | null
