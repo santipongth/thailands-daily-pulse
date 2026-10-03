@@ -36,6 +36,7 @@ import { Route as AdminTrackingRouteImport } from './routes/_admin/tracking'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as BriefIndexRouteImport } from './routes/brief.index'
 import { Route as BriefDateRouteImport } from './routes/brief.$date'
+import { Route as CostTrendItemRouteImport } from './routes/cost-trend.$item'
 import { Route as DayDateRouteImport } from './routes/day.$date'
 import { Route as DevelopersIndexRouteImport } from './routes/developers.index'
 import { Route as DevelopersApiRouteImport } from './routes/developers.api'
@@ -187,6 +188,11 @@ const BriefDateRoute = BriefDateRouteImport.update({
   path: '/brief/$date',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CostTrendItemRoute = CostTrendItemRouteImport.update({
+  id: '/$item',
+  path: '/$item',
+  getParentRoute: () => CostTrendRoute,
+} as any)
 const DayDateRoute = DayDateRouteImport.update({
   id: '/day/$date',
   path: '/day/$date',
@@ -270,7 +276,7 @@ const ApiPublicOgBriefDateRoute = ApiPublicOgBriefDateRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/cost-trend': typeof CostTrendRoute
+  '/cost-trend': typeof CostTrendRouteWithChildren
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
@@ -294,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/tracking': typeof AdminTrackingRoute
   '/admin/login': typeof AdminLoginRoute
   '/brief/$date': typeof BriefDateRoute
+  '/cost-trend/$item': typeof CostTrendItemRoute
   '/day/$date': typeof DayDateRoute
   '/developers/api': typeof DevelopersApiRoute
   '/developers/mcp': typeof DevelopersMcpRoute
@@ -314,7 +321,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/cost-trend': typeof CostTrendRoute
+  '/cost-trend': typeof CostTrendRouteWithChildren
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/failures': typeof FailuresRoute
@@ -337,6 +344,7 @@ export interface FileRoutesByTo {
   '/tracking': typeof AdminTrackingRoute
   '/admin/login': typeof AdminLoginRoute
   '/brief/$date': typeof BriefDateRoute
+  '/cost-trend/$item': typeof CostTrendItemRoute
   '/day/$date': typeof DayDateRoute
   '/developers/api': typeof DevelopersApiRoute
   '/developers/mcp': typeof DevelopersMcpRoute
@@ -359,7 +367,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_admin': typeof AdminRouteRouteWithChildren
-  '/cost-trend': typeof CostTrendRoute
+  '/cost-trend': typeof CostTrendRouteWithChildren
   '/data-all': typeof DataAllRoute
   '/data-map': typeof DataMapRoute
   '/developers': typeof DevelopersRouteWithChildren
@@ -383,6 +391,7 @@ export interface FileRoutesById {
   '/_admin/tracking': typeof AdminTrackingRoute
   '/admin/login': typeof AdminLoginRoute
   '/brief/$date': typeof BriefDateRoute
+  '/cost-trend/$item': typeof CostTrendItemRoute
   '/day/$date': typeof DayDateRoute
   '/developers/api': typeof DevelopersApiRoute
   '/developers/mcp': typeof DevelopersMcpRoute
@@ -429,6 +438,7 @@ export interface FileRouteTypes {
     | '/tracking'
     | '/admin/login'
     | '/brief/$date'
+    | '/cost-trend/$item'
     | '/day/$date'
     | '/developers/api'
     | '/developers/mcp'
@@ -472,6 +482,7 @@ export interface FileRouteTypes {
     | '/tracking'
     | '/admin/login'
     | '/brief/$date'
+    | '/cost-trend/$item'
     | '/day/$date'
     | '/developers/api'
     | '/developers/mcp'
@@ -517,6 +528,7 @@ export interface FileRouteTypes {
     | '/_admin/tracking'
     | '/admin/login'
     | '/brief/$date'
+    | '/cost-trend/$item'
     | '/day/$date'
     | '/developers/api'
     | '/developers/mcp'
@@ -539,7 +551,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
-  CostTrendRoute: typeof CostTrendRoute
+  CostTrendRoute: typeof CostTrendRouteWithChildren
   DataAllRoute: typeof DataAllRoute
   DataMapRoute: typeof DataMapRoute
   DevelopersRoute: typeof DevelopersRouteWithChildren
@@ -756,6 +768,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BriefDateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cost-trend/$item': {
+      id: '/cost-trend/$item'
+      path: '/$item'
+      fullPath: '/cost-trend/$item'
+      preLoaderRoute: typeof CostTrendItemRouteImport
+      parentRoute: typeof CostTrendRoute
+    }
     '/day/$date': {
       id: '/day/$date'
       path: '/day/$date'
@@ -909,6 +928,18 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
   AdminRouteRouteChildren,
 )
 
+interface CostTrendRouteChildren {
+  CostTrendItemRoute: typeof CostTrendItemRoute
+}
+
+const CostTrendRouteChildren: CostTrendRouteChildren = {
+  CostTrendItemRoute: CostTrendItemRoute,
+}
+
+const CostTrendRouteWithChildren = CostTrendRoute._addFileChildren(
+  CostTrendRouteChildren,
+)
+
 interface DevelopersRouteChildren {
   DevelopersApiRoute: typeof DevelopersApiRoute
   DevelopersMcpRoute: typeof DevelopersMcpRoute
@@ -928,7 +959,7 @@ const DevelopersRouteWithChildren = DevelopersRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
-  CostTrendRoute: CostTrendRoute,
+  CostTrendRoute: CostTrendRouteWithChildren,
   DataAllRoute: DataAllRoute,
   DataMapRoute: DataMapRoute,
   DevelopersRoute: DevelopersRouteWithChildren,
