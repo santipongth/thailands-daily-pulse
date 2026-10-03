@@ -16,9 +16,7 @@ export function HouseholdBasket({ date }: { date: string }) {
       return basketLines(data ?? [], date);
     },
   });
-  if (isLoading) return <p className="text-sm text-muted-foreground">กำลังคำนวณค่าใช้จ่ายครัวเรือน…</p>;
   const lines = data ?? [];
-  if (!lines.length) return null;
   const total = lines.reduce((s, l) => s + l.costCur, 0);
   const delta = lines.reduce((s, l) => s + l.delta, 0);
   return (
@@ -27,6 +25,7 @@ export function HouseholdBasket({ date }: { date: string }) {
         <h2 className="font-editorial text-2xl leading-snug text-editorial-red">ตัวอย่างค่าใช้จ่ายครัวเรือนต่อวัน</h2>
         <span aria-hidden="true" className="hidden h-px flex-1 bg-editorial-rule sm:block" />
       </div>
+      {isLoading ? <p className="mt-4 text-sm text-muted-foreground">กำลังคำนวณค่าใช้จ่ายครัวเรือน…</p> : !lines.length ? <p className="mt-4 text-sm text-muted-foreground">ยังไม่มีราคาจริงที่ใช้คำนวณค่าใช้จ่ายครัวเรือนสำหรับวันนี้</p> : <>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">ตะกร้าอ้างอิงคงที่ × ราคาจริงล่าสุด เทียบกับราคาครั้งก่อน</p>
       <p className="mt-4 font-editorial text-3xl tabular-nums text-editorial-ink">{b2(total)} ฿ <span className="font-editorial-body text-sm text-muted-foreground">รวมต่อวัน</span></p>
       <div className="overflow-x-auto">
@@ -45,6 +44,7 @@ export function HouseholdBasket({ date }: { date: string }) {
       </div>
       <p className="mt-4 text-sm">เทียบครั้งก่อน <b>{sign(delta)} บาท/วัน</b> · ประมาณ <b>{sign(delta * 30)} บาท/เดือน</b></p>
       <p className="mt-5 border-t border-editorial-rule pt-3 text-xs leading-relaxed text-muted-foreground">สูตร: (ราคาล่าสุด − ราคาก่อน) × ปริมาณต่อวัน; ต่อเดือน = × 30 · ปริมาณตะกร้าเป็นค่าสมมติของครอบครัว 3–4 คน</p>
+      </>}
     </section>
   );
 }
