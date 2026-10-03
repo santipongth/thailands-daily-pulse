@@ -72,7 +72,7 @@ function Today() {
   const [sens] = useSensitivity();
   const [prefs] = useSourcePrefs();
   const off = new Set(SOURCES.filter((x) => prefs.disabled.includes(x.source)).flatMap((x) => x.metrics));
-  const moves = data.signals.filter((s) => met.get(s.metric_id)?.kind !== "release" && !off.has(s.metric_id) && SENS_SEVERITIES[sens].includes(s.severity));
+  const moves = data.signals.filter((s) => s.is_demo === false && !off.has(s.metric_id) && SENS_SEVERITIES[sens].includes(s.severity));
   const agencyNews = data.news.filter((n) => n.agency).slice(0, 6);
   const activeFams = new Set([...releases, ...moves].map((s) => s.family_id));
   const quiet = data.families.filter((f) => !activeFams.has(f.id));

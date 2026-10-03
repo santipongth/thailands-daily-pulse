@@ -98,7 +98,7 @@ export async function refreshBrief(admin: any, date: string, publish = false, st
   const excluded: { metric_id: string; title: string; received_at: string | null; reason: string }[] = [];
   const all = (sigs ?? []).filter((s: any) => {
     if (!enforce) return true;
-    const r = recvOf.get(s.metric_id) ?? null;
+    const r = s.checks?.arrival_rule === "late_above_threshold" ? s.checks.received_at : recvOf.get(s.metric_id) ?? null;
     if (r && Date.parse(r) > Date.parse(windowTo)) { excluded.push({ metric_id: s.metric_id, title: s.title, received_at: r, reason: `ได้รับ ${new Date(r).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" })} น. หลังเวลาตัด 05:45 — ไปอยู่ในอัปเดตหลังเผยแพร่` }); return false; }
     return true;
   });
@@ -267,6 +267,7 @@ export async function refreshIfStale(maxAgeHours = 3, opts: { force?: boolean; p
       // Values may refer to yesterday (e.g. farm prices published late) — detect on their own date.
       await admin.rpc("detect_signals", { _d: bangkokDate(-1) });
       await admin.rpc("detect_signals", { _d: date });
+      await admin.rpc("detect_received_signals", { _d: date });
       await admin.rpc("rank_signals", { _d: date });
     }
     await refreshBrief(admin, date, !!opts.publish);
@@ -302,7 +303,9 @@ export async function refreshDams(): Promise<{ processed: number }> {
   const processed = await drain(admin, date, 150e3, 4);
   if (processed) {
     await admin.rpc("detect_signals", { _d: date });
+    await admin.rpc("detect_received_signals", { _d: date });
     await admin.rpc("rank_signals", { _d: date });
+    await refreshBrief(admin, date);
   }
   // Hourly snapshot of the latest real dam values (feeds the 48h chart on /data-all).
   const { data: obs } = await admin.from("observations").select("metric_id,value,observed_on")

@@ -70,7 +70,10 @@ export const runSourceNow = createServerFn({ method: "POST" })
     const date = bangkokDate();
     await drain(admin, date, 150e3, 3);
     await admin.rpc("detect_signals", { _d: date });
+    await admin.rpc("detect_received_signals", { _d: date });
     await admin.rpc("rank_signals", { _d: date });
+    const { refreshBrief } = await import("./ingest.server");
+    await refreshBrief(admin, date);
     const { data: run } = await admin.from("source_runs").select("ok,ran_at,rows,error,sample").eq("source", spec.source).maybeSingle();
     return { ok: true as const, run };
   });

@@ -42,6 +42,7 @@ export function SignalCard({ s, family, metric, history, news }: { s: Signal; fa
         <span className={s.severity === "high" ? "font-semibold text-up" : ""}>{sevLabel[s.severity]}</span>
       </div>
       <h3 className="mt-3 font-display text-2xl leading-snug break-words group-hover:underline">{s.title}</h3>
+      {s.checks?.arrival_rule === "late_above_threshold" && <p className="mt-1 text-xs text-muted-foreground">ข้อมูลมาช้า · ข้อมูลวันที่ {s.checks.data_date} · ได้รับ {s.checks.received_at ? new Date(s.checks.received_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : s.signal_date}</p>}
       <div className="mt-4 flex items-end justify-between gap-3">
         <div>
           <div className={`font-display text-3xl tabular-nums ${tone}`}>
@@ -59,7 +60,7 @@ export function SignalCard({ s, family, metric, history, news }: { s: Signal; fa
       {family.id === "rail" && <RailSignalChart s={s} />}
       {family.id !== "food" && family.id !== "rail" && <MetricSignalChart s={s} metric={metric} history={history} />}
       <div className="mt-4 border-t border-editorial-rule pt-3 text-xs leading-relaxed text-muted-foreground">
-        ที่มา: {s.metric_id.startsWith("dit_") ? "กรมการค้าภายใน (ราคาขายปลีก กทม.)" : family.source_name}{s.checks?.price_date && s.checks.price_date !== s.signal_date ? ` · ราคาวันที่ ${s.checks.price_date}` : ""}
+        ที่มา: {s.metric_id.startsWith("dit_") ? "กรมการค้าภายใน (ราคาขายปลีก กทม.)" : family.source_name}{s.checks?.price_date && s.checks.price_date !== s.signal_date ? ` · ข้อมูลวันที่ ${s.checks.price_date}` : ""}
         {s.is_demo && <span className="ml-2"><DataBadge demo /></span>}
       </div>
       <div className="mt-3"><SignalExplain s={s} family={family} metric={metric} history={history} news={news} /></div>
