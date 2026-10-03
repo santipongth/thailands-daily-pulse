@@ -113,6 +113,59 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_sources: {
+        Row: {
+          active: boolean
+          created_at: string
+          date_path: string | null
+          format: string
+          key: string
+          licence: string
+          metric_id: string
+          name: string
+          owner: string
+          row_match: string | null
+          url: string
+          value_path: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          date_path?: string | null
+          format: string
+          key: string
+          licence?: string
+          metric_id: string
+          name: string
+          owner: string
+          row_match?: string | null
+          url: string
+          value_path: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          date_path?: string | null
+          format?: string
+          key?: string
+          licence?: string
+          metric_id?: string
+          name?: string
+          owner?: string
+          row_match?: string | null
+          url?: string
+          value_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_sources_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_briefs: {
         Row: {
           body: string
@@ -372,6 +425,50 @@ export type Database = {
           video_url?: string | null
         }
         Relationships: []
+      }
+      metric_rule_versions: {
+        Row: {
+          bands: number[] | null
+          created_at: string
+          effective_from: string
+          id: number
+          kind: string
+          metric_id: string
+          note: string | null
+          threshold_abs: number | null
+          threshold_pct: number | null
+        }
+        Insert: {
+          bands?: number[] | null
+          created_at?: string
+          effective_from: string
+          id?: number
+          kind: string
+          metric_id: string
+          note?: string | null
+          threshold_abs?: number | null
+          threshold_pct?: number | null
+        }
+        Update: {
+          bands?: number[] | null
+          created_at?: string
+          effective_from?: string
+          id?: number
+          kind?: string
+          metric_id?: string
+          note?: string | null
+          threshold_abs?: number | null
+          threshold_pct?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metric_rule_versions_metric_id_fkey"
+            columns: ["metric_id"]
+            isOneToOne: false
+            referencedRelation: "metrics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       metrics: {
         Row: {

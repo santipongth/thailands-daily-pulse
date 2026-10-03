@@ -358,6 +358,13 @@
       "when": 1791061809770,
       "tag": "0050_source_config_custom_times",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1791064862207,
+      "tag": "0051_custom_sources_and_rule_versions",
+      "breakpoints": true
     }
   ]
 }
