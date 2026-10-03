@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { thaiDate } from "@/lib/signals";
+import { EditorialDataSection } from "@/components/editorial-data-section";
 
 export function nextDrawDate(from: string): string {
   const [y, m, d] = from.split("-").map(Number) as [number, number, number];
@@ -18,18 +19,20 @@ export function LatestLottery() {
   if (!r) return null;
   const today = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
   return (
-    <div className="border border-border p-4">
-      <div className="text-xs uppercase tracking-wide text-muted-foreground">ผลสลากงวดล่าสุด</div>
-      <div className="font-display text-lg">งวด {thaiDate(r.draw_date, { day: "numeric", month: "long", year: "numeric" })}</div>
-      <div className="mt-2 flex flex-wrap items-end gap-x-6 gap-y-2">
-        <div><div className="text-xs text-muted-foreground">รางวัลที่ 1</div><div className="font-display text-3xl tracking-widest">{r.first}</div></div>
-        <div><div className="text-xs text-muted-foreground">เลขท้าย 2 ตัว</div><div className="font-display text-2xl">{r.last2 ?? "—"}</div></div>
-        <div><div className="text-xs text-muted-foreground">เลขหน้า 3 ตัว</div><div className="text-lg">{r.front3?.join(" · ") || "—"}</div></div>
-        <div><div className="text-xs text-muted-foreground">เลขท้าย 3 ตัว</div><div className="text-lg">{r.back3?.join(" · ") || "—"}</div></div>
-      </div>
-      <div className="mt-2 text-xs text-muted-foreground">
+    <EditorialDataSection
+      eyebrow="ข้อมูลประกาศเป็นรอบ"
+      title="ผลสลากงวดล่าสุด"
+      summary={<><span className="block font-editorial text-lg text-editorial-ink">งวด</span><span className="text-xs text-muted-foreground">{thaiDate(r.draw_date, { day: "numeric", month: "short", year: "numeric" })}</span></>}
+      footer={<>
         {r.verified ? "ยืนยันตรงกัน 2 แหล่งของสำนักงานสลากฯ" : "ยังไม่ยืนยันจากแหล่งที่ 2"} · งวดถัดไป {thaiDate(nextDrawDate(r.draw_date > today ? r.draw_date : today), { day: "numeric", month: "short" })} · ตรวจซ้ำจากเอกสารทางการเสมอ
+      </>}
+    >
+      <div className="grid gap-5 sm:grid-cols-[minmax(0,1.35fr)_repeat(3,minmax(0,1fr))]">
+        <div className="border-l-4 border-editorial-red pl-4"><div className="text-xs text-muted-foreground">รางวัลที่ 1</div><div className="mt-1 font-editorial text-4xl tabular-nums text-editorial-ink sm:text-5xl">{r.first}</div></div>
+        <div><div className="text-xs text-muted-foreground">เลขท้าย 2 ตัว</div><div className="mt-1 font-editorial text-3xl tabular-nums">{r.last2 ?? "—"}</div></div>
+        <div><div className="text-xs text-muted-foreground">เลขหน้า 3 ตัว</div><div className="mt-1 text-lg font-semibold tabular-nums">{r.front3?.join(" · ") || "—"}</div></div>
+        <div><div className="text-xs text-muted-foreground">เลขท้าย 3 ตัว</div><div className="mt-1 text-lg font-semibold tabular-nums">{r.back3?.join(" · ") || "—"}</div></div>
       </div>
-    </div>
+    </EditorialDataSection>
   );
 }
