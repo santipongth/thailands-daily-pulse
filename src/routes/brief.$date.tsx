@@ -8,6 +8,7 @@ import { shiftDate, thaiDate } from "@/lib/signals";
 import { STATUS_TH, type Completeness } from "@/lib/completeness";
 import { AllMetricsCompare } from "@/components/all-metrics-compare";
 import { DamsBox, StationCompare } from "@/components/brief-dams-weather";
+import { DailyTrends, ForecastCompare } from "@/components/brief-trends";
 
 const hm = (s: string) => new Date(s).toLocaleTimeString("th-TH", { timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit" });
 
@@ -112,7 +113,9 @@ function BriefPage() {
               </section>
             )}
             <DamsBox date={date} cutoff={data.cutoff_at ?? (data as any).data_window?.to ?? null} />
+            <ForecastCompare date={date} />
             <StationCompare date={date} />
+            <DailyTrends date={date} />
             <AllMetricsCompare date={date} cutoff={data.cutoff_at ?? (data as any).data_window?.to ?? null} completeness={Array.isArray(data.completeness) ? (data.completeness as Completeness[]) : null} />
             <div className="mt-10"><HouseholdBasket date={date} /></div>
             <Link to="/day/$date" params={{ date }} className="mt-4 inline-block text-sm underline">ดูอันดับสัญญาณทั้งหมดของวันนี้ เทียบเมื่อวาน →</Link>
