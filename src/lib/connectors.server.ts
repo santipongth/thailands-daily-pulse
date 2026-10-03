@@ -62,6 +62,37 @@ async function firecrawlJson(url: string): Promise<any> {
 
 export const CONNECTORS: Connector[] = [
   {
+    // Bangkok + 3 neighbouring provinces: ThaiWater telemetry stations reporting today; % of lower bank.
+    source: "ThaiWater สถานี กทม.และปริมณฑล",
+    run: async (date) => {
+      const { TW_WL_URL, parseThaiWaterBkk } = await import("./flood");
+      const r = parseThaiWaterBkk(await jsonWith(TW_WL_URL, { referer: "https://www.thaiwater.net/", origin: "https://www.thaiwater.net" }), date);
+      if (!r.stations.length) throw new Error("ไม่มีสถานีใน กทม./ปริมณฑล ที่รายงานวันนี้");
+      return { values: { flood_bank_max: r.maxPct!, flood_over_bank: r.overBank }, dates: {}, sample: `${r.stations.length} สถานี · สูงสุด ${r.top!.name} (${r.top!.province}) ${r.maxPct}% ของตลิ่ง ${r.top!.at}` };
+    },
+  },
+  {
+    // BMA road-flood sensors (weather.bangkok.go.th sits behind a bot challenge → Firecrawl Markdown).
+    source: "กทม. ระบายน้ำ (น้ำท่วมถนน)",
+    run: async (date) => {
+      const { BMA_FLOOD_URL, parseBmaFlood } = await import("./flood");
+      const { firecrawlMarkdown } = await import("./http.server");
+      const r = parseBmaFlood(await firecrawlMarkdown(BMA_FLOOD_URL), date);
+      if (!r.sensors) throw new Error("ไม่พบตารางจุดวัดน้ำท่วมถนนของวันนี้ (หน้าเว็บอาจเปลี่ยน)");
+      return { values: { bma_road_flood: r.flooded }, dates: {}, sample: `อ่านได้ ${r.sensors} จุด · น้ำท่วม ${r.flooded} จุด${r.names.length ? `: ${r.names.slice(0, 4).join(", ")}` : ""}` };
+    },
+  },
+  {
+    source: "ปภ. แจ้งเตือนสาธารณภัย",
+    run: async (date) => {
+      const { DDPM_ALERT_URL, parseDdpmAlerts } = await import("./flood");
+      const { firecrawlMarkdown } = await import("./http.server");
+      const r = parseDdpmAlerts(await firecrawlMarkdown(DDPM_ALERT_URL), date);
+      if (!r.listed) throw new Error("ไม่พบรายการแจ้งเตือนในหน้า (หน้าเว็บอาจเปลี่ยน)");
+      return { values: { ddpm_flood_warn: r.warnings }, dates: {}, sample: r.warnings ? `${r.warnings} ฉบับ${r.bkk ? " (มีกรุงเทพฯ)" : ""}: ${r.titles[0]}` : "วันนี้ยังไม่มีประกาศเฝ้าระวังน้ำท่วม" };
+    },
+  },
+  {
     source: "PTT (thai-oil-api)",
     run: async () => {
       const o: Values = {};

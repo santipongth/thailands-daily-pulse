@@ -17,7 +17,9 @@ function install() {
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const res = await orig(input as any, init);
     const sink = current;
-    const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    let url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    // Firecrawl proxy calls: record the page actually requested, not the API endpoint.
+    if (/api\.firecrawl\.dev/.test(url) && typeof init?.body === "string") { try { const t = JSON.parse(init.body).url; if (t) url = `${t} (ผ่าน Firecrawl)`; } catch { /* keep api url */ } }
     if (sink && !SKIP.test(url)) {
       try {
         const buf = new Uint8Array(await res.clone().arrayBuffer());
