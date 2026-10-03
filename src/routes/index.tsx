@@ -67,7 +67,7 @@ function Today() {
   const met = new Map(data.metrics.map((m) => [m.id, m]));
   const hist = (id: string) => data.obs.filter((o) => o.metric_id === id);
   const releases = data.signals.filter((s) => met.get(s.metric_id)?.kind === "release");
-  const moves = data.signals.filter((s) => s.is_demo === false);
+  const moves = data.signals.filter((s) => s.is_demo === false && s.severity !== "low"); // "เล็กน้อย" stays in history only
   useEffect(() => { // one-time cleanup of retired reader-threshold settings
     localStorage.removeItem("tds-sensitivity");
     Object.keys(localStorage).filter((k) => k.startsWith("cost-threshold:")).forEach((k) => localStorage.removeItem(k));
@@ -141,7 +141,7 @@ function Today() {
         <section className="mt-9 border-t border-editorial-ink pt-5">
           <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2 className="font-editorial text-3xl text-editorial-red">สัญญาณวันนี้ <span className="font-editorial-body text-sm font-normal text-muted-foreground">({moves.length})</span></h2>
-            <Link to="/data-all" className="text-sm underline">ดูตัวเลขทุกหมวด →</Link>
+            <span className="flex gap-4 text-sm"><Link to="/unchanged" className="underline">ข้อมูลที่ยังไม่เปลี่ยน →</Link><Link to="/data-all" className="underline">ดูตัวเลขทุกหมวด →</Link></span>
           </div>
           <p className="mb-5 text-sm text-muted-foreground">เฉพาะข้อมูลที่เปลี่ยนเกินเกณฑ์ตรวจสอบในวันที่เลือก · หมวดอื่นอาจไม่เปลี่ยน ยังไม่เกินเกณฑ์ หรือยังไม่มีค่าก่อนหน้าให้เทียบ</p>
           {moves.length === 0 && <p className="text-muted-foreground">ยังไม่มีการเปลี่ยนแปลงที่เกินเกณฑ์ ส่วนแหล่งที่ตรวจไม่ได้ต้องดูสถานะแยกต่างหาก</p>}
