@@ -26,16 +26,22 @@ export const SOURCES: SourceInfo[] = [
 
 export const isOfficial = (newsSource: string) => newsSource.includes("เว็บไซต์ทางการ");
 
-export type Agency = { key: string; label: string; sources: string[]; newsAgency?: string };
+export type Agency = { key: string; label: string; sources: string[]; newsAgency?: string; category: "government" | "other" };
 
 /** Agencies shown on /agencies, each grouping its sources (by source name). */
 export const AGENCIES: Agency[] = [
-  { key: "tmd", label: "กรมอุตุนิยมวิทยา", sources: ["กรมอุตุฯ เตือนภัย", "กรมอุตุฯ แผ่นดินไหว", "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล", "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)"], newsAgency: "กรมอุตุนิยมวิทยา" },
-  { key: "water", label: "สสน. / กรมชลประทาน", sources: ["ThaiWater (สสน.)", "RID อ่างเก็บน้ำ (กรมชลประทาน)"], newsAgency: "กรมชลประทาน / สทนช." },
-  { key: "gold", label: "สมาคมค้าทองคำ", sources: ["สมาคมค้าทองคำ"] },
-  { key: "rd", label: "กรมสรรพากร", sources: ["กรมสรรพากร (ปฏิทินภาษี)"] },
-  { key: "glo", label: "สำนักงานสลากกินแบ่งรัฐบาล", sources: ["สำนักงานสลากกินแบ่งรัฐบาล (GLO)"] },
-  { key: "energy", label: "ปตท. / บางจาก (ราคาน้ำมัน)", sources: ["PTT (thai-oil-api)", "บางจาก (Bangchak API)"] },
+  { key: "tmd", label: "กรมอุตุนิยมวิทยา", category: "government", sources: ["กรมอุตุฯ เตือนภัย", "กรมอุตุฯ แผ่นดินไหว", "กรมอุตุฯ พยากรณ์ กทม.และปริมณฑล", "กรมอุตุฯ ตรวจอากาศ 3 ชม. (กรุงเทพฯ)"], newsAgency: "กรมอุตุนิยมวิทยา" },
+  { key: "water", label: "สสน. / กรมชลประทาน", category: "government", sources: ["ThaiWater (สสน.)", "RID อ่างเก็บน้ำ (กรมชลประทาน)"], newsAgency: "กรมชลประทาน / สทนช." },
+  { key: "gistda", label: "GISTDA (PM2.5 กรุงเทพฯ)", category: "government", sources: ["GISTDA PM2.5 (กรุงเทพฯ)"] },
+  { key: "rd", label: "กรมสรรพากร", category: "government", sources: ["กรมสรรพากร (ปฏิทินภาษี)"] },
+  { key: "glo", label: "สำนักงานสลากกินแบ่งรัฐบาล", category: "government", sources: ["สำนักงานสลากกินแบ่งรัฐบาล (GLO)"] },
+  { key: "gold", label: "สมาคมค้าทองคำ", category: "other", sources: ["สมาคมค้าทองคำ"] },
+  { key: "energy", label: "ปตท. / บางจาก (ราคาน้ำมัน)", category: "other", sources: ["PTT (thai-oil-api)", "บางจาก (Bangchak API)"] },
+  { key: "checkraka", label: "CheckRaka (ราคาอาหาร)", category: "other", sources: ["CheckRaka (ราคาอาหาร)"] },
+  { key: "rakakaset", label: "RakaKaset (ราคาเกษตร)", category: "other", sources: ["RakaKaset (ราคาเกษตร)"] },
+  { key: "longdo", label: "Longdo Traffic Index", category: "other", sources: ["Longdo Traffic Index"] },
+  { key: "exchange", label: "ExchangeRate (อัตราแลกเปลี่ยน)", category: "other", sources: ["ExchangeRate (อัตราแลกเปลี่ยน)"] },
+  { key: "kapook", label: "Kapook ปฏิทินวันหยุด", category: "other", sources: ["Kapook ปฏิทินวันหยุด"] },
 ];
 
 export const agencyMetrics = (a: Agency) => SOURCES.filter((s) => a.sources.includes(s.source)).flatMap((s) => s.metrics);
