@@ -12,10 +12,10 @@ export const Route = createFileRoute("/_admin/settings")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "ตั้งค่าความไวของสัญญาณ — Thailand Daily Signals" },
+      { title: "ตั้งค่าแหล่งข้อมูล — Thailand Daily Signals" },
       { name: "description", content: "เลือกว่าอยากเห็นเฉพาะเรื่องใหญ่ หรือทุกการเปลี่ยนแปลงที่เกินเกณฑ์" },
-      { property: "og:title", content: "ตั้งค่าความไวของสัญญาณ — Thailand Daily Signals" },
-      { property: "og:description", content: "ควบคุมว่าอะไรควรขึ้นเป็นสัญญาณสำหรับคุณ" },
+      { property: "og:title", content: "ตั้งค่าแหล่งข้อมูล — Thailand Daily Signals" },
+      { property: "og:description", content: "ตั้งค่าแหล่งข้อมูลและการแจ้งเตือน" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

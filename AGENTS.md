@@ -18,7 +18,7 @@
 - Every observation keeps refers-to (`observed_on`/period), published, `received_at` and `effective_from`; connectors may return per-metric dates; unchanged re-fetches are not rewritten so `received_at` stays honest for replay.
 - `source_registry` holds owner/channel/licence/cadence/unit/area/`stale_after_days` (default and all current rows = 1 day); `completeness.ts` marks sources ok/stale/unverifiable — never treated as no change.
 - Signals are versioned by trigger `record_signal_version` into `signal_events`/`signal_versions` (event_id = metric:date; new version only on content change; delete = withdrawal); detection logic is `detect_core(date, cutoff)`, reused by `replay_signals` (data received by 05:45).
-- Readers have no accounts: personal preferences (sources, sensitivity, interval, update `times`, seen state) are per-device localStorage; `ScheduledRefresh`/`BriefAlert` in __root run in the browser.
+- Readers have no accounts: personal preferences (sources, interval, update `times`, seen state) are per-device localStorage; `ScheduledRefresh`/`BriefAlert` in __root run in the browser; signal thresholds are official only, never reader-set.
 - Public reads via browser client under anon SELECT RLS; writes server-side with admin client. `is_demo`/`is_live` label real vs illustrative data.
 - Brief data window = 00:00 → 05:45 Bangkok on the brief day (forced `?mode=early` runs 00:10/03:00/05:00 + 05:30 daily); on freeze/publish signals whose observation `received_at` is after it are excluded (become brief_updates); window stored in `daily_briefs.data_window` (first/last received, excluded with reason) and shown on brief, /events and /impact — honest cutoff.
 
