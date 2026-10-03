@@ -14,8 +14,8 @@ const HANDLERS: Record<string, (ctx: Ctx, source: string) => Promise<Result>> = 
     if (!c) throw new Error(`unknown connector ${source}`);
     const ran_at = new Date().toISOString();
     try {
-      const { values, dates } = normalizeOut(await c.run(date, { admin }));
-      return { values, dates, runs: [{ source, ok: true, rows: Object.keys(values).length, error: null, ran_at, kind: "api" }] };
+      const { values, dates, note } = normalizeOut(await c.run(date, { admin }));
+      return { values, dates, runs: [{ source, ok: true, rows: Object.keys(values).length, error: note ?? null, ran_at, kind: "api" }] };
     } catch (e) {
       return { values: {}, runs: [{ source, ok: false, rows: 0, error: String((e as Error).message).slice(0, 300), ran_at, kind: "api" }] };
     }
@@ -140,7 +140,9 @@ export async function drain(admin: any, date: string, budgetMs = 240e3, maxJobs 
     const retry = allFailed && job.attempts < job.max_attempts;
     // provider rate-limit (429): retry sooner (15 min) so a pre-05:45 run still has a chance
     const limited = runs.some((r) => r.error?.startsWith("429"));
-    const delay = limited ? 15 * 60e3 : job.attempts * 20 * 60e3;
+    // TMD mid-write file (empty/partial): the next complete file is usually ready within minutes
+    const midWrite = runs.some((r) => r.error?.includes("ใช้ค่ารอบก่อน"));
+    const delay = limited ? 15 * 60e3 : midWrite ? job.attempts * 5 * 60e3 : job.attempts * 20 * 60e3;
     await admin.from("ingest_jobs").update({
       status: retry ? "queued" : allFailed ? "failed" : "done",
       run_after: retry ? new Date(Date.now() + delay).toISOString() : job.run_after,

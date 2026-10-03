@@ -29,10 +29,14 @@ export function computeCompleteness(today: string, registry: RegistryRow[], runs
     if (!last_ok_at || !data_date) return { source: r.source, status: "unverifiable", data_date, last_ok_at, reason: "ยังไม่เคยดึงสำเร็จ" };
     const age = daysBetween(data_date, today);
     if (age > r.stale_after_days) return { source: r.source, status: failing ? "unverifiable" : "stale", data_date, last_ok_at, reason: `ข้อมูลล่าสุดอายุ ${age} วัน (เกณฑ์ ${r.stale_after_days} วัน)${failing ? " และรอบล่าสุดดึงไม่ได้" : ""}` };
+    const lastErr = rs.find((x) => x.error)?.error ?? "";
+    if (failing && lastErr.includes("ใช้ค่ารอบก่อน")) return { source: r.source, status: "stale", data_date, last_ok_at, reason: `ใช้ค่ารอบก่อน (${new Date(Date.parse(last_ok_at) + 7 * 3600e3).toISOString().slice(11, 16)} น.) — ${lastErr.split(" — ")[0]}` };
     if (failing) return { source: r.source, status: "unverifiable", data_date, last_ok_at, reason: `รอบล่าสุดดึงไม่ได้: ${(rs.find((x) => x.error)?.error ?? "").slice(0, 120)}` };
     const bad = rs.filter((x) => !x.ok).length;
     if (bad) return { source: r.source, status: "ok", data_date, last_ok_at, reason: `ดึงได้บางส่วน — ${bad} จาก ${rs.length} แหล่งย่อยดึงไม่ได้` };
     if (r.source === "FM91 Trafficpro (X)" && rs.some((x) => x.ok && x.error?.includes("ไม่มีโพสต์ใหม่"))) return { source: r.source, status: "ok", data_date, last_ok_at, reason: "ดึงได้ แต่ไม่มีโพสต์ใหม่ที่ผ่านการคัดกรอง" };
+    const fallback = rs.find((x) => x.ok && x.error?.startsWith("สถานีสำรอง"))?.error;
+    if (fallback) return { source: r.source, status: "ok", data_date, last_ok_at, reason: fallback };
     return { source: r.source, status: "ok", data_date, last_ok_at, reason: age === 0 ? "ข้อมูลของวันนี้" : `ข้อมูลวันที่ ${data_date} (ยังอยู่ในรอบอัปเดต)` };
   });
 }
