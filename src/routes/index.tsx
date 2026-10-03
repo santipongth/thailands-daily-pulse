@@ -153,26 +153,6 @@ function Today() {
               ))}
             </div>
           )}
-          {minor.length > 0 && <>
-            <h3 className="mt-10 font-editorial text-xl">สัญญาณระดับเล็กน้อย <span className="text-sm font-normal text-muted-foreground">({minor.length}) — ต่ำกว่าระดับที่คุณเลือก</span></h3>
-            <div className="mt-3 grid gap-x-8 gap-y-8 opacity-80 sm:grid-cols-2 lg:grid-cols-4">
-              {minor.map((s) => <SignalCard key={s.id} s={s} family={fam.get(s.family_id)!} metric={met.get(s.metric_id)!} history={hist(s.metric_id)} news={data.news} />)}
-            </div>
-          </>}
-          {nearMisses.length > 0 && <>
-            <h3 className="mt-10 font-editorial text-xl">ใกล้เกณฑ์ <span className="text-sm font-normal text-muted-foreground">— ยังไม่ใช่สัญญาณ ไม่นับในฉบับเช้า</span></h3>
-            <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {nearMisses.map(({ m, d, pc, ratio, h, last }) => (
-                <Link key={m.id} to="/signals/$family" params={{ family: m.family_id }} className="block border border-dashed border-editorial-rule p-3 text-sm hover:bg-card">
-                  <div className="flex justify-between text-xs text-muted-foreground"><span>{fam.get(m.family_id)?.emoji} {fam.get(m.family_id)?.name_th}</span><span>ยังไม่ใช่สัญญาณ</span></div>
-                  <div className="mt-1 font-medium">{m.name_th}</div>
-                  <div className="mt-2 flex items-end justify-between"><div><div className="font-display text-xl tabular-nums">{d > 0 ? "▲" : "▼"} {fmt(Math.abs(d), m.decimals)} <span className="text-xs">{m.unit}</span></div>
-                    <div className="text-xs text-muted-foreground">{pc != null ? `${pc > 0 ? "+" : ""}${pc.toFixed(1)}% · ` : ""}{Math.round(ratio * 100)}% ของเกณฑ์ ({m.threshold_pct != null ? `${m.threshold_pct}%` : fmt(m.threshold_abs!, m.decimals)}) · {last.observed_on}</div></div>
-                    <Sparkline values={h.map((o) => Number(o.value))} /></div>
-                </Link>
-              ))}
-            </div>
-          </>}
         </section>
 
         {date === today && (
