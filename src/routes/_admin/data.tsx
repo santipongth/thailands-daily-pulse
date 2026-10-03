@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { evidenceUrl } from "@/lib/signals.functions";
 import { fmt, thaiDate, type Family, type Metric, type News } from "@/lib/signals";
 
-type Row = { metric_id: string; observed_on: string; value: number; is_demo: boolean; created_at: string };
+type Row = { metric_id: string; observed_on: string; value: number; is_demo: boolean; created_at: string; received_at: string };
 
 const rawQuery = queryOptions({
   queryKey: ["raw-data"],
@@ -14,7 +14,7 @@ const rawQuery = queryOptions({
     const [f, m, o, n, r] = await Promise.all([
       supabase.from("families").select("*").order("sort"),
       supabase.from("metrics").select("*").order("sort"),
-      supabase.from("observations").select("metric_id,observed_on,value,is_demo,created_at").order("observed_on", { ascending: false }).limit(1000),
+      supabase.from("observations").select("metric_id,observed_on,value,is_demo,created_at,received_at").order("observed_on", { ascending: false }).limit(1000),
       supabase.from("news_items").select("*").order("published_at", { ascending: false }).limit(60),
       supabase.from("source_runs").select("*").order("source"),
     ]);
