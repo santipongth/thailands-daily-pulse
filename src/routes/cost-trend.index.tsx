@@ -49,6 +49,7 @@ function CostTrend() {
       <Masthead />
       <main className="mx-auto max-w-5xl px-4 py-8">
         <h1 className="font-editorial text-4xl text-editorial-ink">แนวโน้มค่าครองชีพครัวเรือน</h1>
+        <p className="mt-1 text-sm"><Link to="/cost-signals/$item" params={{ item: "dit_pork" }} className="underline">วิเคราะห์สัญญาณรายสินค้า (ตั้งเกณฑ์เอง) →</Link> · <Link to="/cost-trend/$item" params={{ item: "elec_unit" }} className="underline">ค่าไฟฟ้า →</Link></p>
         <p className="mt-2 text-sm text-muted-foreground">ตะกร้าครัวเรือนเดียวกับฉบับเช้า × ราคาจริงแต่ละวัน — ไม่มีการเดาค่า</p>
         <div className="mt-4 flex gap-2">
           {([7, 30] as const).map((n) => (
