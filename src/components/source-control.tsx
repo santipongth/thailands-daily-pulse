@@ -32,7 +32,7 @@ export function SourceControl() {
   );
 }
 
-function Row({ source, config, run }: { source: string; config: Cfg | null; run: { ok: boolean; ran_at: string; rows: number; error: string | null; sample: string | null } | null }) {
+function Row({ source, config, run }: { source: string; config: Partial<Cfg> | null; run: { ok: boolean; ran_at: string; rows: number; error: string | null; sample: string | null } | null }) {
   const qc = useQueryClient();
   const save = useServerFn(saveSourceConfig);
   const runNow = useServerFn(runSourceNow);
