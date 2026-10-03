@@ -41,7 +41,7 @@ async function generate(p: string, key: string): Promise<Uint8Array> {
   throw new Error("unreachable");
 }
 
-export async function ensureBriefImages(admin: any, date: string): Promise<{ made: number; error?: string }> {
+export async function ensureBriefImages(admin: any, date: string): Promise<{ made: number; error?: string | undefined }> {
   const key = process.env["LOVABLE_API_KEY"];
   if (!key) return { made: 0, error: "no LOVABLE_API_KEY" };
   const { data: paused } = await admin.from("app_settings").select("value").eq("key", "brief_images_paused").maybeSingle();
