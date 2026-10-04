@@ -1,0 +1,12 @@
+# Same schedule as database/cron.sql (UTC). Used by the `scheduler` service when pg_cron is not used.
+5 * * * *      /post.sh /api/public/ingest
+20 * * * *     /post.sh "/api/public/ingest?mode=dams"
+*/30 * * * *   /post.sh "/api/public/ingest?mode=social"
+10 17 * * *    /post.sh "/api/public/ingest?mode=early"
+0 20 * * *     /post.sh "/api/public/ingest?mode=early"
+0 22 * * *     /post.sh "/api/public/ingest?mode=early"
+30 22 * * *    /post.sh "/api/public/ingest?mode=daily"
+45 22 * * *    /post.sh "/api/public/brief?step=freeze"
+55,58 22 * * * /post.sh "/api/public/brief?step=publish"
+30 20 * * *    /sql.sh "select public.prune_old_data()"
+35 20 * * *    /sql.sh "select public.refresh_metric_lag()"

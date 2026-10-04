@@ -34,11 +34,9 @@ To use your own domain: Workers → your worker → Settings → Domains & Route
 
 ### Option B — Docker (any VPS or home server)
 ```sh
-cp .env.example .env    # fill in every value
-docker compose up -d --build
-# → http://your-server:8787   (put Caddy or Nginx in front for HTTPS)
+./install.sh            # asks 4 values, installs tables, starts app + scheduler, runs first fetch
 ```
-The container runs the same Workers runtime (workerd) locally, so no Cloudflare account is needed.
+Includes its own scheduler, so skip step 3 below. Full guide: [docs/docker.md](docker.md).
 
 ### Option C — Without Docker
 ```sh

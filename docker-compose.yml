@@ -1,7 +1,9 @@
-# App container. For the database use Supabase Cloud, or run self-hosted Supabase
-# (https://supabase.com/docs/guides/self-hosting/docker) and point the URLs below at it.
-#   cp .env.example .env   # fill in values
-#   docker compose up -d --build
+# Self-host with Docker. Fastest path:  ./install.sh   (asks a few questions, does everything)
+# Manual:
+#   cp .env.example .env                      # fill in values
+#   docker compose --profile init run --rm db-init   # once: tables + setup data
+#   docker compose up -d --build              # app + scheduler
+# Database: Supabase Cloud or self-hosted Supabase (https://supabase.com/docs/guides/self-hosting/docker).
 services:
   app:
     build:
@@ -12,7 +14,39 @@ services:
         VITE_SUPABASE_PROJECT_ID: ${VITE_SUPABASE_PROJECT_ID}
         VITE_SITE_URL: ${VITE_SITE_URL}
         VITE_ADMIN_EMAIL: ${VITE_ADMIN_EMAIL}
-    ports: ["8787:8787"]
+    ports: ["${APP_PORT:-8787}:8787"]
     volumes:
       - ./.env:/app/.dev.vars:ro   # server secrets (SUPABASE_SERVICE_ROLE_KEY, LOVABLE_CRON_SECRET, …)
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8787/api/public/health').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Timed jobs (fetch rounds, 05:45 freeze, 05:55 publish, retention). Replaces pg_cron, so it also
+  # works when the app is not reachable from the internet. Do not install database/cron.sql as well.
+  scheduler:
+    image: postgres:16-alpine
+    entrypoint: ["/bin/sh", "/scheduler.sh"]
+    environment:
+      LOVABLE_CRON_SECRET: ${LOVABLE_CRON_SECRET}
+      DATABASE_URL: ${DATABASE_URL:-}
+      TZ: UTC
+    volumes:
+      - ./docker/scheduler.sh:/scheduler.sh:ro
+      - ./docker/crontab:/crontab:ro
+    depends_on: [app]
+    restart: unless-stopped
+
+  # One-off: install tables + setup data into DATABASE_URL (safe to re-run).
+  db-init:
+    image: postgres:16-alpine
+    profiles: ["init"]
+    working_dir: /work
+    entrypoint: ["sh", "-c", "apk add --no-cache bash >/dev/null && ./scripts/setup-db.sh --no-cron"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - ./:/work:ro

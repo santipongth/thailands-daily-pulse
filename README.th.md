@@ -59,6 +59,8 @@ bun install && bun run setup && bun run doctor && bun run dev
 ```
 `bun run setup` จะถามที่อยู่และคีย์ฐานข้อมูล สร้างไฟล์ `.env` สุ่มรหัสตัวตั้งเวลาให้ และติดตั้งตารางให้ได้ `bun run doctor` บอกว่ายังขาดอะไร หรือเปิดโปรเจกต์ใน Dev Container / Codespaces ซึ่งติดตั้งเครื่องมือให้ครบอัตโนมัติ
 
+**Docker คำสั่งเดียว:** `./install.sh` ตั้งค่า `.env` สร้างตาราง เปิดเว็บพร้อมตัวตั้งเวลาดึงข้อมูล และดึงข้อมูลรอบแรกให้ทันที ดู [docs/docker.md](docs/docker.md)
+
 ## พัฒนาต่อด้วย Claude Code หรือ Codex
 โปรเจกต์พร้อมใช้กับผู้ช่วยเขียนโค้ด AI: `CLAUDE.md` (Claude Code) และ `AGENTS.md` (Codex) เก็บกฎของโปรเจกต์, `.claude/commands/` มีคำสั่ง `/add-source`, `/add-signal`, `/check`, `/db-export` และ `docs/agent-tasks/` มีคู่มือเดียวกันสำหรับ Codex เปิดโฟลเดอร์แล้วสั่งได้เลย เช่น *"เพิ่มแหล่งข้อมูลอัตราดอกเบี้ยนโยบาย ธปท. ตาม docs/agent-tasks/add-source.md"* รายละเอียด: [docs/development.md](docs/development.md)
 
