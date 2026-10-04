@@ -74,7 +74,8 @@ cat <<EOF
 ✓ Running at http://localhost:$PORT   (scheduler is fetching on the built-in timetable)
 Next:
   1. Supabase → Authentication → Add user ($ADMIN_EMAIL, strong password), then:
-       psql "\$DATABASE_URL" -v email="'$ADMIN_EMAIL'" -f database/create-admin.sql
+       docker compose run --rm --entrypoint psql scheduler "\$DATABASE_URL" -c \\
+         "insert into public.user_roles(user_id,role) select id,'admin' from auth.users where email='$ADMIN_EMAIL' on conflict do nothing"
   2. Sign in at http://localhost:$PORT/admin/login  (username: admin)
   3. Logs: docker compose logs -f app scheduler    Stop: docker compose down
 EOF
