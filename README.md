@@ -66,7 +66,7 @@ bun install && bun run setup && bun run doctor && bun run dev
 **Docker, one command:** `./install.sh` sets up `.env`, the database, the app and its scheduler, then runs the first fetch. See [docs/docker.md](docs/docker.md).
 
 ## Develop with Claude Code or Codex
-The repo is ready for AI coding agents: `CLAUDE.md` (Claude Code) and `AGENTS.md` (Codex) hold the project rules, `.claude/commands/` gives `/add-source`, `/add-signal`, `/check`, `/db-export`, and `docs/agent-tasks/` has the same guides for Codex. Just open the folder and ask, e.g. *"Add a connector for the BOT policy rate following docs/agent-tasks/add-source.md"*. Full guide: [docs/development.md](docs/development.md).
+The repo is ready for AI coding agents: `CLAUDE.md` (Claude Code) and `AGENTS.md` (Codex) hold the project rules, `.claude/commands/` gives `/add-source`, `/add-signal`, `/check`, `/db-export`, and `docs/agent-tasks/` has the same guides for Codex. Just open the folder and ask, e.g. *"Add a connector for the BOT policy rate following docs/agent-tasks/add-source.md"*. Full guide: [docs/development.md](docs/development.md). Developing with Claude Code + VS Code, step by step (Thai + English): [docs/claude-code-vscode.md](docs/claude-code-vscode.md).
 
 ## Quick start (local, about 10 minutes)
 **You need:** [Bun](https://bun.sh) 1.1+ (or Node 20+), `psql` 15+, Git, and a free Supabase project (cloud or [self-hosted](https://supabase.com/docs/guides/self-hosting/docker)).
